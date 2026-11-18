@@ -143,7 +143,10 @@ pub mod arrays {
     }
 }
 
+pub mod rounding;
+
 pub mod numbers {
+    pub use crate::rounding::{round_to, RoundError};
     #[derive(Clone, Copy, Debug, PartialEq, Eq)]
     pub enum RangeError {
         MinExceedsMax,
