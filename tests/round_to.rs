@@ -38,10 +38,7 @@ fn invalid_precision_is_rejected_before_numeric_computation() {
             Err(RoundError::NonIntegerPrecision)
         );
     }
-    assert_eq!(
-        round_to(1.0, 309.0),
-        Err(RoundError::UnsupportedPrecision)
-    );
+    assert_eq!(round_to(1.0, 309.0), Err(RoundError::UnsupportedPrecision));
 }
 
 #[test]
