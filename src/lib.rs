@@ -1,6 +1,8 @@
 //! Portable GutTS utility contracts. See PARITY.md for gaps and pinned source.
 #![forbid(unsafe_code)]
 
+pub mod path_safety;
+
 pub mod arrays {
     #[derive(Clone, Debug, PartialEq)]
     pub enum OneOrMany<T> {
