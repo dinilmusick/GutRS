@@ -42,11 +42,7 @@ pub enum WordCountError {
 
 /// Preserve GutTS's original string when it already fits, including whitespace.
 /// max_words uses f64 to preserve JS comparisons and Array.slice truncation behavior.
-pub fn truncate_words(
-    value: &str,
-    max_words: f64,
-    suffix: &str,
-) -> Result<String, WordCountError> {
+pub fn truncate_words(value: &str, max_words: f64, suffix: &str) -> Result<String, WordCountError> {
     if max_words < 0.0 {
         return Err(WordCountError::Negative);
     }
