@@ -205,6 +205,7 @@ pub mod urls {
 }
 
 pub mod strings;
+pub mod truncate;
 
 pub mod trusted_api;
 
