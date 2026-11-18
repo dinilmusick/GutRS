@@ -207,3 +207,6 @@ pub mod urls {
 pub mod strings;
 
 pub mod trusted_api;
+
+/// WHATWG-compatible URL query operations (portable GutTS subset).
+pub mod url_operations;
