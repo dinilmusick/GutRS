@@ -198,3 +198,5 @@ pub mod urls {
         segments.join("/")
     }
 }
+
+pub mod strings;
