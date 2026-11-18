@@ -66,3 +66,36 @@ pub fn round_to(value: f64, decimals: f64) -> Result<f64, RoundError> {
     }
     shift_exponent(rounded, -precision).ok_or(RoundError::UnsupportedPrecision)
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rounds_decimal_ties_with_javascript_semantics() {
+        assert_eq!(round_to(1.005, 2.0), Ok(1.01));
+        assert_eq!(round_to(1.2345, 2.0), Ok(1.23));
+        assert_eq!(round_to(-1.5, 0.0), Ok(-1.0));
+        assert_eq!(round_to(-2.5, 0.0), Ok(-2.0));
+        assert_eq!(round_to(2.5, 0.0), Ok(3.0));
+    }
+
+    #[test]
+    fn preserves_negative_zero_and_nonfinite_values() {
+        let zero = round_to(-0.0001, 2.0).unwrap();
+        assert_eq!(zero, 0.0);
+        assert!(zero.is_sign_negative());
+        assert!(round_to(-0.0, 2.0).unwrap().is_sign_negative());
+        assert!(round_to(f64::NAN, 2.0).unwrap().is_nan());
+        assert_eq!(round_to(f64::INFINITY, 2.0), Ok(f64::INFINITY));
+    }
+
+    #[test]
+    fn rejects_invalid_precision_without_silent_coercion() {
+        assert_eq!(round_to(1.0, -1.0), Err(RoundError::NegativePrecision));
+        assert_eq!(round_to(1.0, 1.5), Err(RoundError::NonIntegerPrecision));
+        assert_eq!(round_to(1.0, f64::NAN), Err(RoundError::NonIntegerPrecision));
+        assert_eq!(round_to(1.0, 309.0), Err(RoundError::UnsupportedPrecision));
+    }
+}
