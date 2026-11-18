@@ -14,10 +14,12 @@ Implemented and regression-tested in this PR:
 - numbers.sum: sequential IEEE-754 accumulation.
 - urls.joinUrl: exact slash trimming and empty-segment filtering.
 
+Also implemented with regression coverage: strings.isBlank, strings.isNonBlank, strings.startsWithAny, strings.endsWithAny, strings.truncateWords, including ECMAScript whitespace and non-integer/NaN word counts. Full upstream differential execution is still pending.
+
 Known uncopied or unverified GutTS public contracts:
 - numbers.roundTo (lodash exponent-aware precision).
 - urls.isUrl, getQueryParam and setQueryParam (WHATWG URL behavior).
-- Full strings, objects, JSON, API definitions, auth, semantic-input, storage, model,
+- Remaining strings (isEmail, case transforms, truncate), objects, JSON, API definitions, auth, semantic-input, storage, model,
   server, worker and engineering contracts.
 - Arrays.unique on reference-identity object values; Rust identity semantics must be explicit.
 - Dynamic JavaScript coercion/error mapping across typed Rust API boundaries.
