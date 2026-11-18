@@ -1,0 +1,10 @@
+[package]
+name = "gutrs"
+version = "0.1.0"
+edition = "2021"
+description = "Portable Rust equivalents of verified GutTS utility contracts"
+license = "MIT"
+repository = "https://github.com/dinilmusick/GutRS"
+
+[lib]
+path = "src/lib.rs"
