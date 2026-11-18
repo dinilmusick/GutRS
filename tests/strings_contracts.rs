@@ -1,6 +1,6 @@
 use gutrs::strings::{
-    ends_with_any, is_blank, is_non_blank, starts_with_any, truncate_words,
-    truncate_words_default, WordCountError,
+    ends_with_any, is_blank, is_non_blank, starts_with_any, truncate_words, truncate_words_default,
+    WordCountError,
 };
 
 #[test]
@@ -41,10 +41,7 @@ fn word_truncation_follows_original_gutts_behavior() {
         truncate_words("a\u{00A0}b  c", 2.0, "!"),
         Ok("a b!".to_owned())
     );
-    assert_eq!(
-        truncate_words_default("a b c", 2.9),
-        Ok("a b…".to_owned())
-    );
+    assert_eq!(truncate_words_default("a b c", 2.9), Ok("a b…".to_owned()));
     assert_eq!(truncate_words_default("", 0.0), Ok("".to_owned()));
     assert_eq!(truncate_words_default("   ", 0.0), Ok("…".to_owned()));
     assert_eq!(truncate_words_default("a b", f64::NAN), Ok("…".to_owned()));
