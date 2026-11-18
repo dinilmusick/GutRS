@@ -12,12 +12,12 @@ Implemented and regression-tested in this PR:
 - numbers.inRange: inclusive lower and exclusive upper bound.
 - numbers.isFiniteNumber: finite f64 values.
 - numbers.sum: sequential IEEE-754 accumulation.
+- numbers.roundTo: exponent-shifted decimal rounding, JavaScript negative half ties, NaN/Infinity and invalid-precision rejection (verified fixture slice; deliberately rejects precision >308 rather than claiming full edge-case parity).
 - urls.joinUrl: exact slash trimming and empty-segment filtering.
 
 Also implemented with regression coverage: strings.isBlank, strings.isNonBlank, strings.startsWithAny, strings.endsWithAny, strings.truncateWords, including ECMAScript whitespace and non-integer/NaN word counts. Full upstream differential execution is still pending.
 
 Known uncopied or unverified GutTS public contracts:
-- numbers.roundTo (lodash exponent-aware precision).
 - urls.isUrl, getQueryParam and setQueryParam (WHATWG URL behavior).
 - Remaining strings (isEmail, case transforms, truncate), objects, JSON, API definitions, auth, semantic-input, storage, model,
   server, worker and engineering contracts.
