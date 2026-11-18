@@ -1,6 +1,6 @@
 # GutTS to GutRS contract coverage
 
-Pinned authoritative upstream: GutTS commit d14ba93ef203135ad7ac536c8ad1ec1251b5c0b5, npm package version 2.2.2.
+Previously pinned baseline: GutTS commit d14ba93ef203135ad7ac536c8ad1ec1251b5c0b5, npm package version 2.2.2. Latest inspected main: d5706af3484d496d665a9c73b4bc9dcac7a64560 (cross-app identity contracts; not yet ported).
 
 Implemented and regression-tested in this PR:
 - arrays.chunk: integer sizing, invalid-size rejection, ordering and empty arrays.
@@ -18,7 +18,7 @@ Implemented and regression-tested in this PR:
 Also implemented with regression coverage: strings.isBlank, strings.isNonBlank, strings.startsWithAny, strings.endsWithAny, strings.truncateWords, including ECMAScript whitespace and non-integer/NaN word counts. Full upstream differential execution is still pending.
 
 Known uncopied or unverified GutTS public contracts:
-- urls.isUrl, getQueryParam and setQueryParam (WHATWG URL behavior).
+- urls.isUrl, getQueryParam and setQueryParam now implemented in url_operations.rs with regression fixtures; exact-head Cargo and differential WHATWG verification remain pending.
 - Remaining strings (isEmail, case transforms, truncate), objects, JSON, API definitions, auth, semantic-input, storage, model,
   server, worker and engineering contracts.
 - Arrays.unique on reference-identity object values; Rust identity semantics must be explicit.
