@@ -205,3 +205,5 @@ pub mod urls {
 }
 
 pub mod strings;
+
+pub mod trusted_api;
