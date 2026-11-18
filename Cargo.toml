@@ -8,3 +8,6 @@ repository = "https://github.com/dinilmusick/GutRS"
 
 [lib]
 path = "src/lib.rs"
+
+[dependencies]
+url = "2.5"
