@@ -1,12 +1,21 @@
 name: GutRS Rust Contract CI
 on:
   push:
-    branches: [main]
+    branches: [main, feat/gutts-core-utility-parity-20261118]
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   portable-contracts:
-    runs-on: ubuntu-latest
+    name: Portable contracts (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
