@@ -23,7 +23,10 @@ pub mod arrays {
         if size >= values.len() as f64 {
             return Ok(vec![values.to_vec()]);
         }
-        Ok(values.chunks(size as usize).map(|part| part.to_vec()).collect())
+        Ok(values
+            .chunks(size as usize)
+            .map(|part| part.to_vec())
+            .collect())
     }
 
     pub fn flatten<T: Clone>(values: &[OneOrMany<T>]) -> Vec<T> {
@@ -71,17 +74,13 @@ pub mod arrays {
     }
 
     scalar_same_value_zero!(
-        bool, char, String, &str, i8, i16, i32, i64, i128, isize,
-        u8, u16, u32, u64, u128, usize
+        bool, char, String, &str, i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize
     );
 
     pub fn unique<T: Clone + SameValueZero>(values: &[T]) -> Vec<T> {
         let mut seen: Vec<T> = Vec::new();
         for value in values {
-            if !seen
-                .iter()
-                .any(|existing| existing.same_value_zero(value))
-            {
+            if !seen.iter().any(|existing| existing.same_value_zero(value)) {
                 seen.push(value.clone());
             }
         }
@@ -122,9 +121,7 @@ pub mod arrays {
         };
     }
 
-    number_truthy!(
-        i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize
-    );
+    number_truthy!(i8, i16, i32, i64, i128, isize, u8, u16, u32, u64, u128, usize);
 
     impl Truthy for String {
         fn is_truthy(&self) -> bool {
