@@ -1,0 +1,20 @@
+name: GutRS Rust Contract CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  portable-contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Formatting
+        run: cargo fmt --all -- --check
+      - name: Contract tests
+        run: cargo test --all-targets
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
