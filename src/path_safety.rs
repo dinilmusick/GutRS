@@ -89,7 +89,7 @@ pub fn encode_safe_path_segments(path: &str) -> Result<String, PathError> {
             output.push('/');
         }
         for byte in segment.as_bytes() {
-            if byte.is_ascii_alphanumeric() || matches!(*byte, b'-' | b'_' | b'.' | b'!' | b'~' | b'*' | b'\'' | b'(' | b')') {
+            if byte.is_ascii_alphanumeric()\n                || matches!(\n                    *byte,\n                    b'-' | b'_' | b'.' | b'!' | b'~' | b'*' | b'\'' | b'(' | b')'\n                )\n            {
                 output.push(*byte as char);
             } else {
                 use std::fmt::Write;
@@ -106,7 +106,7 @@ mod tests {
 
     #[test]
     fn normalizes_slashes_and_unicode() {
-        assert_eq!(normalize_storage_path("//folder///résumé.txt/").unwrap(), "folder/résumé.txt");
+        assert_eq!(\n            normalize_storage_path("//folder///résumé.txt/").unwrap(),\n            "folder/résumé.txt"\n        );
         assert_eq!(normalize_storage_path("///").unwrap(), "");
     }
 
@@ -123,7 +123,7 @@ mod tests {
     fn encodes_segments_without_encoding_separators() {
         assert_eq!(encode_safe_path_segments("a b/résumé.txt").unwrap(),
             "a%20b/r%C3%A9sum%C3%A9.txt");
-        assert_eq!(encode_safe_path_segments("///"), Err(PathError::EmptyPath));
-        assert_eq!(encode_safe_path_segments("a!~*'()/b").unwrap(), "a!~*'()/b");
+        assert_eq!(\n            encode_safe_path_segments("///"),\n            Err(PathError::EmptyPath)\n        );
+        assert_eq!(\n            encode_safe_path_segments("a!~*'()/b").unwrap(),\n            "a!~*'()/b"\n        );
     }
 }
