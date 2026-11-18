@@ -73,3 +73,29 @@ pub fn truncate_words(value: &str, max_words: f64, suffix: &str) -> Result<Strin
 pub fn truncate_words_default(value: &str, max_words: f64) -> Result<String, WordCountError> {
     truncate_words(value, max_words, "…")
 }
+
+
+/// Capitalize the first Unicode scalar and lowercase the remainder.
+/// Mirrors the common portable subset of GutTS lodash capitalize; lodash's
+/// Unicode word/symbol segmentation remains a differential-testing gap.
+pub fn capitalize(value: &str) -> String {
+    let mut chars = value.chars();
+    let Some(first) = chars.next() else { return String::new(); };
+    let mut output = first.to_uppercase().collect::<String>();
+    output.extend(chars.flat_map(char::to_lowercase));
+    output
+}
+
+#[cfg(test)]
+mod capitalize_tests {
+    use super::capitalize;
+
+    #[test]
+    fn handles_ascii_and_unicode_without_byte_slicing() {
+        assert_eq!(capitalize("hELLO WORLD"), "Hello world");
+        assert_eq!(capitalize(""), "");
+        assert_eq!(capitalize("éCOLE"), "École");
+        assert_eq!(capitalize("猫ABC"), "猫abc");
+        assert_eq!(capitalize("a"), "A");
+    }
+}
