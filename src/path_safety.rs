@@ -49,11 +49,7 @@ fn validate_segment(segment: &str) -> Result<(), PathError> {
     let mut value = segment.as_bytes().to_vec();
     for _ in 0..8 {
         value = decode_once(&value)?;
-        if invalid_char(&value)
-            || value.contains(&b'/')
-            || value == b"."
-            || value == b".."
-        {
+        if invalid_char(&value) || value.contains(&b'/') || value == b"." || value == b".." {
             return Err(PathError::UnsafeSegment);
         }
         if !value.contains(&b'%') {
@@ -143,13 +139,7 @@ mod tests {
             encode_safe_path_segments("a b/résumé.txt").unwrap(),
             "a%20b/r%C3%A9sum%C3%A9.txt"
         );
-        assert_eq!(
-            encode_safe_path_segments("///"),
-            Err(PathError::EmptyPath)
-        );
-        assert_eq!(
-            encode_safe_path_segments("a!~*'()/b").unwrap(),
-            "a!~*'()/b"
-        );
+        assert_eq!(encode_safe_path_segments("///"), Err(PathError::EmptyPath));
+        assert_eq!(encode_safe_path_segments("a!~*'()/b").unwrap(), "a!~*'()/b");
     }
 }
