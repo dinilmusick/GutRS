@@ -17,19 +17,32 @@ fn validate_segment(segment: &str) -> Result<(), TrustedUrlError> {
         let mut i = 0;
         while i < bytes.len() {
             if bytes[i] == b'%' {
-                if i + 2 >= bytes.len() { return Err(TrustedUrlError::UnsafeSegment); }
+                if i + 2 >= bytes.len() {
+                    return Err(TrustedUrlError::UnsafeSegment);
+                }
                 let digit = |b: u8| (b as char).to_digit(16).map(|n| n as u8);
-                let hi = digit(bytes[i+1]).ok_or(TrustedUrlError::UnsafeSegment)?;
-                let lo = digit(bytes[i+2]).ok_or(TrustedUrlError::UnsafeSegment)?;
+                let hi = digit(bytes[i + 1]).ok_or(TrustedUrlError::UnsafeSegment)?;
+                let lo = digit(bytes[i + 2]).ok_or(TrustedUrlError::UnsafeSegment)?;
                 decoded.push(hi * 16 + lo);
                 i += 3;
-            } else { decoded.push(bytes[i]); i += 1; }
+            } else {
+                decoded.push(bytes[i]);
+                i += 1;
+            }
         }
         current = String::from_utf8(decoded).map_err(|_| TrustedUrlError::UnsafeSegment)?;
         if current.split('/').any(|p| p == "." || p == "..")
-            || current.bytes().any(|b| b == b'\\' || b == b'?' || b == b'#' || b < 32 || b == 127)
-        { return Err(TrustedUrlError::UnsafeSegment); }
-        if !current.as_bytes().windows(3).any(|w| w[0] == b'%' && w[1].is_ascii_hexdigit() && w[2].is_ascii_hexdigit()) {
+            || current
+                .bytes()
+                .any(|b| b == b'\\' || b == b'?' || b == b'#' || b < 32 || b == 127)
+        {
+            return Err(TrustedUrlError::UnsafeSegment);
+        }
+        if !current
+            .as_bytes()
+            .windows(3)
+            .any(|w| w[0] == b'%' && w[1].is_ascii_hexdigit() && w[2].is_ascii_hexdigit())
+        {
             return Ok(());
         }
     }
@@ -40,21 +53,47 @@ fn validate_segment(segment: &str) -> Result<(), TrustedUrlError> {
 /// Encoded slashes are supported for provider identifiers, but encoded traversal is not.
 pub fn resolve_trusted_api_url(origin: &str, path: &str) -> Result<Url, TrustedUrlError> {
     let base = Url::parse(origin).map_err(|_| TrustedUrlError::InvalidOrigin)?;
-    if base.scheme() != "https" || base.host_str().is_none()
-        || !base.username().is_empty() || base.password().is_some()
-        || base.path() != "/" || base.query().is_some() || base.fragment().is_some()
-        || origin.ends_with('?') || origin.ends_with('#')
-    { return Err(TrustedUrlError::InvalidOrigin); }
-    if !path.starts_with('/') || path.starts_with("//") || path.contains('#')
-        || path.split('?').next().unwrap_or("").bytes().any(|b| b == b'\\' || b < 32 || b == 127)
-    { return Err(TrustedUrlError::InvalidPath); }
-    for part in path.split('?').next().unwrap_or("").split('/').filter(|p| !p.is_empty()) {
+    if base.scheme() != "https"
+        || base.host_str().is_none()
+        || !base.username().is_empty()
+        || base.password().is_some()
+        || base.path() != "/"
+        || base.query().is_some()
+        || base.fragment().is_some()
+        || origin.ends_with('?')
+        || origin.ends_with('#')
+    {
+        return Err(TrustedUrlError::InvalidOrigin);
+    }
+    if !path.starts_with('/')
+        || path.starts_with("//")
+        || path.contains('#')
+        || path
+            .split('?')
+            .next()
+            .unwrap_or("")
+            .bytes()
+            .any(|b| b == b'\\' || b < 32 || b == 127)
+    {
+        return Err(TrustedUrlError::InvalidPath);
+    }
+    for part in path
+        .split('?')
+        .next()
+        .unwrap_or("")
+        .split('/')
+        .filter(|p| !p.is_empty())
+    {
         validate_segment(part)?;
     }
     let target = base.join(path).map_err(|_| TrustedUrlError::InvalidPath)?;
-    if target.origin() != base.origin() || !target.username().is_empty()
-        || target.password().is_some() || target.fragment().is_some()
-    { return Err(TrustedUrlError::InvalidPath); }
+    if target.origin() != base.origin()
+        || !target.username().is_empty()
+        || target.password().is_some()
+        || target.fragment().is_some()
+    {
+        return Err(TrustedUrlError::InvalidPath);
+    }
     Ok(target)
 }
 
@@ -63,17 +102,36 @@ mod tests {
     use super::*;
     #[test]
     fn permits_encoded_project_identifier() {
-        let result = resolve_trusted_api_url("https://gitlab.example", "/api/projects/group%2Frepo?x=1").unwrap();
+        let result =
+            resolve_trusted_api_url("https://gitlab.example", "/api/projects/group%2Frepo?x=1")
+                .unwrap();
         assert_eq!(result.host_str(), Some("gitlab.example"));
         assert!(result.as_str().contains("group%2Frepo"));
     }
     #[test]
     fn rejects_untrusted_origins_and_paths() {
-        for origin in ["http://example.com", "https://user@example.com", "https://example.com/base", "https://example.com?x=1"] {
+        for origin in [
+            "http://example.com",
+            "https://user@example.com",
+            "https://example.com/base",
+            "https://example.com?x=1",
+        ] {
             assert!(resolve_trusted_api_url(origin, "/api").is_err(), "{origin}");
         }
-        for path in ["//evil.example/path", "/%2e%2e/admin", "/%252e%252e/admin", "/a%3fb", "/a%23b", "/a%5cb", "/a/%", "/a#fragment"] {
-            assert!(resolve_trusted_api_url("https://example.com", path).is_err(), "{path}");
+        for path in [
+            "//evil.example/path",
+            "/%2e%2e/admin",
+            "/%252e%252e/admin",
+            "/a%3fb",
+            "/a%23b",
+            "/a%5cb",
+            "/a/%",
+            "/a#fragment",
+        ] {
+            assert!(
+                resolve_trusted_api_url("https://example.com", path).is_err(),
+                "{path}"
+            );
         }
     }
 }
