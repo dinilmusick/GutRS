@@ -14,7 +14,11 @@ fn js_math_round(value: f64) -> f64 {
     if !value.is_finite() || value == 0.0 {
         return value;
     }
-    // Adding 0.5 before floor can round a value just below a half-tie\n    // up to the tie itself (e.g. the f64 immediately below 0.5).\n    // Compare the fractional part instead, preserving JS tie direction.\n    let lower = value.floor();\n    let rounded = if value - lower >= 0.5 { lower + 1.0 } else { lower };
+    // Adding 0.5 before floor can round a value just below a half-tie
+    // up to the tie itself (e.g. the f64 immediately below 0.5).
+    // Compare the fractional part instead, preserving JS tie direction.
+    let lower = value.floor();
+    let rounded = if value - lower >= 0.5 { lower + 1.0 } else { lower };
     if rounded == 0.0 && value.is_sign_negative() {
         -0.0
     } else {
@@ -78,7 +82,11 @@ mod tests {
         assert_eq!(round_to(1.2345, 2.0), Ok(1.23));
         assert_eq!(round_to(-1.5, 0.0), Ok(-1.0));
         assert_eq!(round_to(-2.5, 0.0), Ok(-2.0));
-        assert_eq!(round_to(2.5, 0.0), Ok(3.0));\n        assert_eq!(round_to(f64::from_bits(0x3fdfffffffffffff), 0.0), Ok(0.0));\n        assert_eq!(round_to(f64::from_bits(0xbfe0000000000001), 0.0), Ok(-1.0));\n        assert_eq!(round_to(0.5, 0.0), Ok(1.0));\n        assert!(round_to(-0.5, 0.0).unwrap().is_sign_negative());
+        assert_eq!(round_to(2.5, 0.0), Ok(3.0));
+        assert_eq!(round_to(f64::from_bits(0x3fdfffffffffffff), 0.0), Ok(0.0));
+        assert_eq!(round_to(f64::from_bits(0xbfe0000000000001), 0.0), Ok(-1.0));
+        assert_eq!(round_to(0.5, 0.0), Ok(1.0));
+        assert!(round_to(-0.5, 0.0).unwrap().is_sign_negative());
     }
 
     #[test]
