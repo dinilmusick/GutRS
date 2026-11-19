@@ -200,6 +200,42 @@ mod tests {
     }
 
     #[test]
+    fn nested_unicode_and_encoding_depth_are_bounded() {
+        // Valid multibyte sequences remain safe after one or more percent layers.
+        for path in [
+            "assets/%C3%A9.txt",
+            "assets/%25C3%25A9.txt",
+            "assets/%2525C3%2525A9.txt",
+            "assets/%E2%82%AC.txt",
+            "assets/%25E2%2582%25AC.txt",
+        ] {
+            assert!(normalize_storage_path(path).is_ok(), "rejected {path}");
+        }
+
+        // Nested escapes that eventually decode to reserved delimiters fail closed.
+        for escape in ["%2F", "%5C", "%3F", "%23", "%00", "%7F"] {
+            let mut encoded = escape.to_string();
+            for _ in 0..7 {
+                assert!(
+                    normalize_storage_path(&format!("assets/{encoded}")).is_err(),
+                    "accepted {encoded}"
+                );
+                encoded = encoded.replace('%', "%25");
+            }
+        }
+
+        // The bounded decoder must not permit unlimited percent-escape nesting.
+        let mut deeply_encoded = "%2F".to_string();
+        for _ in 0..9 {
+            deeply_encoded = deeply_encoded.replace('%', "%25");
+        }
+        assert_eq!(
+            normalize_storage_path(&format!("assets/{deeply_encoded}")),
+            Err(PathError::TooDeeplyEncoded)
+        );
+    }
+
+    #[test]
     fn encodes_segments_without_encoding_separators() {
         assert_eq!(
             encode_safe_path_segments("a b/résumé.txt").unwrap(),
