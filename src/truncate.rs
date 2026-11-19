@@ -18,7 +18,9 @@ pub fn truncate(value: &str, max_length: i64, omission: &str) -> Result<String, 
     if max_length < 0 {
         return Err(TruncateError::NegativeLength);
     }
-    Ok(truncate_with_limit(value, max_length as usize, omission))
+    // Saturate rather than wrap on 32-bit targets: an i64 limit can exceed usize::MAX.
+    let limit = usize::try_from(max_length).unwrap_or(usize::MAX);
+    Ok(truncate_with_limit(value, limit, omission))
 }
 
 /// Accepts the JavaScript numeric length contract at the Rust boundary.
@@ -75,6 +77,13 @@ mod tests {
         assert_eq!(truncate("abcdef", 2, "..."), Ok("...".into()));
         assert_eq!(truncate("abcdef", 0, ""), Ok(String::new()));
         assert_eq!(truncate("abc", 3, "..."), Ok("abc".into()));
+    }
+
+    #[test]
+    fn large_integer_limits_never_wrap_on_32_bit_targets() {
+        assert_eq!(truncate("abc", i64::MAX, "…"), Ok("abc".into()));
+        assert_eq!(truncate("abc", i64::MAX, "..."), Ok("abc".into()));
+        assert_eq!(truncate("abcdef", 0, "…"), Ok("…".into()));
     }
 
     #[test]
