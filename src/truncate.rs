@@ -32,13 +32,21 @@ pub fn truncate(value: &str, max_length: i64, omission: &str) -> Result<String, 
 /// Lodash converts NaN to zero, truncates finite fractional lengths toward zero,
 /// and treats positive infinity as an effectively unbounded length.
 /// Negative values are rejected by GutTS before Lodash is called.
-pub fn truncate_numeric(value: &str, max_length: f64, omission: &str) -> Result<String, TruncateError> {
+pub fn truncate_numeric(
+    value: &str,
+    max_length: f64,
+    omission: &str,
+) -> Result<String, TruncateError> {
     if max_length < 0.0 {
         return Err(TruncateError::NegativeLength);
     }
-    let limit = if max_length.is_nan() { 0usize }
-        else if max_length.is_infinite() || max_length >= usize::MAX as f64 { usize::MAX }
-        else { max_length.trunc() as usize };
+    let limit = if max_length.is_nan() {
+        0usize
+    } else if max_length.is_infinite() || max_length >= usize::MAX as f64 {
+        usize::MAX
+    } else {
+        max_length.trunc() as usize
+    };
     let value_len = value.chars().count();
     if value_len <= limit {
         return Ok(value.to_owned());
@@ -71,10 +79,19 @@ mod tests {
     fn numeric_lengths_follow_js_coercion_boundaries() {
         assert_eq!(truncate_numeric("abcdef", 4.9, "..."), Ok("a...".into()));
         assert_eq!(truncate_numeric("abcdef", f64::NAN, "..."), Ok("...".into()));
-        assert_eq!(truncate_numeric("abcdef", f64::INFINITY, "..."), Ok("abcdef".into()));
+        assert_eq!(
+            truncate_numeric("abcdef", f64::INFINITY, "..."),
+            Ok("abcdef".into())
+        );
         assert_eq!(truncate_numeric("abcdef", -0.0, "..."), Ok("...".into()));
-        assert_eq!(truncate_numeric("abcdef", -0.1, "..."), Err(TruncateError::NegativeLength));
-        assert_eq!(truncate_numeric("abcdef", f64::NEG_INFINITY, "..."), Err(TruncateError::NegativeLength));
+        assert_eq!(
+            truncate_numeric("abcdef", -0.1, "..."),
+            Err(TruncateError::NegativeLength)
+        );
+        assert_eq!(
+            truncate_numeric("abcdef", f64::NEG_INFINITY, "..."),
+            Err(TruncateError::NegativeLength)
+        );
         assert_eq!(truncate_numeric("abcdef", 0.0, ""), Ok(String::new()));
     }
 
