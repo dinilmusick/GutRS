@@ -134,4 +134,43 @@ mod tests {
             );
         }
     }
+    #[test]
+    fn matches_gutts_pinned_path_safety_golden_cases() {
+        // GutTS tests/path-safety.test.ts at 3e2cbc0990ba29830ce91c5d1a1d552675d5334c.
+        let valid = resolve_trusted_api_url(
+            "https://gitlab.com",
+            "/api/v4/projects/team%2Frepo?per_page=10",
+        )
+        .unwrap();
+        assert_eq!(
+            valid.as_str(),
+            "https://gitlab.com/api/v4/projects/team%2Frepo?per_page=10"
+        );
+        for path in [
+            "//attacker.test/api",
+            "/\\attacker.test",
+            "/%2e%2e/escape",
+            "/%252e%252e/escape",
+            "/x/../escape",
+            "/x/%5c/escape",
+            "/x#fragment",
+            "\n/evil",
+        ] {
+            assert!(
+                resolve_trusted_api_url("https://api.example.com", path).is_err(),
+                "accepted upstream-forbidden path {path:?}"
+            );
+        }
+        for origin in [
+            "http://api.example.com",
+            "https://user:token@api.example.com",
+            "https://api.example.com/v1",
+            "https://api.example.com/?secret=x",
+        ] {
+            assert!(
+                resolve_trusted_api_url(origin, "/v1").is_err(),
+                "accepted upstream-forbidden origin {origin:?}"
+            );
+        }
+    }
 }
