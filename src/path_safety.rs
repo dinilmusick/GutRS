@@ -47,6 +47,12 @@ fn invalid_char(bytes: &[u8]) -> bool {
         .any(|&b| b == b'\\' || b == b'?' || b == b'#' || b < 32 || b == 127)
 }
 
+fn has_encoded_escape(value: &[u8]) -> bool {
+    value.windows(3).any(|window| {
+        window[0] == b'%' && hex(window[1]).is_some() && hex(window[2]).is_some()
+    })
+}
+
 fn validate_segment(segment: &str) -> Result<(), PathError> {
     let mut value = segment.as_bytes().to_vec();
     for _ in 0..8 {
@@ -54,11 +60,12 @@ fn validate_segment(segment: &str) -> Result<(), PathError> {
         if invalid_char(&value) || value.contains(&b'/') || value == b"." || value == b".." {
             return Err(PathError::UnsafeSegment);
         }
-        if !value.contains(&b'%') {
+        // decodeURIComponent accepts a decoded literal percent only when it is
+        // not part of another escape sequence. Re-decoding every '%' rejects
+        // valid filenames such as 100%25-safe.txt.
+        if !has_encoded_escape(&value) {
             return Ok(());
         }
-        // A literal percent that is not an escape fails on the next decoding pass,
-        // as in the upstream decodeURIComponent contract.
     }
     Err(PathError::TooDeeplyEncoded)
 }
