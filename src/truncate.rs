@@ -80,7 +80,10 @@ mod tests {
     #[test]
     fn numeric_lengths_follow_js_coercion_boundaries() {
         assert_eq!(truncate_numeric("abcdef", 4.9, "..."), Ok("a...".into()));
-        assert_eq!(truncate_numeric("abcdef", f64::NAN, "..."), Ok("...".into()));
+        assert_eq!(
+            truncate_numeric("abcdef", f64::NAN, "..."),
+            Ok("...".into())
+        );
         assert_eq!(
             truncate_numeric("abcdef", f64::INFINITY, "..."),
             Ok("abcdef".into())
@@ -107,7 +110,10 @@ mod tests {
 
     #[test]
     fn rejects_negative_lengths_and_keeps_utf8_boundaries() {
-        assert_eq!(truncate_default("abc", -1), Err(TruncateError::NegativeLength));
+        assert_eq!(
+            truncate_default("abc", -1),
+            Err(TruncateError::NegativeLength)
+        );
         assert_eq!(truncate_default("résumé", 4), Ok("rés…".into()));
         assert_eq!(truncate_default("猫犬鳥魚", 3), Ok("猫犬…".into()));
     }
