@@ -99,3 +99,35 @@ mod capitalize_tests {
         assert_eq!(capitalize("a"), "A");
     }
 }
+
+#[cfg(test)]
+mod truncate_words_contract_tests {
+    use super::{is_blank, is_non_blank, starts_with_any, ends_with_any, truncate_words, truncate_words_default, WordCountError};
+
+    #[test]
+    fn preserves_original_when_word_limit_does_not_truncate() {
+        assert_eq!(truncate_words("  alpha   beta  ", 2.0, "!").unwrap(), "  alpha   beta  ");
+        assert_eq!(truncate_words("", 0.0, "!").unwrap(), "");
+        assert_eq!(truncate_words("alpha beta", f64::INFINITY, "!").unwrap(), "alpha beta");
+    }
+
+    #[test]
+    fn truncates_at_ecmascript_whitespace_boundaries() {
+        assert_eq!(truncate_words(" alpha\u{00a0}beta\u{feff}gamma ", 2.0, "!").unwrap(), "alpha beta!");
+        assert_eq!(truncate_words_default("one two three", 1.0).unwrap(), "one…");
+        assert_eq!(truncate_words("one two three", 1.9, "--").unwrap(), "one--");
+        assert_eq!(truncate_words("one two", 0.0, "!").unwrap(), "!");
+        assert_eq!(truncate_words("one two", f64::NAN, "!").unwrap(), "!");
+    }
+
+    #[test]
+    fn validates_negative_limits_and_js_whitespace() {
+        assert_eq!(truncate_words("a b", -0.5, "!"), Err(WordCountError::Negative));
+        assert!(is_blank("\u{feff}\u{2028}\u{00a0}"));
+        assert!(!is_blank("\u{0085}"));
+        assert!(is_non_blank("\u{0085}"));
+        assert!(starts_with_any("hello", &["no", "he"]));
+        assert!(ends_with_any("hello", &["no", "lo"]));
+        assert!(!starts_with_any("hello", &[]));
+    }
+}
