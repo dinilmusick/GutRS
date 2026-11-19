@@ -42,7 +42,9 @@ fn decode_once(value: &[u8]) -> Result<Vec<u8>, PathError> {
 }
 
 fn invalid_char(bytes: &[u8]) -> bool {
-    bytes.iter().any(|&b| b == b'\\' || b == b'?' || b == b'#' || b < 32 || b == 127)
+    bytes
+        .iter()
+        .any(|&b| b == b'\\' || b == b'?' || b == b'#' || b < 32 || b == 127)
 }
 
 fn validate_segment(segment: &str) -> Result<(), PathError> {
