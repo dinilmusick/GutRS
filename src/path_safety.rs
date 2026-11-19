@@ -136,6 +136,21 @@ mod tests {
     }
 
     #[test]
+    fn rejects_nested_escapes_and_preserves_safe_literal_percent_encodings() {
+        // Repeated decoding must not hide a traversal or reserved delimiter.
+        let mut traversal = "..".to_string();
+        for _ in 0..8 {
+            traversal = traversal.replace('%', "%25").replace('.', "%2E");
+            assert!(normalize_storage_path(&format!("root/{traversal}/file")).is_err());
+        }
+        for input in ["a/%252F/b", "a/%25255C/b", "a/%25253F/b", "a/%252500/b"] {
+            assert!(normalize_storage_path(input).is_err(), "accepted {input}");
+        }
+        assert_eq!(normalize_storage_path("docs/100%25-safe.txt").unwrap(), "docs/100%25-safe.txt");
+        assert_eq!(encode_safe_path_segments("docs/100%25-safe.txt").unwrap(), "docs/100%2525-safe.txt");
+    }
+
+    #[test]
     fn encodes_segments_without_encoding_separators() {
         assert_eq!(
             encode_safe_path_segments("a b/résumé.txt").unwrap(),
