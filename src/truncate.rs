@@ -1,14 +1,17 @@
 //! Portable subset of GutTS lodash-backed string truncation.
 //! Upstream: GutTS src/strings/string-transform.ts (lodash truncate).
-//! Uses Unicode scalar values rather than byte offsets to avoid invalid UTF-8.
-//! Grapheme-cluster and lodash's UTF-16/Unicode symbol segmentation still need differential tests.
+//! Uses extended grapheme clusters rather than byte offsets, preserving combining
+//! sequences and emoji ZWJ sequences. Lodash-specific symbol segmentation still
+//! requires cross-language differential certification.
+
+use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TruncateError {
     NegativeLength,
 }
 
-/// Truncate to at most `max_length` Unicode scalar values.
+/// Truncate to at most `max_length` extended grapheme clusters.
 /// Like lodash truncate, when the omission is at least as long as the limit,
 /// the full omission is returned. No word-boundary separator is requested.
 pub fn truncate(value: &str, max_length: i64, omission: &str) -> Result<String, TruncateError> {
@@ -16,15 +19,15 @@ pub fn truncate(value: &str, max_length: i64, omission: &str) -> Result<String, 
         return Err(TruncateError::NegativeLength);
     }
     let limit = max_length as usize;
-    let value_len = value.chars().count();
+    let value_len = UnicodeSegmentation::graphemes(value, true).count();
     if value_len <= limit {
         return Ok(value.to_owned());
     }
-    let omission_len = omission.chars().count();
+    let omission_len = UnicodeSegmentation::graphemes(omission, true).count();
     if limit <= omission_len {
         return Ok(omission.to_owned());
     }
-    let prefix: String = value.chars().take(limit - omission_len).collect();
+    let prefix: String = UnicodeSegmentation::graphemes(value, true).take(limit - omission_len).collect();
     Ok(prefix + omission)
 }
 
@@ -47,15 +50,15 @@ pub fn truncate_numeric(
     } else {
         max_length.trunc() as usize
     };
-    let value_len = value.chars().count();
+    let value_len = UnicodeSegmentation::graphemes(value, true).count();
     if value_len <= limit {
         return Ok(value.to_owned());
     }
-    let omission_len = omission.chars().count();
+    let omission_len = UnicodeSegmentation::graphemes(omission, true).count();
     if limit <= omission_len {
         return Ok(omission.to_owned());
     }
-    Ok(value.chars().take(limit - omission_len).collect::<String>() + omission)
+    Ok(UnicodeSegmentation::graphemes(value, true).take(limit - omission_len).collect::<String>() + omission)
 }
 
 pub fn truncate_default(value: &str, max_length: i64) -> Result<String, TruncateError> {
@@ -93,6 +96,14 @@ mod tests {
             Err(TruncateError::NegativeLength)
         );
         assert_eq!(truncate_numeric("abcdef", 0.0, ""), Ok(String::new()));
+    }
+
+    #[test]
+    fn preserves_combining_marks_and_joined_emoji() {
+        assert_eq!(truncate("e\u{301}xyz", 2, "…"), Ok("e\u{301}…".into()));
+        assert_eq!(truncate("👩‍💻xyz", 2, "…"), Ok("👩‍💻…".into()));
+        assert_eq!(truncate_numeric("🇮🇳xyz", 2.0, "…"), Ok("🇮🇳…".into()));
+        assert_eq!(truncate("abcdef", 1, "👩‍💻"), Ok("👩‍💻".into()));
     }
 
     #[test]
