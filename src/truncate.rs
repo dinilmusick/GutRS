@@ -112,7 +112,12 @@ mod tests {
     #[test]
     fn numeric_limits_do_not_wrap_at_32_bit_boundaries() {
         // JavaScript numbers can exceed a 32-bit usize; the result must not wrap.
-        for limit in [4_294_967_296.0, 4_294_967_297.0, 9_007_199_254_740_991.0, f64::MAX] {
+        for limit in [
+            4_294_967_296.0,
+            4_294_967_297.0,
+            9_007_199_254_740_991.0,
+            f64::MAX,
+        ] {
             assert_eq!(truncate_numeric("abc", limit, "..."), Ok("abc".into()));
         }
         assert_eq!(truncate_numeric("abcdef", 4.999, "..."), Ok("a...".into()));
