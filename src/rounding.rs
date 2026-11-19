@@ -18,7 +18,11 @@ fn js_math_round(value: f64) -> f64 {
     // up to the tie itself (e.g. the f64 immediately below 0.5).
     // Compare the fractional part instead, preserving JS tie direction.
     let lower = value.floor();
-    let rounded = if value - lower >= 0.5 { lower + 1.0 } else { lower };
+    let rounded = if value - lower >= 0.5 {
+        lower + 1.0
+    } else {
+        lower
+    };
     if rounded == 0.0 && value.is_sign_negative() {
         -0.0
     } else {
@@ -71,7 +75,6 @@ pub fn round_to(value: f64, decimals: f64) -> Result<f64, RoundError> {
     shift_exponent(rounded, -precision).ok_or(RoundError::UnsupportedPrecision)
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -103,7 +106,10 @@ mod tests {
     fn rejects_invalid_precision_without_silent_coercion() {
         assert_eq!(round_to(1.0, -1.0), Err(RoundError::NegativePrecision));
         assert_eq!(round_to(1.0, 1.5), Err(RoundError::NonIntegerPrecision));
-        assert_eq!(round_to(1.0, f64::NAN), Err(RoundError::NonIntegerPrecision));
+        assert_eq!(
+            round_to(1.0, f64::NAN),
+            Err(RoundError::NonIntegerPrecision)
+        );
         assert_eq!(round_to(1.0, 309.0), Err(RoundError::UnsupportedPrecision));
     }
 }
