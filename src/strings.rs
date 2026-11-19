@@ -79,7 +79,7 @@ pub fn truncate_words_default(value: &str, max_words: f64) -> Result<String, Wor
 /// Mirrors the common portable subset of GutTS lodash capitalize; lodash's
 /// Unicode word/symbol segmentation remains a differential-testing gap.
 pub fn capitalize(value: &str) -> String {
-    let mut chars = value.chars();
+    // Lowercase the complete string first so context-sensitive Unicode mappings\n    // (notably Greek final sigma) match JavaScript's toLowerCase behavior.\n    let lower = value.to_lowercase();\n    let mut chars = lower.chars();
     let Some(first) = chars.next() else { return String::new(); };
     let mut output = first.to_uppercase().collect::<String>();
     output.extend(chars.flat_map(char::to_lowercase));
@@ -96,7 +96,7 @@ mod capitalize_tests {
         assert_eq!(capitalize(""), "");
         assert_eq!(capitalize("éCOLE"), "École");
         assert_eq!(capitalize("猫ABC"), "猫abc");
-        assert_eq!(capitalize("a"), "A");
+        assert_eq!(capitalize("a"), "A");\n        assert_eq!(capitalize("ΟΣ"), "Ος");\n        assert_eq!(capitalize("ΟΣ ΑΒ"), "Ος αβ");
     }
 }
 
