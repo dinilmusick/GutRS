@@ -74,16 +74,17 @@ pub fn truncate_words_default(value: &str, max_words: f64) -> Result<String, Wor
     truncate_words(value, max_words, "…")
 }
 
-
 /// Capitalize the first Unicode scalar and lowercase the remainder.
 /// Mirrors the common portable subset of GutTS lodash capitalize; lodash's
 /// Unicode word/symbol segmentation remains a differential-testing gap.
 pub fn capitalize(value: &str) -> String {
-    // Lowercase the complete string first so context-sensitive Unicode mappings 
+    // Lowercase the complete string first so context-sensitive Unicode mappings
     // (notably Greek final sigma) match JavaScript's toLowerCase behavior.
     let lower = value.to_lowercase();
     let mut chars = lower.chars();
-    let Some(first) = chars.next() else { return String::new(); };
+    let Some(first) = chars.next() else {
+        return String::new();
+    };
     let mut output = first.to_uppercase().collect::<String>();
     output.extend(chars);
     output
@@ -107,19 +108,34 @@ mod capitalize_tests {
 
 #[cfg(test)]
 mod truncate_words_contract_tests {
-    use super::{is_blank, is_non_blank, starts_with_any, ends_with_any, truncate_words, truncate_words_default, WordCountError};
+    use super::{
+        ends_with_any, is_blank, is_non_blank, starts_with_any, truncate_words,
+        truncate_words_default, WordCountError,
+    };
 
     #[test]
     fn preserves_original_when_word_limit_does_not_truncate() {
-        assert_eq!(truncate_words("  alpha   beta  ", 2.0, "!").unwrap(), "  alpha   beta  ");
+        assert_eq!(
+            truncate_words("  alpha   beta  ", 2.0, "!").unwrap(),
+            "  alpha   beta  "
+        );
         assert_eq!(truncate_words("", 0.0, "!").unwrap(), "");
-        assert_eq!(truncate_words("alpha beta", f64::INFINITY, "!").unwrap(), "alpha beta");
+        assert_eq!(
+            truncate_words("alpha beta", f64::INFINITY, "!").unwrap(),
+            "alpha beta"
+        );
     }
 
     #[test]
     fn truncates_at_ecmascript_whitespace_boundaries() {
-        assert_eq!(truncate_words(" alpha\u{00a0}beta\u{feff}gamma ", 2.0, "!").unwrap(), "alpha beta!");
-        assert_eq!(truncate_words_default("one two three", 1.0).unwrap(), "one…");
+        assert_eq!(
+            truncate_words(" alpha\u{00a0}beta\u{feff}gamma ", 2.0, "!").unwrap(),
+            "alpha beta!"
+        );
+        assert_eq!(
+            truncate_words_default("one two three", 1.0).unwrap(),
+            "one…"
+        );
         assert_eq!(truncate_words("one two three", 1.9, "--").unwrap(), "one--");
         assert_eq!(truncate_words("one two", 0.0, "!").unwrap(), "!");
         assert_eq!(truncate_words("one two", f64::NAN, "!").unwrap(), "!");
@@ -127,7 +143,10 @@ mod truncate_words_contract_tests {
 
     #[test]
     fn validates_negative_limits_and_js_whitespace() {
-        assert_eq!(truncate_words("a b", -0.5, "!"), Err(WordCountError::Negative));
+        assert_eq!(
+            truncate_words("a b", -0.5, "!"),
+            Err(WordCountError::Negative)
+        );
         assert!(is_blank("\u{feff}\u{2028}\u{00a0}"));
         assert!(!is_blank("\u{0085}"));
         assert!(is_non_blank("\u{0085}"));
@@ -136,7 +155,6 @@ mod truncate_words_contract_tests {
         assert!(!starts_with_any("hello", &[]));
     }
 }
-
 
 /// ASCII-only subset of GutTS `truncate` (lodash truncate).
 /// Rejects non-ASCII input rather than silently miscounting Unicode symbols.
@@ -179,16 +197,31 @@ mod ascii_truncate_contract_tests {
         assert_eq!(truncate_ascii("abcdef", 4.0, "..."), Ok("a...".to_string()));
         assert_eq!(truncate_ascii("abcdef", 3.0, "..."), Ok("...".to_string()));
         assert_eq!(truncate_ascii("abcdef", 0.0, "..."), Ok("...".to_string()));
-        assert_eq!(truncate_ascii("abcdef", 6.0, "..."), Ok("abcdef".to_string()));
+        assert_eq!(
+            truncate_ascii("abcdef", 6.0, "..."),
+            Ok("abcdef".to_string())
+        );
         assert_eq!(truncate_ascii("abcdef", 4.0, ""), Ok("abcd".to_string()));
         assert_eq!(truncate_ascii("", 0.0, "..."), Ok(String::new()));
     }
 
     #[test]
     fn rejects_unsupported_inputs_without_guessing() {
-        assert_eq!(truncate_ascii("abcdef", -1.0, "..."), Err(TruncateError::NegativeLength));
-        assert_eq!(truncate_ascii("abcdef", 1.5, "..."), Err(TruncateError::NonIntegerLength));
-        assert_eq!(truncate_ascii("abcdef", f64::NAN, "..."), Err(TruncateError::NonIntegerLength));
-        assert_eq!(truncate_ascii("café", 2.0, "..."), Err(TruncateError::NonAscii));
+        assert_eq!(
+            truncate_ascii("abcdef", -1.0, "..."),
+            Err(TruncateError::NegativeLength)
+        );
+        assert_eq!(
+            truncate_ascii("abcdef", 1.5, "..."),
+            Err(TruncateError::NonIntegerLength)
+        );
+        assert_eq!(
+            truncate_ascii("abcdef", f64::NAN, "..."),
+            Err(TruncateError::NonIntegerLength)
+        );
+        assert_eq!(
+            truncate_ascii("café", 2.0, "..."),
+            Err(TruncateError::NonAscii)
+        );
     }
 }
