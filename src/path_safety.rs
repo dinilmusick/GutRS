@@ -48,9 +48,9 @@ fn invalid_char(bytes: &[u8]) -> bool {
 }
 
 fn has_encoded_escape(value: &[u8]) -> bool {
-    value.windows(3).any(|window| {
-        window[0] == b'%' && hex(window[1]).is_some() && hex(window[2]).is_some()
-    })
+    value
+        .windows(3)
+        .any(|window| window[0] == b'%' && hex(window[1]).is_some() && hex(window[2]).is_some())
 }
 
 fn validate_segment(segment: &str) -> Result<(), PathError> {
@@ -153,8 +153,14 @@ mod tests {
         for input in ["a/%252F/b", "a/%25255C/b", "a/%25253F/b", "a/%252500/b"] {
             assert!(normalize_storage_path(input).is_err(), "accepted {input}");
         }
-        assert_eq!(normalize_storage_path("docs/100%25-safe.txt").unwrap(), "docs/100%25-safe.txt");
-        assert_eq!(encode_safe_path_segments("docs/100%25-safe.txt").unwrap(), "docs/100%2525-safe.txt");
+        assert_eq!(
+            normalize_storage_path("docs/100%25-safe.txt").unwrap(),
+            "docs/100%25-safe.txt"
+        );
+        assert_eq!(
+            encode_safe_path_segments("docs/100%25-safe.txt").unwrap(),
+            "docs/100%2525-safe.txt"
+        );
     }
 
     #[test]
