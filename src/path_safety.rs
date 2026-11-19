@@ -158,6 +158,42 @@ mod tests {
     }
 
     #[test]
+    fn validates_all_percent_encoded_bytes_and_nested_escapes() {
+        // Exhaustively exercise each decoded byte, including UTF-8 continuation
+        // bytes and reserved ASCII. Invalid standalone UTF-8 must fail closed.
+        for byte in 0u8..=255 {
+            let path = format!("safe/%{byte:02X}");
+            let decoded = [byte];
+            let allowed = std::str::from_utf8(&decoded).is_ok()
+                && !matches!(byte, b'/' | b'\\' | b'?' | b'#' | b'.')
+                && byte >= 32
+                && byte != 127;
+            // A single dot is a complete traversal segment, but a literal
+            // percent is accepted after decoding %25.
+            assert_eq!(
+                normalize_storage_path(&path).is_ok(),
+                allowed,
+                "unexpected validation for byte {byte:02X}"
+            );
+        }
+
+        for path in [
+            "safe/%252e%252e",
+            "safe/%252f",
+            "safe/%255c",
+            "safe/%253f",
+            "safe/%2523",
+            "safe/%2500",
+            "safe/%257f",
+        ] {
+            assert!(normalize_storage_path(path).is_err(), "accepted {path}");
+        }
+        assert!(normalize_storage_path("safe/%C3%A9").is_ok());
+        assert!(normalize_storage_path("safe/%E2%82%AC").is_ok());
+        assert!(normalize_storage_path("safe/%F0%9F%8E%B5").is_ok());
+    }
+
+    #[test]
     fn encodes_segments_without_encoding_separators() {
         assert_eq!(
             encode_safe_path_segments("a b/résumé.txt").unwrap(),
