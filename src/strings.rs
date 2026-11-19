@@ -136,3 +136,59 @@ mod truncate_words_contract_tests {
         assert!(!starts_with_any("hello", &[]));
     }
 }
+
+
+/// ASCII-only subset of GutTS `truncate` (lodash truncate).
+/// Rejects non-ASCII input rather than silently miscounting Unicode symbols.
+/// The full lodash Unicode segmentation contract remains a parity gap.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TruncateError {
+    NegativeLength,
+    NonIntegerLength,
+    NonAscii,
+}
+
+pub fn truncate_ascii(value: &str, max_length: f64, suffix: &str) -> Result<String, TruncateError> {
+    if !max_length.is_finite() || max_length.fract() != 0.0 {
+        return Err(TruncateError::NonIntegerLength);
+    }
+    if max_length < 0.0 {
+        return Err(TruncateError::NegativeLength);
+    }
+    if !value.is_ascii() || !suffix.is_ascii() {
+        return Err(TruncateError::NonAscii);
+    }
+    if max_length >= value.len() as f64 {
+        return Ok(value.to_owned());
+    }
+    // Lodash returns the complete omission when it cannot fit even one
+    // character of the source before the omission.
+    if max_length <= suffix.len() as f64 {
+        return Ok(suffix.to_owned());
+    }
+    let end = (max_length as usize) - suffix.len();
+    Ok(format!("{}{}", &value[..end], suffix))
+}
+
+#[cfg(test)]
+mod ascii_truncate_contract_tests {
+    use super::{truncate_ascii, TruncateError};
+
+    #[test]
+    fn matches_lodash_ascii_omission_boundaries() {
+        assert_eq!(truncate_ascii("abcdef", 4.0, "..."), Ok("a...".to_string()));
+        assert_eq!(truncate_ascii("abcdef", 3.0, "..."), Ok("...".to_string()));
+        assert_eq!(truncate_ascii("abcdef", 0.0, "..."), Ok("...".to_string()));
+        assert_eq!(truncate_ascii("abcdef", 6.0, "..."), Ok("abcdef".to_string()));
+        assert_eq!(truncate_ascii("abcdef", 4.0, ""), Ok("abcd".to_string()));
+        assert_eq!(truncate_ascii("", 0.0, "..."), Ok(String::new()));
+    }
+
+    #[test]
+    fn rejects_unsupported_inputs_without_guessing() {
+        assert_eq!(truncate_ascii("abcdef", -1.0, "..."), Err(TruncateError::NegativeLength));
+        assert_eq!(truncate_ascii("abcdef", 1.5, "..."), Err(TruncateError::NonIntegerLength));
+        assert_eq!(truncate_ascii("abcdef", f64::NAN, "..."), Err(TruncateError::NonIntegerLength));
+        assert_eq!(truncate_ascii("café", 2.0, "..."), Err(TruncateError::NonAscii));
+    }
+}
