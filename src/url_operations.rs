@@ -38,7 +38,10 @@ pub fn set_query_param(input: &str, key: &str, value: &str) -> Result<String, In
     } else {
         pairs.push((key.to_owned(), value.to_owned()));
     }
-    parsed.query_pairs_mut().clear().extend_pairs(pairs.iter().map(|(k, v)| (&**k, &**v)));
+    parsed
+        .query_pairs_mut()
+        .clear()
+        .extend_pairs(pairs.iter().map(|(k, v)| (&**k, &**v)));
     Ok(parsed.to_string())
 }
 
@@ -55,8 +58,14 @@ mod tests {
 
     #[test]
     fn reads_first_decoded_parameter() {
-        assert_eq!(get_query_param("https://example.com/?a=one+two&a=three", "a").unwrap(), Some("one two".into()));
-        assert_eq!(get_query_param("https://example.com/?a=", "a").unwrap(), Some(String::new()));
+        assert_eq!(
+            get_query_param("https://example.com/?a=one+two&a=three", "a").unwrap(),
+            Some("one two".into())
+        );
+        assert_eq!(
+            get_query_param("https://example.com/?a=", "a").unwrap(),
+            Some(String::new())
+        );
         assert_eq!(get_query_param("https://example.com/", "a").unwrap(), None);
         assert!(get_query_param("/relative", "a").is_err());
     }
