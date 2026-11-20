@@ -2,7 +2,7 @@
 
 Native Rust counterparts of GutTS public contracts, pinned at `3e2cbc0990ba29830ce91c5d1a1d552675d5334c`.
 
-**Work in progress:** see [complete per-export traceability](docs/upstream-parity.md). Some validated portable core utilities and auth wire contracts are implemented; model inference, semantic-input and SDK host adapters remain missing. Do not treat this crate as feature-complete GutTS parity.
+**Work in progress:** see [complete per-export traceability](docs/upstream-parity.md). Some validated portable core utilities and auth wire contracts are implemented; live model inference engines and authenticated storage integration remain unverified. Do not treat this crate as feature-complete GutTS parity.
 
 ## Consumer
 
@@ -26,4 +26,12 @@ cargo test --doc --all-features
 cargo run --manifest-path examples/external-consumer/Cargo.toml
 ```
 
-See `testdata/upstream-golden/portable.json` for source-derived positive/negative/boundary cases. Execution of these same cases under pinned GutTS remains necessary for independent cross-language certification.
+See `testdata/upstream-golden/portable.json` for source-derived positive/negative/boundary cases. The independent CI differential job executes these same cases under the pinned GutTS commit and compares all 38 API/FOD definitions and eight model metadata exports. This is a bounded differential suite, not proof of every JavaScript edge case.
+
+## Hosted cloud storage
+
+```toml
+# Optional feature flags: aws-s3 and google-drive
+```
+
+With `aws-s3`, access `gutrs::storage_adapters::s3::S3Client` and seven native S3 request-builder types. With `google-drive`, use `gutrs::storage_adapters::google_drive::create_google_drive_client` to construct an actual Google Drive v3 client using caller-supplied OAuth and HTTPS transport. Neither SDK is included in default builds. Cloud credentials are not embedded, and offline checks do not establish live cloud access.

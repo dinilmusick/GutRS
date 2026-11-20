@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **178 have an explicit Rust mapping** (including partial equivalents), **17 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **189 have an explicit Rust mapping** (including partial equivalents), **6 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -187,17 +187,17 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `resolveDeterministicSemanticInput` | `semantic_input::resolve_deterministic_semantic_input` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `rankSemanticInputCandidates` | `semantic_input::rank_semantic_input_candidates` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `resolveSemanticInput` | `semantic_input::resolve_semantic_input` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
-| `S3Client` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
-| `GetObjectCommand` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
-| `HeadObjectCommand` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
-| `ListObjectsV2Command` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
-| `PutObjectCommand` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
-| `CopyObjectCommand` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
-| `DeleteObjectCommand` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
-| `DeleteObjectsCommand` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
-| `GoogleApisModule` | `—` | `src/storage/google-drive.ts` → `—` | — | ❌ missing |
-| `loadGoogleApis` | `—` | `src/storage/google-drive.ts` → `—` | — | ❌ missing |
-| `createGoogleDriveClient` | `—` | `src/storage/google-drive.ts` → `—` | — | ❌ missing |
+| `S3Client` | `storage_adapters::s3::S3Client` | `src/storage/s3.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
+| `GetObjectCommand` | `storage_adapters::s3::GetObjectCommand` | `src/storage/s3.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
+| `HeadObjectCommand` | `storage_adapters::s3::HeadObjectCommand` | `src/storage/s3.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
+| `ListObjectsV2Command` | `storage_adapters::s3::ListObjectsV2Command` | `src/storage/s3.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
+| `PutObjectCommand` | `storage_adapters::s3::PutObjectCommand` | `src/storage/s3.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
+| `CopyObjectCommand` | `storage_adapters::s3::CopyObjectCommand` | `src/storage/s3.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
+| `DeleteObjectCommand` | `storage_adapters::s3::DeleteObjectCommand` | `src/storage/s3.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
+| `DeleteObjectsCommand` | `storage_adapters::s3::DeleteObjectsCommand` | `src/storage/s3.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
+| `GoogleApisModule` | `storage_adapters::google_drive::GoogleApisModule` | `src/storage/google-drive.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
+| `loadGoogleApis` | `storage_adapters::google_drive::GoogleApisModule` | `src/storage/google-drive.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | △ Native compile-time import replaces JavaScript dynamic import |
+| `createGoogleDriveClient` | `storage_adapters::google_drive::create_google_drive_client` | `src/storage/google-drive.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
 | `resolveServerRuntimeAppUrl` | `auth_host::resolve_server_runtime_app_url` | `src/server/auth.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `nodeCactusNeedle3Runtime` | `—` | `src/server/models.ts` → `—` | — | ❌ missing |
 | `nodeCactusWhistleRuntime` | `—` | `src/server/models.ts` → `—` | — | ❌ missing |
@@ -221,3 +221,7 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 ## Fixture provenance / certification
 
 `testdata/upstream-golden/portable.json` contains positive, negative and boundary examples derived by reading the pinned GutTS source and pinned TypeScript tests. `tests/upstream_golden.rs` executes the corresponding **public Rust exports** on those inputs. **The fixture has not yet been generated by actually executing pinned GutTS**; cross-language differential certification is therefore pending. `examples/external-consumer` is a distinct Cargo crate consuming GutRS via its public package boundary. The three-host CI includes format, lint, unit, docs and that consumer. A full parity claim is forbidden while any mapped symbol is partial or missing, any fixture lacks upstream verification, or CI/independent verification is absent.
+
+## Hosted storage SDK adapters
+
+Enable `--features aws-s3` to expose the real `aws-sdk-s3` client and native request builders. Enable `--features google-drive` for the actual `google-drive3` v3 hub and an authenticated factory. These are **optional host-specific equivalents**, not native JavaScript `@aws-sdk/client-s3` / `googleapis` reexports; credentials and signed OAuth grants are supplied by the consumer. Tests prove builder construction and API types without cloud credentials; they do **not** prove end-to-end access to live storage.

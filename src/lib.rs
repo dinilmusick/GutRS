@@ -253,3 +253,6 @@ pub mod semantic_types;
 
 /// Authenticated Luth operations with host HTTP transport and token store.
 pub mod luth_client;
+
+/// Real, optional hosted AWS S3 and Google Drive SDK adapters.
+pub mod storage_adapters;
