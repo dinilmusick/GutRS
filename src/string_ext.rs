@@ -47,9 +47,11 @@ fn deburr_latin(value: &str) -> String {
 /// Lowercase all but the first Unicode grapheme, similar to lodash capitalize.
 pub fn capitalize(value: &str) -> String {
     let mut graphemes = value.graphemes(true);
-    let Some(first) = graphemes.next() else { return String::new(); };
+    let Some(first) = graphemes.next() else {
+        return String::new();
+    };
     let rest: String = graphemes.collect();
-    format!("{}{}",first.to_uppercase(),rest.to_lowercase())
+    format!("{}{}", first.to_uppercase(), rest.to_lowercase())
 }
 
 pub fn camel_case(value: &str) -> String {
@@ -67,10 +69,10 @@ mod tests {
     use super::*;
     #[test]
     fn upstream_unicode_and_boundaries() {
-        assert_eq!(capitalize("fRED FROG"),"Fred frog");
-        assert_eq!(camel_case("Foo Bar_baz"),"fooBarBaz");
-        assert_eq!(kebab_case("XMLHttpRequest"),"xml-http-request");
-        assert_eq!(snake_case("Déjà Vu"),"deja_vu");
+        assert_eq!(capitalize("fRED FROG"), "Fred frog");
+        assert_eq!(camel_case("Foo Bar_baz"), "fooBarBaz");
+        assert_eq!(kebab_case("XMLHttpRequest"), "xml-http-request");
+        assert_eq!(snake_case("Déjà Vu"), "deja_vu");
         assert!(is_email("jane+tag@example.co.uk"));
         assert!(!is_email("x@@domain.com"));
     }
