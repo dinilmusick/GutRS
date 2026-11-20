@@ -7,7 +7,8 @@ use gutrs::smollm2_native::native::NativeSmolLM2;
 #[ignore = "downloads exact SmolLM2-135M-Instruct safetensors and generates CPU tokens"]
 fn genuine_smollm2_135m_generation() -> Result<(), Box<dyn std::error::Error>> {
     let model = NativeSmolLM2::load()?;
-    let prompt = "<|im_start|>user\nWhat is 2+2? Answer with a number.\n<|im_end|>\n<|im_start|>assistant\n";
+    let prompt =
+        "<|im_start|>user\nWhat is 2+2? Answer with a number.\n<|im_end|>\n<|im_start|>assistant\n";
     let response = model.generate(prompt, Some(24))?;
     assert!(
         response.starts_with(prompt),
