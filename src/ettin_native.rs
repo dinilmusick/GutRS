@@ -51,7 +51,8 @@ pub mod native {
                 }))
                 .map_err(|e| e.to_string())?;
             let read_head = |subpath: &str| -> Result<Vec<u8>, String> {
-                let file = repo.get(subpath)
+                let file = repo
+                    .get(subpath)
                     .map_err(|e| format!("Ettin scoring head {subpath}: {e}"))?;
                 std::fs::read(file).map_err(|e| e.to_string())
             };
@@ -128,17 +129,20 @@ pub mod native {
                 let (shape, hidden) = outputs[0]
                     .try_extract_tensor::<f32>()
                     .map_err(|e| e.to_string())?;
-                let dims: Vec<usize> = shape.iter()
-                    .map(|&dim| usize::try_from(dim).map_err(|e|e.to_string()))
-                    .collect::<Result<_,_>>()?;
-                if dims.len() != 3 || dims[0] != 1 ||
-                    dims[2] != self.head.ln_weight.len() {
-                    return Err(format!("Ettin backbone returned invalid hidden-state dimensions: {dims:?}"));
+                let dims: Vec<usize> = shape
+                    .iter()
+                    .map(|&dim| usize::try_from(dim).map_err(|e| e.to_string()))
+                    .collect::<Result<_, _>>()?;
+                if dims.len() != 3 || dims[0] != 1 || dims[2] != self.head.ln_weight.len() {
+                    return Err(format!(
+                        "Ettin backbone returned invalid hidden-state dimensions: {dims:?}"
+                    ));
                 }
-                let scores_for_batch = compute_ettin_head_scores(
-                    [dims[0], dims[1], dims[2]], hidden, &self.head,
-                ).map_err(|e|e.to_string())?;
-                let score = scores_for_batch.first()
+                let scores_for_batch =
+                    compute_ettin_head_scores([dims[0], dims[1], dims[2]], hidden, &self.head)
+                        .map_err(|e| e.to_string())?;
+                let score = scores_for_batch
+                    .first()
                     .ok_or("Ettin head returned no score")?;
                 scores.push(*score);
             }
