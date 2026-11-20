@@ -303,3 +303,7 @@ Pinned GutTS's Transformers.js `text-generation` pipeline leaves `return_full_te
 ## Executable negative-path cross-language certification
 
 The independent `check-utility-api-differential.mjs` runner checks actual thrown errors from pinned GutTS against actual `Err` results from the public Rust API dispatcher. It does **not** falsely equate Rust error enum variants with JavaScript exception classes: a portable invalid input is certified only when both runtimes reject it. Separate unit tests specify native Rust error variants and precise conditions. Valid input must have equal JSON-visible results. JSON-only `undefined` normalization remains explicit. The suite now includes malformed JSON, invalid URL, negative length/precision, reversed numeric bounds and invalid array chunk size, alongside Unicode and valid-value cases.
+
+### validator.js default email acceptance
+
+The Rust address parser alone can accept syntactically RFC-compliant inputs that `validator.isEmail` (GutTS default) rejects, such as unquoted consecutive dots in the local part, missing top-level domain or bracketed IP domains. `string_ext::is_email` applies the upstream default-policy gates before the native address validator. The pinned JS/Rust differential suite is authoritative for observable acceptance; untested IDN/display-name variants remain an explicit gap.

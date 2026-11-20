@@ -6,6 +6,27 @@ use unicode_normalization::{char::is_combining_mark, UnicodeNormalization};
 use unicode_segmentation::UnicodeSegmentation;
 
 pub fn is_email(value: &str) -> bool {
+    // Match validator.js default policy, which is stricter than the RFC
+    // address parser about unquoted consecutive local-part dots, a required
+    // top-level domain and bracketed IP-domain literals.
+    if value.is_empty() || value.len() > 254 || value.trim() != value {
+        return false;
+    }
+    let Some((local, domain)) = value.rsplit_once('@') else {
+        return false;
+    };
+    if local.is_empty()
+        || domain.starts_with('[')
+        || !domain.contains('.')
+        || domain.ends_with('.')
+    {
+        return false;
+    }
+    if !local.starts_with('"')
+        && (local.starts_with('.') || local.ends_with('.') || local.contains(".."))
+    {
+        return false;
+    }
     email_address::EmailAddress::is_valid(value)
 }
 
@@ -75,6 +96,9 @@ mod tests {
         assert_eq!(snake_case("Déjà Vu"), "deja_vu");
         assert!(is_email("jane+tag@example.co.uk"));
         assert!(!is_email("x@@domain.com"));
+        assert!(!is_email("a..b@example.com"));
+        assert!(!is_email("user@example"));
+        assert!(!is_email("user@[127.0.0.1]"));
     }
     #[test]
     fn unicode_non_latin_survives_latin_deburr() {
