@@ -21,7 +21,7 @@ heck = "0.5"
 email_address = "0.2"
 unicode-normalization = "0.1"
 regex = "1"
-fastembed = { version = "=7.7.1", default-features = false, features = ["onnx"], optional = true }
+fastembed = { version = "=7.7.1", default-features = false, features = ["onnx", "hf-hub"], optional = true }
 base64 = "0.22"
 
 # Hosted SDK adapters are optional; default builds remain portable and credential-free.
