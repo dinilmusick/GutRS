@@ -88,8 +88,12 @@ fn whistle() -> ModelMetadata {
         description: "Compact CPU speech-recognition model for on-device transcription.".into(),
         examples: words(&["transcribe a voice note", "transcribe a command"]),
         avoid_when: "Avoid when audio understanding beyond transcription is required.".into(),
-        when_to_use: "Use for local speech-to-text when low resource use and privacy matter.".into(),
-        size: ModelSize::Artifact { value: 16.9, unit: "MB".into() },
+        when_to_use: "Use for local speech-to-text when low resource use and privacy matter."
+            .into(),
+        size: ModelSize::Artifact {
+            value: 16.9,
+            unit: "MB".into(),
+        },
         capabilities: words(&["speech-to-text", "on-device", "cpu"]),
         input: "Audio bytes".into(),
         output: "Transcribed natural-language text".into(),
@@ -127,7 +131,10 @@ fn minilm() -> ModelMetadata {
         examples: words(&["compare two texts", "match a query to a short description"]),
         avoid_when: "Avoid when generation, extraction, or tool calling is required.".into(),
         when_to_use: "Use for lightweight semantic similarity and embedding-based matching.".into(),
-        size: ModelSize::Parameters { value: 22_700_000.0, unit: "parameters".into() },
+        size: ModelSize::Parameters {
+            value: 22_700_000.0,
+            unit: "parameters".into(),
+        },
         capabilities: words(&["embeddings", "semantic-similarity"]),
         input: "Two text strings".into(),
         output: "Similarity score".into(),
@@ -145,13 +152,18 @@ pub fn gutts_model_definitions() -> Vec<ModelMetadata> {
         whistle(),
         ettin(17, "Very small relevance model for ranking candidate text."),
         ettin(32, "Small relevance model for ranking candidate text."),
-        ettin(68, "Compact relevance model for higher-quality candidate ranking."),
+        ettin(
+            68,
+            "Compact relevance model for higher-quality candidate ranking.",
+        ),
         ettin(150, "Larger compact relevance model for candidate ranking."),
         minilm(),
     ]
 }
 pub fn gutts_model_by_id(id: &str) -> Option<ModelMetadata> {
-    gutts_model_definitions().into_iter().find(|entry| entry.id == id)
+    gutts_model_definitions()
+        .into_iter()
+        .find(|entry| entry.id == id)
 }
 
 /// Native model-runtime adapter contract. Implement with an actual model host.
@@ -178,33 +190,55 @@ pub struct ModelResidency<M> {
 }
 
 impl<M> Default for ModelResidency<M> {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<M> ModelResidency<M> {
     pub fn new() -> Self {
         Self {
-            state: Mutex::new(ResidencyState { model: None, loading: false, unloading: false, users: 0 }),
+            state: Mutex::new(ResidencyState {
+                model: None,
+                loading: false,
+                unloading: false,
+                users: 0,
+            }),
             ready: Condvar::new(),
         }
     }
     fn lock(&self) -> MutexGuard<'_, ResidencyState<M>> {
         self.state.lock().unwrap_or_else(PoisonError::into_inner)
     }
-    fn wait<'a>(&self, guard: MutexGuard<'a, ResidencyState<M>>) -> MutexGuard<'a, ResidencyState<M>> {
-        self.ready.wait(guard).unwrap_or_else(PoisonError::into_inner)
+    fn wait<'a>(
+        &self,
+        guard: MutexGuard<'a, ResidencyState<M>>,
+    ) -> MutexGuard<'a, ResidencyState<M>> {
+        self.ready
+            .wait(guard)
+            .unwrap_or_else(PoisonError::into_inner)
     }
-    pub fn active_users(&self) -> usize { self.lock().users }
-    pub fn is_loaded(&self) -> bool { self.lock().model.is_some() }
+    pub fn active_users(&self) -> usize {
+        self.lock().users
+    }
+    pub fn is_loaded(&self) -> bool {
+        self.lock().model.is_some()
+    }
 
     /// Execute one operation, keeping a shared model resident during overlapping
     /// calls. The last caller always attempts unload after its operation.
     /// Operation errors take precedence over unload errors, as in a finally path.
     pub fn run<R, E, L, U, O>(&self, load: L, unload: U, operation: O) -> Result<R, E>
-    where L: Fn() -> Result<M,E>, U: Fn(Arc<M>) -> Result<(), E>, O: FnOnce(&M) -> Result<R,E> {
+    where
+        L: Fn() -> Result<M, E>,
+        U: Fn(Arc<M>) -> Result<(), E>,
+        O: FnOnce(&M) -> Result<R, E>,
+    {
         let model = loop {
             let mut state = self.lock();
-            while state.loading || state.unloading { state = self.wait(state); }
+            while state.loading || state.unloading {
+                state = self.wait(state);
+            }
             if let Some(model) = state.model.as_ref().cloned() {
                 state.users += 1;
                 break model;
@@ -236,7 +270,9 @@ impl<M> ModelResidency<M> {
         let unload_model = if last {
             state.unloading = true;
             state.model.take()
-        } else { None };
+        } else {
+            None
+        };
         drop(state);
         drop(model);
 
@@ -266,10 +302,16 @@ pub struct ModelLibrary<M> {
 
 impl<M> ModelLibrary<M> {
     pub fn new(metadata: ModelMetadata) -> Self {
-        Self { metadata, residency: ModelResidency::new() }
+        Self {
+            metadata,
+            residency: ModelResidency::new(),
+        }
     }
-    pub fn with_model<R, T, F>(&self, runtime: &R, operation: F) -> Result<T,R::Error>
-    where R: ModelRuntime<M>, F: FnOnce(&M) -> Result<T,R::Error> {
+    pub fn with_model<R, T, F>(&self, runtime: &R, operation: F) -> Result<T, R::Error>
+    where
+        R: ModelRuntime<M>,
+        F: FnOnce(&M) -> Result<T, R::Error>,
+    {
         self.residency.run(
             || runtime.load(&self.metadata),
             |model| runtime.unload(model),
@@ -288,12 +330,21 @@ mod tests {
         let definitions = gutts_model_definitions();
         assert_eq!(definitions.len(), 8);
         assert_eq!(definitions[0].id, "model.smollm2-135m-instruct");
-        assert_eq!(definitions[3].model_uri.as_deref(), Some("cross-encoder/ettin-reranker-17m-v1"));
-        assert_eq!(gutts_model_by_id("model.cactus-needle3").unwrap().version, "3");
+        assert_eq!(
+            definitions[3].model_uri.as_deref(),
+            Some("cross-encoder/ettin-reranker-17m-v1")
+        );
+        assert_eq!(
+            gutts_model_by_id("model.cactus-needle3").unwrap().version,
+            "3"
+        );
         assert!(gutts_model_by_id("unknown").is_none());
         for model in definitions {
             let wire = serde_json::to_value(&model).unwrap();
-            assert_eq!(serde_json::from_value::<ModelMetadata>(wire).unwrap(),model);
+            assert_eq!(
+                serde_json::from_value::<ModelMetadata>(wire).unwrap(),
+                model
+            );
         }
     }
     #[test]
@@ -324,13 +375,13 @@ mod tests {
                             Ok(*model)
                         },
                     );
-                    assert_eq!(outcome,Ok(42));
+                    assert_eq!(outcome, Ok(42));
                 });
             }
         });
-        assert_eq!(loads.load(Ordering::SeqCst),1);
-        assert_eq!(unloads.load(Ordering::SeqCst),1);
-        assert_eq!(residency.active_users(),0);
+        assert_eq!(loads.load(Ordering::SeqCst), 1);
+        assert_eq!(unloads.load(Ordering::SeqCst), 1);
+        assert_eq!(residency.active_users(), 0);
         assert!(!residency.is_loaded());
     }
     #[test]
@@ -341,7 +392,7 @@ mod tests {
             |_model| Ok(()),
             |_model| Ok(()),
         );
-        assert_eq!(failed,Err("load-failed"));
+        assert_eq!(failed, Err("load-failed"));
         assert!(!residency.is_loaded());
         assert_eq!(
             residency.run(|| Ok::<u64, &str>(7), |_model| Ok(()), |model| Ok(*model)),
