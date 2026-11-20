@@ -16,9 +16,12 @@ pub mod native {
         pub fn load() -> Result<Self, String> {
             TextEmbedding::try_new(
                 TextInitOptions::new(EmbeddingModel::AllMiniLML6V2)
-                    .with_show_download_progress(false)
-            ).map(|model| Self { model: Mutex::new(model) })
-                .map_err(|error| error.to_string())
+                    .with_show_download_progress(false),
+            )
+            .map(|model| Self {
+                model: Mutex::new(model),
+            })
+            .map_err(|error| error.to_string())
         }
     }
     /// Deterministic vector cosine; never returns fabricated default success.
@@ -45,9 +48,12 @@ pub mod native {
     impl MiniLMInference for NativeMiniLM {
         type Error = String;
         fn similarity(&self, left: &str, right: &str) -> Result<f64, Self::Error> {
-            let mut model = self.model.lock()
-                .map_err(|_|"MiniLM ONNX model lock is poisoned".to_string())?;
-            let embeddings = model.embed(vec![left, right], None)
+            let mut model = self
+                .model
+                .lock()
+                .map_err(|_| "MiniLM ONNX model lock is poisoned".to_string())?;
+            let embeddings = model
+                .embed(vec![left, right], None)
                 .map_err(|error| error.to_string())?;
             if embeddings.len() != 2 {
                 return Err("MiniLM runtime returned an unexpected embedding count".into());
@@ -57,9 +63,9 @@ pub mod native {
     }
     #[test]
     fn cosine_engine_rejects_invalid_vectors() {
-        assert!((cosine_similarity(&[1.0,0.0], &[1.0,0.0]).unwrap()-1.0).abs()<1e-12);
+        assert!((cosine_similarity(&[1.0, 0.0], &[1.0, 0.0]).unwrap() - 1.0).abs() < 1e-12);
         assert!(cosine_similarity(&[0.0], &[0.0]).is_err());
         assert!(cosine_similarity(&[f32::NAN], &[1.0]).is_err());
-        assert!(cosine_similarity(&[1.0], &[1.0,0.0]).is_err());
+        assert!(cosine_similarity(&[1.0], &[1.0, 0.0]).is_err());
     }
 }
