@@ -68,8 +68,9 @@ pub mod native {
                 .reranker
                 .lock()
                 .map_err(|_| "Ettin model lock is poisoned".to_string())?;
+            let documents: Vec<&str> = candidates.iter().map(String::as_str).collect();
             let ranked = engine
-                .rerank(query, candidates, false, Some(16))
+                .rerank(query, &documents, false, Some(16))
                 .map_err(|e| e.to_string())?;
             if ranked.len() != candidates.len() {
                 return Err("Ettin ONNX returned unexpected score count".into());
