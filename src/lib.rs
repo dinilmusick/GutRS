@@ -244,3 +244,6 @@ pub mod auth_host;
 
 /// Checked, strongly typed OAuth, capability and invocation wire contracts.
 pub mod auth_wires;
+
+/// Typed real-model inference adapters and model family wrappers.
+pub mod model_operations;

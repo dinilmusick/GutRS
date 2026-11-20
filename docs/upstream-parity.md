@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **139 have an explicit Rust mapping** (including partial equivalents), **56 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **165 have an explicit Rust mapping** (including partial equivalents), **30 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -135,37 +135,37 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `ApplicationAuthClient` | `auth_host::ApplicationAuthClient` | `src/auth/applicationAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `createApplicationAuthClient` | `auth_host::create_application_auth_client` | `src/auth/applicationAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `ModelMetadata` | `models::ModelMetadata` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
-| `ModelLoadContext` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
+| `ModelLoadContext` | `model_operations::ModelLoadContext` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
 | `ModelRuntime` | `models::ModelRuntime` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
-| `ModelLease` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `ModelLoader` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `ModelUnloader` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
+| `ModelLease` | `model_operations::ModelLease` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `ModelLoader` | `model_operations::ModelLoader` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `ModelUnloader` | `model_operations::ModelUnloader` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
 | `ModelResidency` | `models::ModelResidency` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
 | `ModelLibrary` | `models::ModelLibrary` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
 | `guttsModelDefinitions` | `models::gutts_model_definitions` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
 | `guttsModelById` | `models::gutts_model_by_id` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
-| `Needle3` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `needle3CompleteApi` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `needle3Metadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `SmolLM2` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `smolLM2GenerateApi` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `smolLM2Metadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `Whistle` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `whistleTranscribeApi` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `whistleMetadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `EttinReranker` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `EttinReranker17M` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `EttinReranker32M` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `EttinReranker68M` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `EttinReranker150M` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `ettinRerankApi` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `ettinReranker17MMetadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `ettinReranker32MMetadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `ettinReranker68MMetadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `ettinReranker150MMetadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `MiniLM` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `miniLMSimilarityApi` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `miniLML6Metadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
+| `Needle3` | `model_operations::Needle3` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `needle3CompleteApi` | `model_operations::needle3_complete_api` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `needle3Metadata` | `model_operations::needle3_metadata` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `SmolLM2` | `model_operations::SmolLM2` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `smolLM2GenerateApi` | `model_operations::smollm2_generate_api` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `smolLM2Metadata` | `model_operations::smollm2_metadata` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `Whistle` | `model_operations::Whistle` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `whistleTranscribeApi` | `model_operations::whistle_transcribe_api` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `whistleMetadata` | `model_operations::whistle_metadata` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `EttinReranker` | `model_operations::EttinReranker` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `EttinReranker17M` | `model_operations::EttinReranker17M` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `EttinReranker32M` | `model_operations::EttinReranker32M` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `EttinReranker68M` | `model_operations::EttinReranker68M` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `EttinReranker150M` | `model_operations::EttinReranker150M` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `ettinRerankApi` | `model_operations::ettin_rerank_api` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `ettinReranker17MMetadata` | `model_operations::ettin_metadata(17)` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `ettinReranker32MMetadata` | `model_operations::ettin_metadata(32)` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `ettinReranker68MMetadata` | `model_operations::ettin_metadata(68)` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `ettinReranker150MMetadata` | `model_operations::ettin_metadata(150)` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `MiniLM` | `model_operations::MiniLM` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `miniLMSimilarityApi` | `model_operations::minilm_similarity_api` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
+| `miniLML6Metadata` | `model_operations::minilm_l6_metadata` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
 | `SemanticInputSchema` | `semantic_input::SemanticInputSchema` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `SemanticInputContext` | `semantic_input::SemanticInputContext` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `SemanticInputErrorCode` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
