@@ -65,7 +65,9 @@ pub fn resolve_trusted_api_url(origin: &str, path: &str) -> Result<Url, TrustedU
     }
     if !path.starts_with('/')
         || path.starts_with("//")
-        || path.contains('#')
+        || path.split('?').next().unwrap_or("").contains('#')
+        || path.contains('\n')
+        || path.contains('\r')
         || path
             .split('?')
             .next()
@@ -88,7 +90,9 @@ pub fn resolve_trusted_api_url(origin: &str, path: &str) -> Result<Url, TrustedU
     if target.origin() != base.origin()
         || !target.username().is_empty()
         || target.password().is_some()
-        || target.fragment().is_some()
+        || target
+            .fragment()
+            .is_some_and(|fragment| !fragment.is_empty())
     {
         return Err(TrustedUrlError::InvalidPath);
     }
@@ -182,6 +186,16 @@ mod tests {
                 resolve_trusted_api_url(origin, "/v1").is_err(),
                 "accepted upstream-forbidden origin {origin:?}"
             );
+        }
+    }
+    #[test]
+    fn empty_query_fragment_matches_pinned_javascript_url_semantics() {
+        let resolved = resolve_trusted_api_url("https://api.example.com", "/v1?x=1#").unwrap();
+        assert_eq!(resolved.to_string(), "https://api.example.com/v1?x=1#");
+        assert!(resolve_trusted_api_url("https://api.example.com", "/v1#").is_err());
+        assert!(resolve_trusted_api_url("https://api.example.com", "/v1?x=1#fragment").is_err());
+        for path in ["/v1?x=1\n", "/v1?x=1\r"] {
+            assert!(resolve_trusted_api_url("https://api.example.com", path).is_err());
         }
     }
 }
