@@ -282,7 +282,9 @@ fn reranker_model(policy: &str) -> &'static str {
 }
 /// Reproduce the exact prompt passed to the pinned GutTS Needle3 model host.
 /// JSON is stringified with ECMAScript property-order and number rules.
-pub fn build_semantic_prompt(request: &SemanticInputRequest) -> Result<String, SemanticRuntimeError> {
+pub fn build_semantic_prompt(
+    request: &SemanticInputRequest,
+) -> Result<String, SemanticRuntimeError> {
     let mut lines = vec![
         "Convert the natural-language input into the supplied target schema.".to_owned(),
         "Return only data conforming to the target schema. Never invent information.".to_owned(),
@@ -329,7 +331,11 @@ pub fn build_semantic_prompt(request: &SemanticInputRequest) -> Result<String, S
             lines.push(format!("Locale: {locale}"));
         }
     }
-    if let Some(candidates) = request.candidates.as_deref().filter(|values| !values.is_empty()) {
+    if let Some(candidates) = request
+        .candidates
+        .as_deref()
+        .filter(|values| !values.is_empty())
+    {
         lines.push(format!("Candidate values: {}", candidates.join(" | ")));
     }
     let schema = crate::json_utils::stringify_json(&request.schema, None)
@@ -712,7 +718,10 @@ mod tests {
     }
     #[test]
     fn pinned_contextual_prompt_includes_all_fields_in_source_order() {
-        let mut request = req("play the keys", json!({"type":"string","enum":["piano","guitar"]}));
+        let mut request = req(
+            "play the keys",
+            json!({"type":"string","enum":["piano","guitar"]}),
+        );
         request.context = Some(json!({
             "application": "Kone",
             "workspace": "Performance",
@@ -760,7 +769,12 @@ mod tests {
             fn similarity(&self, _: &str, _: &str) -> Result<f64, Self::Error> {
                 Ok(0.9)
             }
-            fn rerank(&self, _: &str, _: &str, candidates: &[String]) -> Result<Vec<f64>, Self::Error> {
+            fn rerank(
+                &self,
+                _: &str,
+                _: &str,
+                candidates: &[String],
+            ) -> Result<Vec<f64>, Self::Error> {
                 Ok(vec![0.9; candidates.len()])
             }
             fn complete(&self, prompt: &str, _: &Value) -> Result<Value, Self::Error> {
@@ -787,5 +801,4 @@ mod tests {
             )
         );
     }
-
 }
