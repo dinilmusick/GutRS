@@ -1,0 +1,246 @@
+{
+  "upstream": "3e2cbc0990ba29830ce91c5d1a1d552675d5334c",
+  "cases": [
+    {
+      "kind": "normalize",
+      "path": ""
+    },
+    {
+      "kind": "normalize",
+      "path": "/"
+    },
+    {
+      "kind": "normalize",
+      "path": "/some//folder/"
+    },
+    {
+      "kind": "normalize",
+      "path": "हिंदी/notes.txt"
+    },
+    {
+      "kind": "normalize",
+      "path": "a b/हिंदी.txt"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%C3%A9.txt"
+    },
+    {
+      "kind": "normalize",
+      "path": "docs/100%25-safe.txt"
+    },
+    {
+      "kind": "normalize",
+      "path": "assets/%25C3%25A9.txt"
+    },
+    {
+      "kind": "normalize",
+      "path": "//foo///bar//"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%2525C3%2525A9.txt"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/../b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/./b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%2e%2e/b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%2E/b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%252e%252e/b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%2525252e%2525252e/b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%2f/b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%5c/b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%252f/b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a?b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a#b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a\\b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%xx"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%C3%28"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/\u0000b"
+    },
+    {
+      "kind": "normalize",
+      "path": "a/%"
+    },
+    {
+      "kind": "encode",
+      "path": "a b/हिंदी.txt"
+    },
+    {
+      "kind": "encode",
+      "path": "a!~*'()/b"
+    },
+    {
+      "kind": "encode",
+      "path": "docs/100%25-safe.txt"
+    },
+    {
+      "kind": "encode",
+      "path": "assets/%C3%A9.txt"
+    },
+    {
+      "kind": "encode",
+      "path": "a/😊"
+    },
+    {
+      "kind": "encode",
+      "path": "/"
+    },
+    {
+      "kind": "encode",
+      "path": "a/../b"
+    },
+    {
+      "kind": "encode",
+      "path": "a/%2f/b"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://gitlab.com",
+      "path": "/api/v4/projects/team%2Frepo?per_page=10"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/v1?x=1#"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/v1?x=1"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com?",
+      "path": "/v1"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com#",
+      "path": "/v1"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/a#"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/a?x=1#fragment"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/x/../escape"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/x/%252e%252e/escape"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/x/%5c/escape"
+    },
+    {
+      "kind": "resolve",
+      "origin": "http://api.example.com",
+      "path": "/v1"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://user:token@api.example.com",
+      "path": "/v1"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com/v1",
+      "path": "/v1"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com/?secret=x",
+      "path": "/v1"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "//attacker.test"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/a?x=hello world"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/a?x=1%23"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/a?x=1\n"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/a?x=1\r"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/a?x=\t"
+    },
+    {
+      "kind": "resolve",
+      "origin": "https://api.example.com",
+      "path": "/x%2Fy?x=2"
+    }
+  ]
+}
