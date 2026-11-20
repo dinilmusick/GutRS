@@ -268,7 +268,7 @@ Optional feature `minilm-native` uses FastEmbed 7.7.1 to load the exact `sentenc
 
 ## Exact Ettin reranker native inference
 
-`ettin-native` uses the published `cross-encoder/ettin-reranker-{17,32,68,150}m-v1` ONNX archives with FastEmbed's real cross-encoder runtime. `NativeEttin::load(size)` resolves the exact Hugging Face repository and caches its model, tokenizer and configuration; it never falls back to a different size. `EttinInference::rerank` preserves the caller's original candidate ordering and checks result count, score finiteness and indices. A separate Linux CI job evaluates the actual 17M model. Other sizes use the same code path but need their own live-weights certification. ONNX scores are genuine native inference, not synthetic keyword matching.
+`ettin-native` uses the published `cross-encoder/ettin-reranker-{17,32,68,150}m-v1` ONNX archives with FastEmbed's real cross-encoder runtime. `NativeEttin::load(size)` resolves the exact Hugging Face repository and caches its model, tokenizer and configuration; it never falls back to a different size. `EttinInference::rerank` preserves the caller's original candidate ordering and checks result count, score finiteness and indices. A four-size Linux CI matrix separately downloads and executes the exact 17M, 32M, 68M and 150M models. Each size must pass its own true-weight inference check; passing one size is not accepted as evidence for the others. ONNX scores are genuine native inference, not synthetic keyword matching.
 
 ## Real SmolLM2 language generation
 
@@ -287,3 +287,7 @@ The Windows MSVC all-feature matrix sets `CFLAGS=/MD` and `CXXFLAGS=/MD` for the
 ## ECMAScript JSON stringification fidelity
 
 The JSON serializer uses `serde_json/preserve_order` to retain object property insertion order, reorders canonical integer-index keys as JavaScript enumerates them, and uses `ryu-js` (ECMAScript number formatting). Recursive indentation follows `JSON.stringify(value, null, space)`, including clamping numeric space to ten. Additional pinned upstream differential fixtures exercise non-alphabetical keys, integer-like properties and floating-point boundaries. Genuine platform exceptions remain for JS values outside the JSON domain (undefined, functions, symbols, cycles and lone UTF-16 surrogate code units).
+
+### Four-size Ettin live inference matrix
+
+The `native-ettin-live` CI matrix now validates every shipped size (17M, 32M, 68M, 150M) independently through the actual ONNX checkpoint. `ETTIN_MODEL_SIZE` selects the fixture under test, but production always validates size against the exact published model family. This strengthens host-specific end-to-end coverage beyond metadata parity and the pinned numerical score-head differential.
