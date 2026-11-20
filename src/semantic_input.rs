@@ -364,7 +364,9 @@ pub fn resolve_semantic_input<R: SemanticInputRuntime>(
             "Semantic resolution was aborted.",
             raw,
         );
-        result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(request, false)));
+        result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(
+            request, false
+        )));
         return result;
     }
     let cache_key = serde_json::to_string(request).unwrap_or_else(|_| request.input.clone());
@@ -396,7 +398,9 @@ pub fn resolve_semantic_input<R: SemanticInputRuntime>(
         if requires_confirmation {
             result.requires_confirmation = Some(true);
         }
-        result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(request, true)));
+        result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(
+            request, true
+        )));
         if let Some(cache) = cache.as_deref_mut() {
             cache.set(cache_key, result.clone());
         }
@@ -429,8 +433,11 @@ pub fn resolve_semantic_input<R: SemanticInputRuntime>(
     ) {
         Ok(candidates) => candidates,
         Err(error) => {
-            let mut result = SemanticInputResolution::failed("failed", "MODEL_FAILURE", &error.0, raw);
-            result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(request, false)));
+            let mut result =
+                SemanticInputResolution::failed("failed", "MODEL_FAILURE", &error.0, raw);
+            result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(
+                request, false
+            )));
             return result;
         }
     };
@@ -441,13 +448,11 @@ pub fn resolve_semantic_input<R: SemanticInputRuntime>(
     let output = match runtime.complete(&prompt, &request.schema) {
         Ok(value) => value,
         Err(error) => {
-            let mut result = SemanticInputResolution::failed(
-                "failed",
-                "MODEL_FAILURE",
-                &error.to_string(),
-                raw,
-            );
-            result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(request, false)));
+            let mut result =
+                SemanticInputResolution::failed("failed", "MODEL_FAILURE", &error.to_string(), raw);
+            result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(
+                request, false
+            )));
             return result;
         }
     };
@@ -464,7 +469,9 @@ pub fn resolve_semantic_input<R: SemanticInputRuntime>(
         );
         result.model_output = Some(model_output);
         result.candidates = candidates;
-        result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(request, false)));
+        result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(
+            request, false
+        )));
         return result;
     }
     let mut selected_candidate = None;
@@ -498,12 +505,21 @@ pub fn resolve_semantic_input<R: SemanticInputRuntime>(
     let mut evidence = serde_json::Map::new();
     evidence.insert("needleOutput".into(), model_output.clone());
     evidence.insert("candidates".into(), json!(candidates));
-    if let Some(selected) = selected_candidate.as_ref().filter(|value| !value.is_empty()) {
+    if let Some(selected) = selected_candidate
+        .as_ref()
+        .filter(|value| !value.is_empty())
+    {
         evidence.insert("selectedCandidate".into(), json!(selected));
     }
     if !candidates.is_empty() {
-        evidence.insert("similarityThreshold".into(), json!(request.min_candidate_similarity.unwrap_or(0.65)));
-        evidence.insert("relevanceMarginThreshold".into(), json!(request.min_candidate_margin.unwrap_or(0.15)));
+        evidence.insert(
+            "similarityThreshold".into(),
+            json!(request.min_candidate_similarity.unwrap_or(0.65)),
+        );
+        evidence.insert(
+            "relevanceMarginThreshold".into(),
+            json!(request.min_candidate_margin.unwrap_or(0.15)),
+        );
     }
     let evidence = Value::Object(evidence);
     let mut result = if let Some(value) = value {
@@ -526,7 +542,9 @@ pub fn resolve_semantic_input<R: SemanticInputRuntime>(
     result.candidates = candidates;
     result.model_output = Some(model_output);
     result.evidence = Some(evidence);
-    result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(request, false)));
+    result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(
+        request, false
+    )));
     if let Some(cache) = cache {
         cache.set(cache_key, result.clone());
     }
