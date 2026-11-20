@@ -259,3 +259,6 @@ pub mod storage_adapters;
 
 /// Optional real Cactus Compute on-device Needle3 and Whistle engines.
 pub mod cactus_native;
+
+/// Explicit real-model host dispatch for all five pinned inference API IDs.
+pub mod model_dispatch;

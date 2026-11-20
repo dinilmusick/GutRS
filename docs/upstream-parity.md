@@ -233,3 +233,7 @@ The native Rust crate is a single entry graph (`src/lib.rs`). The TypeScript `./
 ## Native Cactus inference target boundaries
 
 Feature `cactus-native` exposes real `cactus-rs` 0.2.1 Needle3 and Whistle CPU engine types on `x86_64-unknown-linux-gnu` and `aarch64-apple-darwin`. This is **conditional native SDK equivalence**, not a claim that the JavaScript `cactus-needle` runtime can be used unmodified. The engines require valid model weights, and the host integration must handle Cactus's process-global model lifetime and thread-safety rules. Upstream native archives do not support Intel macOS or Windows MSVC; the feature compiles without native Cactus on those targets. A live on-device inference/transcription test is pending authenticated model weights and real supported hardware. The third-party binding is independent of Cactus Compute; review its licensing and static-link requirements before distribution.
+
+## Model execution by exact API ID
+
+`model_dispatch::execute_gutts_api_with_models` implements dispatch for all five model API metadata IDs through `GuttsModelDispatch`. Caller-supplied inference engines must do the actual work; missing engines never produce success. Whistle audio uses an explicit RFC4648 base64 native wire encoding. Model quality and actual weights still require independent live-engine verification.
