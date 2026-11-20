@@ -223,8 +223,8 @@ mod tests {
     fn upstream_wire_shapes_round_trip_without_unrecognized_capabilities() {
         let request = json!({
             "workspaceId":"workspace-1","command":"cargo test","cwd":"/repo",
-            "network":"restricted","resources":{"cpu":2,"memoryMb":1024},
-            "timeoutMs":30000
+            "network":"restricted","resources":{"cpu":2.0,"memoryMb":1024.0},
+            "timeoutMs":30000.0
         });
         let typed: ExecutionRequest = serde_json::from_value(request.clone()).unwrap();
         assert_eq!(typed.network, Some(NetworkPolicy::Restricted));
