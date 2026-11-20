@@ -70,3 +70,17 @@ jobs:
         run: cargo run --quiet --example export_registry > rust-registry.json
       - name: Execute same golden cases against actual upstream
         run: node scripts/check-upstream-golden.mjs
+
+  native-cactus-live:
+    name: Actual on-device Needle3 and Whistle inference (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt
+      - name: Link Cactus static engine with Linux C++ standard library
+        run: sudo apt-get update -qq && sudo apt-get install -y libc++-dev libc++abi-dev
+      - name: Execute real pinned-weights Cactus CPU inference
+        run: cargo test --features cactus-native --test native_cactus_live -- --ignored --nocapture

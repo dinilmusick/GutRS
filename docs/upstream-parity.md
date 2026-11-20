@@ -245,3 +245,7 @@ With `cactus-native` on a supported host, `cactus_native::native::CactusNeedle3`
 ## Composing model runtimes
 
 `model_host::ModelHost::new(needle, smollm, whistle, ettin, minilm)` accepts five *actual implementations* of the model-family interfaces and itself implements `model_dispatch::GuttsModelDispatch`. The fully typed public model API dispatcher can then execute native calls through the supplied engines. The included test engines are unit-test doubles, not production inferencers. The optional Cactus native adapter implements real Needle3 and Whistle. Live SmolLM2, Ettin and MiniLM backends are still caller-provided, and model-weight inference requires separate end-to-end verification.
+
+## Actual engine verification
+
+The Linux CI job `native-cactus-live` downloads and checksum-verifies public Cactus Needle3 and Whistle weight files, then executes an actual Needle3 inference and embedding plus Whistle 16-kHz speech transcription on the native Cactus CPU engine. It is intentionally separate from deterministic unit tests because model archives are network-fetched and CPU execution is host-specific. Results must be checked on the exact PR SHA; a workflow passing utility checks alone does **not** establish live-model verification.
