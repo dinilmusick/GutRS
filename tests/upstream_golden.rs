@@ -1,7 +1,7 @@
 //! Cross-language SOURCE-DERIVED golden cases against actual public Rust API.
 //! Every fixture lists the exact pinned TypeScript commit and expected behavior.
 use gutrs::{
-    arrays, auth_contracts, identity, json_utils, numbers, objects, strings, url_operations, urls,
+    arrays, auth_contracts, identity, json_utils, numbers, objects, string_ext, strings, url_operations, urls,
 };
 use serde_json::{json, Value};
 
@@ -73,6 +73,11 @@ fn source_derived_pinned_public_contracts() {
                     .collect::<Vec<_>>()
             )),
             "strings.isBlank" => json!(strings::is_blank(arg_string(input, "value"))),
+            "strings.isEmail" => json!(string_ext::is_email(arg_string(input, "value"))),
+            "strings.capitalize" => json!(string_ext::capitalize(arg_string(input, "value"))),
+            "strings.camelCase" => json!(string_ext::camel_case(arg_string(input, "value"))),
+            "strings.kebabCase" => json!(string_ext::kebab_case(arg_string(input, "value"))),
+            "strings.snakeCase" => json!(string_ext::snake_case(arg_string(input, "value"))),
             "strings.startsWithAny" => json!(strings::starts_with_any(
                 arg_string(input, "value"),
                 &str_values(&input["prefixes"])

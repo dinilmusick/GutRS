@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **96 have an explicit Rust mapping** (including partial equivalents), **99 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **101 have an explicit Rust mapping** (including partial equivalents), **94 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -19,13 +19,13 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `stringifyJson` | `json_utils::stringify_json` | `src/json/json-concepts.ts` → `src/json_utils.rs` | tests/upstream_golden.rs; module unit tests | △ partial / differential pending |
 | `isBlank` | `strings::is_blank` | `src/strings/string-concepts.ts` → `src/strings.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `isNonBlank` | `strings::is_non_blank` | `src/strings/string-concepts.ts` → `src/strings.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
-| `isEmail` | `—` | `src/strings/string-concepts.ts` → `—` | — | ❌ missing |
+| `isEmail` | `string_ext::is_email` | `src/strings/string-concepts.ts` → `src/string_ext.rs` | tests/upstream_golden.rs + upstream JS | △ policy/Unicode differentials pending |
 | `startsWithAny` | `strings::starts_with_any` | `src/strings/string-concepts.ts` → `src/strings.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `endsWithAny` | `strings::ends_with_any` | `src/strings/string-concepts.ts` → `src/strings.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
-| `capitalize` | `—` | `src/strings/string-concepts.ts` → `—` | — | ❌ missing |
-| `camelCase` | `—` | `src/strings/string-concepts.ts` → `—` | — | ❌ missing |
-| `kebabCase` | `—` | `src/strings/string-concepts.ts` → `—` | — | ❌ missing |
-| `snakeCase` | `—` | `src/strings/string-concepts.ts` → `—` | — | ❌ missing |
+| `capitalize` | `string_ext::capitalize` | `src/strings/string-concepts.ts` → `src/string_ext.rs` | tests/upstream_golden.rs + upstream JS | △ policy/Unicode differentials pending |
+| `camelCase` | `string_ext::camel_case` | `src/strings/string-concepts.ts` → `src/string_ext.rs` | tests/upstream_golden.rs + upstream JS | △ policy/Unicode differentials pending |
+| `kebabCase` | `string_ext::kebab_case` | `src/strings/string-concepts.ts` → `src/string_ext.rs` | tests/upstream_golden.rs + upstream JS | △ policy/Unicode differentials pending |
+| `snakeCase` | `string_ext::snake_case` | `src/strings/string-concepts.ts` → `src/string_ext.rs` | tests/upstream_golden.rs + upstream JS | △ policy/Unicode differentials pending |
 | `truncate` | `truncate::truncate_numeric` | `src/strings/string-concepts.ts` → `src/truncate.rs` | tests/upstream_golden.rs; module unit tests | △ partial / differential pending |
 | `truncateWords` | `strings::truncate_words` | `src/strings/string-concepts.ts` → `src/strings.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `compact` | `arrays::compact` | `src/arrays/array-concepts.ts` → `src/arrays.rs` | tests/upstream_golden.rs; module unit tests | △ partial / differential pending |

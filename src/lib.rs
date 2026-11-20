@@ -232,3 +232,6 @@ pub mod models;
 
 /// API definition registry, FOD node conversion and executable utility dispatch.
 pub mod api;
+
+/// Unicode-aware native case conversion and email-address validation.
+pub mod string_ext;

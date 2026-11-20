@@ -277,6 +277,48 @@
       "expected": {
         "error": "NON_CANONICAL_REDIRECT_URI"
       }
+    },
+    {
+      "symbol": "strings.isEmail",
+      "input": {
+        "value": "jane+tag@example.co.uk"
+      },
+      "expected": true
+    },
+    {
+      "symbol": "strings.isEmail",
+      "input": {
+        "value": "x@@domain.com"
+      },
+      "expected": false
+    },
+    {
+      "symbol": "strings.capitalize",
+      "input": {
+        "value": "fRED FROG"
+      },
+      "expected": "Fred frog"
+    },
+    {
+      "symbol": "strings.camelCase",
+      "input": {
+        "value": "Foo Bar_baz"
+      },
+      "expected": "fooBarBaz"
+    },
+    {
+      "symbol": "strings.kebabCase",
+      "input": {
+        "value": "XMLHttpRequest"
+      },
+      "expected": "xml-http-request"
+    },
+    {
+      "symbol": "strings.snakeCase",
+      "input": {
+        "value": "Déjà Vu"
+      },
+      "expected": "deja_vu"
     }
   ]
 }

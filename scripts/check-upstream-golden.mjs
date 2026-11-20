@@ -43,6 +43,11 @@ for (const test of fixtures.cases) {
    case 'numbers.inRange': actual=numbers.inRange(i.value,i.min,i.max);break;
    case 'numbers.roundTo': actual=numbers.roundTo(i.value,i.decimals);break;
    case 'numbers.sum': actual=numbers.sum(i.values);break;
+   case 'strings.isEmail': actual=strings.isEmail(i.value);break;
+   case 'strings.capitalize': actual=strings.capitalize(i.value);break;
+   case 'strings.camelCase': actual=strings.camelCase(i.value);break;
+   case 'strings.kebabCase': actual=strings.kebabCase(i.value);break;
+   case 'strings.snakeCase': actual=strings.snakeCase(i.value);break;
    case 'strings.isBlank': actual=strings.isBlank(i.value);break;
    case 'strings.startsWithAny': actual=strings.startsWithAny(i.value,i.prefixes);break;
    case 'strings.endsWithAny': actual=strings.endsWithAny(i.value,i.suffixes);break;

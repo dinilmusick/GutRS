@@ -354,6 +354,11 @@ fn execute_utility(name: &str, input: &Value) -> Result<Option<Value>, ApiError>
         "isPlainObject" => json!(objects::is_plain_object(require(input, "value")?)),
         "isBlank" => json!(native_strings::is_blank(string(input, "value")?)),
         "isNonBlank" => json!(native_strings::is_non_blank(string(input, "value")?)),
+        "isEmail" => json!(crate::string_ext::is_email(string(input, "value")?)),
+        "capitalize" => json!(crate::string_ext::capitalize(string(input, "value")?)),
+        "camelCase" => json!(crate::string_ext::camel_case(string(input, "value")?)),
+        "kebabCase" => json!(crate::string_ext::kebab_case(string(input, "value")?)),
+        "snakeCase" => json!(crate::string_ext::snake_case(string(input, "value")?)),
         "startsWithAny" => json!(native_strings::starts_with_any(
             string(input, "value")?,
             &strings(input, "prefixes")?
