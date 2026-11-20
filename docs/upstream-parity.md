@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **79 have an explicit Rust mapping** (including partial equivalents), **116 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **85 have an explicit Rust mapping** (including partial equivalents), **110 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -134,16 +134,16 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `ApplicationAuthClientConfig` | `—` | `src/auth/applicationAuthClient.ts` → `—` | — | ❌ missing |
 | `ApplicationAuthClient` | `—` | `src/auth/applicationAuthClient.ts` → `—` | — | ❌ missing |
 | `createApplicationAuthClient` | `—` | `src/auth/applicationAuthClient.ts` → `—` | — | ❌ missing |
-| `ModelMetadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
+| `ModelMetadata` | `models::ModelMetadata` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
 | `ModelLoadContext` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `ModelRuntime` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
+| `ModelRuntime` | `models::ModelRuntime` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
 | `ModelLease` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
 | `ModelLoader` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
 | `ModelUnloader` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `ModelResidency` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `ModelLibrary` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `guttsModelDefinitions` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `guttsModelById` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
+| `ModelResidency` | `models::ModelResidency` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
+| `ModelLibrary` | `models::ModelLibrary` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
+| `guttsModelDefinitions` | `models::gutts_model_definitions` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
+| `guttsModelById` | `models::gutts_model_by_id` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
 | `Needle3` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
 | `needle3CompleteApi` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
 | `needle3Metadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |

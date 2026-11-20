@@ -226,3 +226,6 @@ pub mod auth_contracts;
 pub mod auth_types;
 /// Serializable host-agnostic engineering request, artifact and grant wire types.
 pub mod engineering;
+
+/// Pinned model metadata, native load/unload adapter and shared residency.
+pub mod models;
