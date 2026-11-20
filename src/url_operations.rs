@@ -26,16 +26,21 @@ pub fn set_query_param(input: &str, key: &str, value: &str) -> Result<String, In
         .query_pairs()
         .map(|(k, v)| (k.into_owned(), v.into_owned()))
         .collect();
-    if let Some(first) = pairs.iter().position(|(k, _)| k == key) {
-        pairs[first].1 = value.to_owned();
-        let mut index = pairs.len();
-        while index > first + 1 {
-            index -= 1;
-            if pairs[index].0 == key {
-                pairs.remove(index);
-            }
+    // URLSearchParams.set replaces the first matching pair and removes later
+    // duplicates while preserving the order of unrelated parameters.
+    let mut found = false;
+    pairs.retain_mut(|(name, existing)| {
+        if name != key {
+            return true;
         }
-    } else {
+        if found {
+            return false;
+        }
+        *existing = value.to_owned();
+        found = true;
+        true
+    });
+    if !found {
         pairs.push((key.to_owned(), value.to_owned()));
     }
     parsed
@@ -68,6 +73,22 @@ mod tests {
         );
         assert_eq!(get_query_param("https://example.com/", "a").unwrap(), None);
         assert!(get_query_param("/relative", "a").is_err());
+    }
+
+    #[test]
+    fn replaces_multiple_duplicates_without_reordering_other_keys() {
+        assert_eq!(
+            set_query_param("https://example.com/?a=1&b=2&a=3&c=4&a=5", "a", "updated").unwrap(),
+            "https://example.com/?a=updated&b=2&c=4"
+        );
+        assert_eq!(
+            set_query_param("https://example.com/?b=2&a=1&a=3", "a", "").unwrap(),
+            "https://example.com/?b=2&a="
+        );
+        assert_eq!(
+            set_query_param("https://example.com/?b=2#section", "a", "x y").unwrap(),
+            "https://example.com/?b=2&a=x+y#section"
+        );
     }
 
     #[test]
