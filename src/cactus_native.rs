@@ -21,15 +21,15 @@ pub mod native {
         Language, TranscribeOptions, Weights as WhistleWeights, Whistle as NodeCactusWhistleRuntime,
     };
 
-    use crate::model_operations::{Needle3Inference,WhistleInference};
-    use serde_json::{json,Value};
+    use crate::model_operations::{Needle3Inference, WhistleInference};
+    use serde_json::{json, Value};
     use std::sync::Mutex;
 
     #[derive(Debug)]
     pub struct CactusNativeError(pub String);
     impl std::fmt::Display for CactusNativeError {
-        fn fmt(&self,f:&mut std::fmt::Formatter<'_>)->std::fmt::Result {
-            write!(f,"{}",self.0)
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            write!(f, "{}", self.0)
         }
     }
     impl std::error::Error for CactusNativeError {}
@@ -41,23 +41,42 @@ pub mod native {
         engine: Mutex<NodeCactusNeedle3Runtime>,
     }
     impl CactusNeedle3 {
-        pub fn new(engine:NodeCactusNeedle3Runtime)->Self{
-            Self{engine:Mutex::new(engine)}
+        pub fn new(engine: NodeCactusNeedle3Runtime) -> Self {
+            Self {
+                engine: Mutex::new(engine),
+            }
         }
     }
-    impl Needle3Inference for CactusNeedle3{
-        type Error=CactusNativeError;
-        fn complete(&self,prompt:&str,tools:Option<&Value>,schema:Option<&Value>)
-            ->Result<Value,Self::Error>{
-            if tools.is_some()||schema.is_some(){
-                return Err(CactusNativeError("dynamic tools/schema require preconfigured NeedleBuilder".into()));
+    impl Needle3Inference for CactusNeedle3 {
+        type Error = CactusNativeError;
+        fn complete(
+            &self,
+            prompt: &str,
+            tools: Option<&Value>,
+            schema: Option<&Value>,
+        ) -> Result<Value, Self::Error> {
+            if tools.is_some() || schema.is_some() {
+                return Err(CactusNativeError(
+                    "dynamic tools/schema require preconfigured NeedleBuilder".into(),
+                ));
             }
-            let mut engine=self.engine.lock().map_err(|_|CactusNativeError("Needle3 engine lock poisoned".into()))?;
-            let answer=engine.complete(prompt).map_err(|e|CactusNativeError(e.to_string()))?;
+            let mut engine = self
+                .engine
+                .lock()
+                .map_err(|_| CactusNativeError("Needle3 engine lock poisoned".into()))?;
+            let answer = engine
+                .complete(prompt)
+                .map_err(|e| CactusNativeError(e.to_string()))?;
             // Completion implements Deserialize but intentionally not Serialize.
             // Map its published getters to a stable JSON response without
             // pretending the raw engine JSON envelope is available.
-            let kind=if answer.kind().is_call(){"call"}else if answer.kind().is_respond(){"respond"}else{"unknown"};
+            let kind = if answer.kind().is_call() {
+                "call"
+            } else if answer.kind().is_respond() {
+                "respond"
+            } else {
+                "unknown"
+            };
             Ok(json!({
                 "type":kind,
                 "function_calls":answer.calls(),
@@ -65,63 +84,83 @@ pub mod native {
                 "confidence":answer.confidence(),
             }))
         }
-        fn embed(&self,input:&str)->Result<Vec<f32>,Self::Error>{
-            let mut engine=self.engine.lock().map_err(|_|CactusNativeError("Needle3 engine lock poisoned".into()))?;
-            engine.embed(input).map_err(|e|CactusNativeError(e.to_string()))
+        fn embed(&self, input: &str) -> Result<Vec<f32>, Self::Error> {
+            let mut engine = self
+                .engine
+                .lock()
+                .map_err(|_| CactusNativeError("Needle3 engine lock poisoned".into()))?;
+            engine
+                .embed(input)
+                .map_err(|e| CactusNativeError(e.to_string()))
         }
     }
 
     /// Actual Whistle accepts 16 kHz mono PCM f32, not compressed audio.
     /// For the native model inference interface the input is explicitly
     /// 16-bit little-endian signed PCM at 16 kHz.
-    pub fn decode_pcm16_mono(bytes:&[u8])->Result<Vec<f32>,CactusNativeError>{
-        if bytes.len()%2!=0{
-            return Err(CactusNativeError("PCM16 audio has an odd byte length".into()));
+    pub fn decode_pcm16_mono(bytes: &[u8]) -> Result<Vec<f32>, CactusNativeError> {
+        if bytes.len() % 2 != 0 {
+            return Err(CactusNativeError(
+                "PCM16 audio has an odd byte length".into(),
+            ));
         }
-        if bytes.len()>960_000 {
-            return Err(CactusNativeError("Whistle clips cannot exceed 30 seconds".into()));
+        if bytes.len() > 960_000 {
+            return Err(CactusNativeError(
+                "Whistle clips cannot exceed 30 seconds".into(),
+            ));
         }
-        Ok(bytes.chunks_exact(2).map(|b|{
-            f32::from(i16::from_le_bytes([b[0],b[1]]))/32768.0
-        }).collect())
+        Ok(bytes
+            .chunks_exact(2)
+            .map(|b| f32::from(i16::from_le_bytes([b[0], b[1]])) / 32768.0)
+            .collect())
     }
-    fn language_code(code:&str)->Result<Language,CactusNativeError>{
-        match code{
-            "en"=>Ok(Language::En),"de"=>Ok(Language::De),
-            "fr"=>Ok(Language::Fr),"es"=>Ok(Language::Es),
-            "it"=>Ok(Language::It),"nl"=>Ok(Language::Nl),
-            "pl"=>Ok(Language::Pl),
-            _=>Err(CactusNativeError("Whistle language is unsupported".into())),
+    fn language_code(code: &str) -> Result<Language, CactusNativeError> {
+        match code {
+            "en" => Ok(Language::En),
+            "de" => Ok(Language::De),
+            "fr" => Ok(Language::Fr),
+            "es" => Ok(Language::Es),
+            "it" => Ok(Language::It),
+            "nl" => Ok(Language::Nl),
+            "pl" => Ok(Language::Pl),
+            _ => Err(CactusNativeError("Whistle language is unsupported".into())),
         }
     }
     pub struct CactusWhistle {
-        engine:Mutex<NodeCactusWhistleRuntime>,
+        engine: Mutex<NodeCactusWhistleRuntime>,
     }
     impl CactusWhistle {
-        pub fn new(engine:NodeCactusWhistleRuntime)->Self{
-            Self{engine:Mutex::new(engine)}
+        pub fn new(engine: NodeCactusWhistleRuntime) -> Self {
+            Self {
+                engine: Mutex::new(engine),
+            }
         }
     }
-    impl WhistleInference for CactusWhistle{
-        type Error=CactusNativeError;
-        fn transcribe(&self,audio:&[u8],language:Option<&str>)
-            ->Result<String,Self::Error>{
-            let pcm=decode_pcm16_mono(audio)?;
-            let options=if let Some(code)=language{
+    impl WhistleInference for CactusWhistle {
+        type Error = CactusNativeError;
+        fn transcribe(&self, audio: &[u8], language: Option<&str>) -> Result<String, Self::Error> {
+            let pcm = decode_pcm16_mono(audio)?;
+            let options = if let Some(code) = language {
                 TranscribeOptions::new().with_language(language_code(code)?)
-            }else{TranscribeOptions::new()};
-            let mut engine=self.engine.lock().map_err(|_|CactusNativeError("Whistle engine lock poisoned".into()))?;
-            engine.transcribe_with_options(&pcm,&options)
-                .map(|transcript|transcript.text().to_owned())
-                .map_err(|e|CactusNativeError(e.to_string()))
+            } else {
+                TranscribeOptions::new()
+            };
+            let mut engine = self
+                .engine
+                .lock()
+                .map_err(|_| CactusNativeError("Whistle engine lock poisoned".into()))?;
+            engine
+                .transcribe_with_options(&pcm, &options)
+                .map(|transcript| transcript.text().to_owned())
+                .map_err(|e| CactusNativeError(e.to_string()))
         }
     }
     #[test]
-    fn pcm_audio_and_language_are_validated_before_engine(){
-        assert_eq!(decode_pcm16_mono(&[0,0,255,127]).unwrap().len(),2);
-        assert!(decode_pcm16_mono(&[0,0,0]).is_err());
+    fn pcm_audio_and_language_are_validated_before_engine() {
+        assert_eq!(decode_pcm16_mono(&[0, 0, 255, 127]).unwrap().len(), 2);
+        assert!(decode_pcm16_mono(&[0, 0, 0]).is_err());
         assert!(language_code("xx").is_err());
-        assert_eq!(language_code("pl").unwrap(),Language::Pl);
+        assert_eq!(language_code("pl").unwrap(), Language::Pl);
     }
 
     #[test]
