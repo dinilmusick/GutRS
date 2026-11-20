@@ -151,7 +151,8 @@ fn js_json_equal(left: &Value, right: &Value) -> bool {
         }
         (Value::Object(a), Value::Object(b)) => {
             a.len() == b.len()
-                && a.iter().all(|(k, v)| b.get(k).is_some_and(|u| js_json_equal(v, u)))
+                && a.iter()
+                    .all(|(k, v)| b.get(k).is_some_and(|u| js_json_equal(v, u)))
         }
         _ => left == right,
     }
