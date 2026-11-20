@@ -227,7 +227,7 @@ fn array<'a>(input: &'a Value, key: &str) -> Result<&'a [Value], ApiError> {
         .map(Vec::as_slice)
         .ok_or_else(|| ApiError::InvalidArguments(format!("'{key}' must be array")))
 }
-fn strings(input: &Value, key: &str) -> Result<Vec<&str>, ApiError> {
+fn strings<'a>(input: &'a Value, key: &str) -> Result<Vec<&'a str>, ApiError> {
     array(input, key)?
         .iter()
         .map(|v| {
