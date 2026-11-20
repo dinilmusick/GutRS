@@ -235,3 +235,6 @@ pub mod api;
 
 /// Unicode-aware native case conversion and email-address validation.
 pub mod string_ext;
+
+/// Deterministic semantic parsing and model-backed resolution via explicit host.
+pub mod semantic_input;

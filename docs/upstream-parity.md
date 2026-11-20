@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **101 have an explicit Rust mapping** (including partial equivalents), **94 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **113 have an explicit Rust mapping** (including partial equivalents), **82 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -166,27 +166,27 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `MiniLM` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
 | `miniLMSimilarityApi` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
 | `miniLML6Metadata` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputSchema` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputContext` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
+| `SemanticInputSchema` | `semantic_input::SemanticInputSchema` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
+| `SemanticInputContext` | `semantic_input::SemanticInputContext` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `SemanticInputErrorCode` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
 | `SemanticInputRisk` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
 | `SemanticInputProgress` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
 | `SemanticInputEvent` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
 | `SemanticInputModelPolicy` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputPolicy` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
+| `SemanticInputPolicy` | `semantic_input::SemanticInputPolicy` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `SemanticInputProvenanceStore` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
 | `SemanticInputProvenanceRecord` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
 | `SemanticInputProvenance` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputCandidate` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
+| `SemanticInputCandidate` | `semantic_input::SemanticInputCandidate` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `SemanticInputEvidence` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputClarification` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputResolution` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputCacheKey` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputCache` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputRequest` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `resolveDeterministicSemanticInput` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `rankSemanticInputCandidates` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `resolveSemanticInput` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
+| `SemanticInputClarification` | `semantic_input::SemanticInputClarification` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
+| `SemanticInputResolution` | `semantic_input::SemanticInputResolution` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
+| `SemanticInputCacheKey` | `semantic_input::SemanticInputCacheKey` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
+| `SemanticInputCache` | `semantic_input::SemanticInputCache` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
+| `SemanticInputRequest` | `semantic_input::SemanticInputRequest` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
+| `resolveDeterministicSemanticInput` | `semantic_input::resolve_deterministic_semantic_input` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
+| `rankSemanticInputCandidates` | `semantic_input::rank_semantic_input_candidates` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
+| `resolveSemanticInput` | `semantic_input::resolve_semantic_input` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `S3Client` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
 | `GetObjectCommand` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
 | `HeadObjectCommand` | `—` | `src/storage/s3.ts` → `—` | — | ❌ missing |
