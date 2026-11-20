@@ -218,7 +218,16 @@ fn deterministic_value(input: &str, schema: &Value) -> Option<Value> {
         Some("number") => js_number(text).map(|v| json!(v)),
         Some("integer") => js_number(text)
             .filter(|v| v.fract() == 0.0)
-            .map(|v| json!(v)),
+            .map(|v| {
+                // Preserve the JSON integer wire type for exact integers in
+                // JavaScript's safe-integer interval. Larger values retain
+                // their f64 representation rather than silently truncating.
+                if v.abs() <= 9_007_199_254_740_991.0 {
+                    json!(v as i64)
+                } else {
+                    json!(v)
+                }
+            }),
         Some("boolean") => {
             if text.eq_ignore_ascii_case("true") {
                 Some(json!(true))
@@ -551,7 +560,7 @@ mod tests {
             resolve_deterministic_semantic_input("0x10", &json!({"type":"integer"}))
                 .unwrap()
                 .value,
-            Some(json!(16.0))
+            Some(json!(16))
         );
         assert_eq!(
             resolve_deterministic_semantic_input(
