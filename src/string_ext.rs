@@ -81,10 +81,9 @@ fn split_digit_boundaries(value: &str) -> String {
     let mut output = String::new();
     let mut previous: Option<char> = None;
     for ch in value.chars() {
-        if previous.is_some_and(|last|
-            (last.is_alphabetic() && ch.is_numeric())
-                || (last.is_numeric() && ch.is_alphabetic())
-        ) {
+        if previous.is_some_and(|last| {
+            (last.is_alphabetic() && ch.is_numeric()) || (last.is_numeric() && ch.is_alphabetic())
+        }) {
             output.push(' ');
         }
         output.push(ch);
