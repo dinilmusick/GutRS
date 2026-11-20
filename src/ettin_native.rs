@@ -21,13 +21,14 @@ pub mod native {
     }
     impl NativeEttin {
         pub fn load(size: u16) -> Result<Self, String> {
-            let environment = ort::init().build().map_err(|e|e.to_string())?;
+            let environment = ort::init().build().map_err(|e| e.to_string())?;
             Self::load_in_environment(size, &environment)
         }
         /// Use an existing host-owned ONNX Runtime environment when other
         /// model sessions already share its process-wide resources.
         pub fn load_in_environment(
-            size: u16, environment: &ort::environment::Environment,
+            size: u16,
+            environment: &ort::environment::Environment,
         ) -> Result<Self, String> {
             let model_id = ettin_repo(size)?;
             let repo = hf_hub::api::sync::Api::new()
