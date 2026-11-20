@@ -271,3 +271,6 @@ pub mod minilm_native;
 
 /// Exact pinned Ettin reranker safetensors scoring head with native f32 semantics.
 pub mod ettin_head;
+
+/// Genuine Ettin 17M/32M/68M/150M ONNX cross-encoder inference.
+pub mod ettin_native;

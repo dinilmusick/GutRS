@@ -265,3 +265,7 @@ Optional feature `minilm-native` uses FastEmbed 7.7.1 to load the exact `sentenc
 ## Ettin reranker scoring head
 
 `ettin_head::EttinHeadWeights::from_directory` loads the exact 2_Dense / 3_LayerNorm / 4_Dense model safetensors files from an authorized local model download. `compute_ettin_head_scores` implements the pinned TypeScript GELU → LayerNorm → sigmoid scoring transform with explicit f32 intermediate rounding. CI compares output numerically with the actual pinned JavaScript `computeEttinHeadScores`. The transformer backbone supplying real `last_hidden_state` remains a separate native inference integration requirement; passing this numerical differential alone does not establish end-to-end Ettin inference.
+
+## Exact Ettin reranker native inference
+
+`ettin-native` uses the published `cross-encoder/ettin-reranker-{17,32,68,150}m-v1` ONNX archives with FastEmbed's real cross-encoder runtime. `NativeEttin::load(size)` resolves the exact Hugging Face repository and caches its model, tokenizer and configuration; it never falls back to a different size. `EttinInference::rerank` preserves the caller's original candidate ordering and checks result count, score finiteness and indices. A separate Linux CI job evaluates the actual 17M model. Other sizes use the same code path but need their own live-weights certification. ONNX scores are genuine native inference, not synthetic keyword matching.

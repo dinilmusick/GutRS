@@ -100,3 +100,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Load pinned MiniLM weights and run real ONNX CPU inference
         run: cargo test --features minilm-native --test native_minilm_live -- --ignored --nocapture
+
+  native-ettin-live:
+    name: Actual Ettin 17M reranker inference (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Execute exact Ettin 17M ONNX CPU reranking
+        run: cargo test --features ettin-native --test native_ettin_live -- --ignored --nocapture
