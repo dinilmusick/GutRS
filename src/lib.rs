@@ -211,3 +211,10 @@ pub mod trusted_api;
 
 /// WHATWG-compatible URL query operations (portable GutTS subset).
 pub mod url_operations;
+
+/// Role-tagged application, deployment, user and workspace identities.
+pub mod identity;
+/// JSON parse/stringify and typed JSON values.
+pub mod json_utils;
+/// Explicit shallow JSON object operations.
+pub mod objects;
