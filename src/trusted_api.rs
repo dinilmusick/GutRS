@@ -58,8 +58,8 @@ pub fn resolve_trusted_api_url(origin: &str, path: &str) -> Result<Url, TrustedU
         || !base.username().is_empty()
         || base.password().is_some()
         || base.path() != "/"
-        || base.query().is_some()
-        || base.fragment().is_some()
+        || base.query().is_some_and(|query| !query.is_empty())
+        || base.fragment().is_some_and(|fragment| !fragment.is_empty())
     {
         return Err(TrustedUrlError::InvalidOrigin);
     }
