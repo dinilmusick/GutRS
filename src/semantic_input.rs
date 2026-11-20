@@ -503,7 +503,7 @@ pub fn resolve_semantic_input<R: SemanticInputRuntime>(
     result.candidates = candidates;
     result.model_output = Some(model_output);
     result.evidence = Some(evidence);
-    if let Some(cache) = cache.as_deref_mut() {
+    if let Some(cache) = cache {
         cache.set(cache_key, result.clone());
     }
     result
