@@ -10,7 +10,7 @@ repository = "https://github.com/dinilmusick/GutRS"
 path = "src/lib.rs"
 
 [dependencies]
-aws-sdk-s3 = { version = "=1.155.0", default-features = false, features = ["default-https-client", "http-1x", "rt-tokio", "rustls"], optional = true }
+aws-sdk-s3 = { version = "=1.155.0", default-features = false, features = ["default-https-client", "http-1x", "rt-tokio", "rustls", "behavior-version-latest"], optional = true }
 google-drive3 = { version = "=7.0.0", optional = true }
 
 url = "2.5"

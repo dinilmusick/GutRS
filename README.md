@@ -34,4 +34,4 @@ See `testdata/upstream-golden/portable.json` for source-derived positive/negativ
 # Optional feature flags: aws-s3 and google-drive
 ```
 
-With `aws-s3`, access `gutrs::storage_adapters::s3::S3Client` and seven native S3 request-builder types. With `google-drive`, use `gutrs::storage_adapters::google_drive::create_google_drive_client` to construct an actual Google Drive v3 client using caller-supplied OAuth and HTTPS transport. Neither SDK is included in default builds. Cloud credentials are not embedded, and offline checks do not establish live cloud access.
+With `aws-s3`, access `gutrs::storage_adapters::s3::S3Client` and seven native S3 request-builder types. The SDK uses a pinned behavior version via `behavior-version-latest`. With `google-drive`, use `gutrs::storage_adapters::google_drive::create_google_drive_client` to construct an actual Google Drive v3 client using caller-supplied OAuth and HTTPS transport. Neither SDK is included in default builds. Cloud credentials are not embedded, and offline checks do not establish live cloud access.

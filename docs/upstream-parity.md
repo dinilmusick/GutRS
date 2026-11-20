@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **189 have an explicit Rust mapping** (including partial equivalents), **6 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **193 have an explicit Rust mapping** (including partial equivalents), **2 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -201,27 +201,31 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `resolveServerRuntimeAppUrl` | `auth_host::resolve_server_runtime_app_url` | `src/server/auth.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `nodeCactusNeedle3Runtime` | `—` | `src/server/models.ts` → `—` | — | ❌ missing |
 | `nodeCactusWhistleRuntime` | `—` | `src/server/models.ts` → `—` | — | ❌ missing |
-| `rootExports` | `—` | `src/worker.ts` → `—` | — | ❌ missing |
-| `browserExports` | `—` | `src/worker.ts` → `—` | — | ❌ missing |
-| `workerExports` | `—` | `src/worker.ts` → `—` | — | ❌ missing |
-| `serverExports` | `—` | `src/worker.ts` → `—` | — | ❌ missing |
+| `rootExports` | `src/lib.rs` | `src/worker.ts` → `src/lib.rs` | cargo public consumer + module exports | △ entrypoint composition; platform-specific |
+| `browserExports` | `src/lib.rs (native counterpart, not WASM DOM bindings)` | `src/worker.ts` → `src/lib.rs` | cargo public consumer + module exports | △ entrypoint composition; platform-specific |
+| `workerExports` | `src/lib.rs (std hosted only; no Cloudflare JS Worker runtime)` | `src/worker.ts` → `src/lib.rs` | cargo public consumer + module exports | △ entrypoint composition; platform-specific |
+| `serverExports` | `src/lib.rs + auth_host/luth_client/storage_adapters` | `src/worker.ts` → `src/lib.rs` | cargo public consumer + module exports | △ entrypoint composition; platform-specific |
 
 ## Required semantics and outstanding differences
 
 - **Rust types vs JavaScript dynamic domain:** `serde_json::Value` only represents JSON-safe values; JavaScript `undefined`, object identity, prototype getters, cycles, BigInt, functions and references are not representable at the typed Rust boundary. This is an explicit partial equivalence, not a full `isJsonValue`, `unique`, `compact` or object-path equivalent.
 - **Object operations:** current native `pick_fields`, `omit_fields`, `has_own_field` operate on shallow own JSON fields. Upstream lodash `has`/`pick`/`omit` can navigate deep property paths. Full path handling is missing; special keys, arrays and inherited JS properties require documented differential tests.
-- **Unicode strings:** Rust `truncate` currently uses Unicode extended grapheme clusters, whereas lodash has its own Unicode symbol segmentation; equivalent outcomes must be independently compared for combining marks and joined emoji. `isEmail` and case-conversion functions are absent.
+- **Unicode strings:** Rust `truncate` currently uses Unicode extended grapheme clusters, whereas lodash has its own Unicode symbol segmentation; equivalent outcomes must be independently compared for combining marks and joined emoji. `isEmail` and case conversions are implemented with Rust `email_address` and `heck`, but their Unicode and validator.js-specific policy differences require broader differential fixtures.
 - **Floating point:** `round_to` rejects precision above 308 as an explicit unsupported case. JavaScript NaN, signed zero, positive/negative infinity and decimal exponent boundaries require direct upstream differential fixtures.
 - **URLs and safety:** Rust `url` implements URL parsing and query pairs, but WHATWG edge cases, canonical IPv6 host serialization, percent escapes and `URLSearchParams` quirks require direct upstream differential execution. Unsafe traversal, malformed escapes, origin credentials and multi-level encodings must fail closed.
 - **OAuth/invocation:** wire validators do not authenticate a Luth session, prove OAuth client ownership, confirm grant/workspace membership, reauthorize a target, or prove live frontend consent. They check syntax/shape and execution budgets only; they must not be used as access-control decisions.
-- **Models and semantic input:** actual inference runtimes and semantic input resolution are still missing. Model metadata and thread-safe residency now exist; the API registry reproduces pinned definitions, with explicit errors for unported runtime operations. They require explicit native runtime adapters and complete behavioral tests.
-- **S3, Google Drive, browser, server:** dependency adapters are not portable utility logic. They need native feature-gated implementations to be marked equivalent. No SDK is mocked or silently replaced.
+- **Models and semantic input:** model metadata, thread-safe residency, typed Cactus/Transformers model interfaces, deterministic semantic resolution, candidate-ranking and host-injected model operation adapters are implemented. Real Needle3/Whistle model weights and executable engine backends are **not** bundled or integration-certified. API registry model operations return explicit no-adapter errors; no fake model output is returned.
+- **S3, Google Drive, browser, server:** actual AWS Rust S3 and Google Drive v3 SDKs are optional features, with real request builders and a Drive hub. Credentialed live access remains unverified. Browser/worker/server JS entrypoints are mapped to Rust modules and hosted adapters rather than falsely emulating the JavaScript runtime.
 - **Error behavior:** Rust returns explicit `Result`/`Option` where TypeScript throws `RangeError`, `TypeError`, `SyntaxError` or returns `undefined`. Mapping must be tested per exported contract; do not conflate `null` and `undefined`.
 
 ## Fixture provenance / certification
 
-`testdata/upstream-golden/portable.json` contains positive, negative and boundary examples derived by reading the pinned GutTS source and pinned TypeScript tests. `tests/upstream_golden.rs` executes the corresponding **public Rust exports** on those inputs. **The fixture has not yet been generated by actually executing pinned GutTS**; cross-language differential certification is therefore pending. `examples/external-consumer` is a distinct Cargo crate consuming GutRS via its public package boundary. The three-host CI includes format, lint, unit, docs and that consumer. A full parity claim is forbidden while any mapped symbol is partial or missing, any fixture lacks upstream verification, or CI/independent verification is absent.
+`testdata/upstream-golden/portable.json` contains positive, negative and boundary examples derived by reading the pinned GutTS source and pinned TypeScript tests. `tests/upstream_golden.rs` executes the corresponding **public Rust exports** on those inputs. The independent `upstream-differential` CI executes **44 same source-derived cases against actual pinned GutTS**, and compares all 38 API definitions, 38 FOD definitions and eight model metadata records with the native registry. This certifies those tested cases, **not exhaustive export parity**. `examples/external-consumer` is a distinct Cargo crate consuming GutRS via its public package boundary. The three-host CI includes format, lint, unit, docs and that consumer. Full parity remains unverified for JavaScript-only behaviors, host-specific inference engines and credentialed cloud integrations; mapping/type parity is not full behavioral parity.
 
 ## Hosted storage SDK adapters
 
 Enable `--features aws-s3` to expose the real `aws-sdk-s3` client and native request builders. Enable `--features google-drive` for the actual `google-drive3` v3 hub and an authenticated factory. These are **optional host-specific equivalents**, not native JavaScript `@aws-sdk/client-s3` / `googleapis` reexports; credentials and signed OAuth grants are supplied by the consumer. Tests prove builder construction and API types without cloud credentials; they do **not** prove end-to-end access to live storage.
+
+## Packaging and platform qualification
+
+The native Rust crate is a single entry graph (`src/lib.rs`). The TypeScript `./browser` and `./worker` entrypoints intentionally **do not** imply a JavaScript Fetch/DOM runtime inside native Rust. Core algorithms are portable on hosted Linux, macOS and Windows. `no_std`, browser WebAssembly DOM integration and Cloudflare Workers target are not yet supported and must not be advertised. Native server adapters are explicitly typed. SDK features use caller-supplied credentials, and live cloud integration testing needs separately provisioned external accounts.
