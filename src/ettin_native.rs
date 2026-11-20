@@ -25,71 +25,102 @@ pub mod native {
             let repo = hf_hub::api::sync::Api::new()
                 .map_err(|e| e.to_string())?
                 .model(model_id.clone());
-            let model_path = repo.get("onnx/model.onnx")
+            let model_path = repo
+                .get("onnx/model.onnx")
                 .map_err(|e| format!("exact Ettin ONNX model unavailable: {e}"))?;
-            let tokenizer_path = repo.get("tokenizer.json")
+            let tokenizer_path = repo
+                .get("tokenizer.json")
                 .map_err(|e| format!("Ettin tokenizer unavailable: {e}"))?;
-            let mut tokenizer = Tokenizer::from_file(tokenizer_path)
+            let mut tokenizer = Tokenizer::from_file(tokenizer_path).map_err(|e| e.to_string())?;
+            tokenizer
+                .with_truncation(Some(TruncationParams {
+                    max_length: 512,
+                    ..Default::default()
+                }))
                 .map_err(|e| e.to_string())?;
-            tokenizer.with_truncation(Some(TruncationParams {
-                max_length: 512,
-                ..Default::default()
-            })).map_err(|e| e.to_string())?;
             let session = Session::builder()
                 .map_err(|e| e.to_string())?
                 .commit_from_file(model_path)
                 .map_err(|e| e.to_string())?;
-            Ok(Self { model_id, tokenizer, session: Mutex::new(session) })
+            Ok(Self {
+                model_id,
+                tokenizer,
+                session: Mutex::new(session),
+            })
         }
     }
     impl EttinInference for NativeEttin {
         type Error = String;
         fn rerank(&self, query: &str, candidates: &[String]) -> Result<Vec<f64>, Self::Error> {
-            let mut session = self.session.lock()
+            let mut session = self
+                .session
+                .lock()
                 .map_err(|_| "Ettin inference session poisoned".to_owned())?;
-            let token_types = session.inputs().iter()
+            let token_types = session
+                .inputs()
+                .iter()
                 .any(|input| input.name() == "token_type_ids");
             let mut scores = Vec::with_capacity(candidates.len());
             for document in candidates {
-                let encoding = self.tokenizer.encode((query, document.as_str()), true)
+                let encoding = self
+                    .tokenizer
+                    .encode((query, document.as_str()), true)
                     .map_err(|e| e.to_string())?;
                 let len = encoding.len();
-                if len == 0 { return Err("Ettin generated an empty encoding".into()); }
+                if len == 0 {
+                    return Err("Ettin generated an empty encoding".into());
+                }
                 let ids: Vec<i64> = encoding.get_ids().iter().map(|v| i64::from(*v)).collect();
-                let mask: Vec<i64> = encoding.get_attention_mask().iter()
-                    .map(|v| i64::from(*v)).collect();
-                let types: Vec<i64> = encoding.get_type_ids().iter()
-                    .map(|v| i64::from(*v)).collect();
+                let mask: Vec<i64> = encoding
+                    .get_attention_mask()
+                    .iter()
+                    .map(|v| i64::from(*v))
+                    .collect();
+                let types: Vec<i64> = encoding
+                    .get_type_ids()
+                    .iter()
+                    .map(|v| i64::from(*v))
+                    .collect();
                 let outputs = if token_types {
-                    session.run(ort::inputs![
-                        "input_ids" => Tensor::from_array(([1_usize,len], ids))
-                            .map_err(|e| e.to_string())?,
-                        "attention_mask" => Tensor::from_array(([1_usize,len], mask))
-                            .map_err(|e| e.to_string())?,
-                        "token_type_ids" => Tensor::from_array(([1_usize,len], types))
-                            .map_err(|e| e.to_string())?,
-                    ]).map_err(|e| e.to_string())?
+                    session
+                        .run(ort::inputs![
+                            "input_ids" => Tensor::from_array(([1_usize,len], ids))
+                                .map_err(|e| e.to_string())?,
+                            "attention_mask" => Tensor::from_array(([1_usize,len], mask))
+                                .map_err(|e| e.to_string())?,
+                            "token_type_ids" => Tensor::from_array(([1_usize,len], types))
+                                .map_err(|e| e.to_string())?,
+                        ])
+                        .map_err(|e| e.to_string())?
                 } else {
-                    session.run(ort::inputs![
-                        "input_ids" => Tensor::from_array(([1_usize,len], ids))
-                            .map_err(|e| e.to_string())?,
-                        "attention_mask" => Tensor::from_array(([1_usize,len], mask))
-                            .map_err(|e| e.to_string())?,
-                    ]).map_err(|e| e.to_string())?
+                    session
+                        .run(ort::inputs![
+                            "input_ids" => Tensor::from_array(([1_usize,len], ids))
+                                .map_err(|e| e.to_string())?,
+                            "attention_mask" => Tensor::from_array(([1_usize,len], mask))
+                                .map_err(|e| e.to_string())?,
+                        ])
+                        .map_err(|e| e.to_string())?
                 };
-                let (_, data) = outputs[0].try_extract_tensor::<f32>()
+                let (_, data) = outputs[0]
+                    .try_extract_tensor::<f32>()
                     .map_err(|e| e.to_string())?;
                 let score = data.first().ok_or("Ettin returned empty output tensor")?;
-                if !score.is_finite() { return Err("Ettin returned a nonfinite score".into()); }
+                if !score.is_finite() {
+                    return Err("Ettin returned a nonfinite score".into());
+                }
                 scores.push(f64::from(*score));
             }
             Ok(scores)
         }
     }
     #[test]
-    fn exact_v1_repo_names_reject_any_other_model(){
-        for size in [17, 32, 68, 150]{
-            assert_eq!(ettin_repo(size).unwrap(),format!("cross-encoder/ettin-reranker-{size}m-v1"));
+    fn exact_v1_repo_names_reject_any_other_model() {
+        for size in [17, 32, 68, 150] {
+            assert_eq!(
+                ettin_repo(size).unwrap(),
+                format!("cross-encoder/ettin-reranker-{size}m-v1")
+            );
         }
         assert!(ettin_repo(400).is_err());
     }
