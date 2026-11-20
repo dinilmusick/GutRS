@@ -55,7 +55,6 @@ mod tests {
     }
 }
 
-
 /// Parse lodash-compatible own-JSON property paths, including dot notation,
 /// numeric array subscripts and quoted bracket property names.
 /// If an exact literal field exists (e.g. "a.b"), lodash prefers that field.
@@ -73,7 +72,9 @@ fn property_segments(root: &Value, path: &str) -> Option<Vec<String>> {
         }
         if chars[i] == '[' {
             i += 1;
-            if i >= chars.len() { return None; }
+            if i >= chars.len() {
+                return None;
+            }
             if matches!(chars[i], '"' | '\'') {
                 let quote = chars[i];
                 i += 1;
@@ -83,7 +84,9 @@ fn property_segments(root: &Value, path: &str) -> Option<Vec<String>> {
                     let ch = chars[i];
                     i += 1;
                     if ch == '\\' {
-                        if i >= chars.len() { return None; }
+                        if i >= chars.len() {
+                            return None;
+                        }
                         key.push(chars[i]);
                         i += 1;
                     } else if ch == quote {
@@ -93,7 +96,9 @@ fn property_segments(root: &Value, path: &str) -> Option<Vec<String>> {
                         key.push(ch);
                     }
                 }
-                if !closed || chars.get(i) != Some(&']') { return None; }
+                if !closed || chars.get(i) != Some(&']') {
+                    return None;
+                }
                 i += 1;
                 segments.push(key);
             } else {
@@ -102,9 +107,13 @@ fn property_segments(root: &Value, path: &str) -> Option<Vec<String>> {
                     key.push(chars[i]);
                     i += 1;
                 }
-                if chars.get(i) != Some(&']') { return None; }
+                if chars.get(i) != Some(&']') {
+                    return None;
+                }
                 i += 1;
-                if key.is_empty() { return None; }
+                if key.is_empty() {
+                    return None;
+                }
                 segments.push(key);
             }
             continue;
@@ -114,15 +123,25 @@ fn property_segments(root: &Value, path: &str) -> Option<Vec<String>> {
             key.push(chars[i]);
             i += 1;
         }
-        if key.is_empty() { return None; }
+        if key.is_empty() {
+            return None;
+        }
         segments.push(key);
     }
-    if segments.is_empty() { None } else { Some(segments) }
+    if segments.is_empty() {
+        None
+    } else {
+        Some(segments)
+    }
 }
 
 fn array_index(segment: &str) -> Option<usize> {
-    if segment != "0" && segment.starts_with('0') { return None; }
-    if segment.starts_with('-') || segment.starts_with('+') { return None; }
+    if segment != "0" && segment.starts_with('0') {
+        return None;
+    }
+    if segment.starts_with('-') || segment.starts_with('+') {
+        return None;
+    }
     segment.parse::<usize>().ok()
 }
 fn get_path<'a>(root: &'a Value, path: &[String]) -> Option<&'a Value> {
@@ -154,24 +173,36 @@ fn set_path(output: &mut Value, path: &[String], value: &Value) {
             set_path(item, &path[1..], value);
         }
         Value::Array(items) => {
-            let Some(index) = array_index(segment) else { return; };
+            let Some(index) = array_index(segment) else {
+                return;
+            };
             // Only source-present indices reach this helper; bound allocations
             // to a finite ceiling to avoid allocating huge sparse arrays.
-            if index > 100_000 { return; }
-            if items.len() <= index { items.resize(index + 1, Value::Null); }
+            if index > 100_000 {
+                return;
+            }
+            if items.len() <= index {
+                items.resize(index + 1, Value::Null);
+            }
             set_path(&mut items[index], &path[1..], value);
         }
         _ => {}
     }
 }
 fn unset_path(output: &mut Value, path: &[String]) {
-    let Some(segment) = path.first() else { return; };
+    let Some(segment) = path.first() else {
+        return;
+    };
     if path.len() == 1 {
         match output {
-            Value::Object(map) => { map.remove(segment); }
+            Value::Object(map) => {
+                map.remove(segment);
+            }
             Value::Array(items) => {
                 if let Some(index) = array_index(segment) {
-                    if let Some(item) = items.get_mut(index) { *item = Value::Null; }
+                    if let Some(item) = items.get_mut(index) {
+                        *item = Value::Null;
+                    }
                 }
             }
             _ => {}
@@ -180,7 +211,9 @@ fn unset_path(output: &mut Value, path: &[String]) {
     }
     match output {
         Value::Object(map) => {
-            if let Some(item) = map.get_mut(segment) { unset_path(item, &path[1..]); }
+            if let Some(item) = map.get_mut(segment) {
+                unset_path(item, &path[1..]);
+            }
         }
         Value::Array(items) => {
             if let Some(item) = array_index(segment).and_then(|index| items.get_mut(index)) {
@@ -194,7 +227,9 @@ fn unset_path(output: &mut Value, path: &[String]) {
 /// Actual nested-path equivalent of GutTS hasOwn (which delegates to lodash.has)
 /// within the JSON own-property domain. JavaScript prototype chains are absent.
 pub fn has_property_path(value: &Value, key: &str) -> bool {
-    property_segments(value, key).and_then(|s| get_path(value, &s)).is_some()
+    property_segments(value, key)
+        .and_then(|s| get_path(value, &s))
+        .is_some()
 }
 
 /// Project nested, literal, quoted and array-index paths into a new JSON object.
@@ -202,7 +237,9 @@ pub fn pick_property_paths(value: &Value, keys: &[&str]) -> Option<Value> {
     value.as_object()?;
     let mut result = Value::Object(Map::new());
     for &key in keys {
-        let Some(segments) = property_segments(value, key) else { continue; };
+        let Some(segments) = property_segments(value, key) else {
+            continue;
+        };
         if let Some(selected) = get_path(value, &segments) {
             set_path(&mut result, &segments, selected);
         }
@@ -236,21 +273,42 @@ mod deep_path_tests {
         assert!(has_property_path(&value, "s[\"a.b\"]"));
         assert!(!has_property_path(&value, "x[2].name"));
         assert!(!has_property_path(&value, "x[-1].name"));
-        assert_eq!(pick_property_paths(&value, &["a.b"]),Some(json!({"a.b":"literal"})));
-        assert_eq!(pick_property_paths(&value, &["x[1].name"]),Some(json!({"x":[null,{"name":"second"}]})));
-        assert_eq!(pick_property_paths(&value, &["s['a.b']"]),Some(json!({"s":{"a.b":"quoted"}})));
-        assert_eq!(omit_property_paths(&value, &["a.b","x[0].name"]),Some(json!({
-            "a":{"b":7,"c":8},"x":[{},{"name":"second"}],"s":{"a.b":"quoted"}
-        })));
+        assert_eq!(
+            pick_property_paths(&value, &["a.b"]),
+            Some(json!({"a.b":"literal"}))
+        );
+        assert_eq!(
+            pick_property_paths(&value, &["x[1].name"]),
+            Some(json!({"x":[null,{"name":"second"}]}))
+        );
+        assert_eq!(
+            pick_property_paths(&value, &["s['a.b']"]),
+            Some(json!({"s":{"a.b":"quoted"}}))
+        );
+        assert_eq!(
+            omit_property_paths(&value, &["a.b", "x[0].name"]),
+            Some(json!({
+                "a":{"b":7,"c":8},"x":[{},{"name":"second"}],"s":{"a.b":"quoted"}
+            }))
+        );
     }
     #[test]
     fn missing_paths_and_malformed_brackets_do_not_mutate_source() {
         let source = json!({"a":{"b":1,"c":2},"v":false});
-        assert_eq!(pick_property_paths(&source, &["a.b"]),Some(json!({"a":{"b":1}})));
-        assert_eq!(omit_property_paths(&source, &["a.b"]),Some(json!({"a":{"c":2},"v":false})));
-        assert_eq!(pick_property_paths(&source, &["a["]),Some(json!({})));
-        assert_eq!(omit_property_paths(&source, &["a[","missing.x"]),Some(source.clone()));
+        assert_eq!(
+            pick_property_paths(&source, &["a.b"]),
+            Some(json!({"a":{"b":1}}))
+        );
+        assert_eq!(
+            omit_property_paths(&source, &["a.b"]),
+            Some(json!({"a":{"c":2},"v":false}))
+        );
+        assert_eq!(pick_property_paths(&source, &["a["]), Some(json!({})));
+        assert_eq!(
+            omit_property_paths(&source, &["a[", "missing.x"]),
+            Some(source.clone())
+        );
         assert!(!has_property_path(&source, "a["));
-        assert_eq!(source["a"]["b"],1);
+        assert_eq!(source["a"]["b"], 1);
     }
 }
