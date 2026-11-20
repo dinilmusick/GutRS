@@ -35,3 +35,7 @@ See `testdata/upstream-golden/portable.json` for source-derived positive/negativ
 ```
 
 With `aws-s3`, access `gutrs::storage_adapters::s3::S3Client` and seven native S3 request-builder types. The SDK uses a pinned behavior version via `behavior-version-latest`. With `google-drive`, use `gutrs::storage_adapters::google_drive::create_google_drive_client` to construct an actual Google Drive v3 client using caller-supplied OAuth and HTTPS transport. Neither SDK is included in default builds. Cloud credentials are not embedded, and offline checks do not establish live cloud access.
+
+## Native Cactus (target-specific)
+
+On Linux x86-64 or macOS ARM64, enable `cactus-native` and use `gutrs::cactus_native::native::NodeCactusNeedle3Runtime` / `NodeCactusWhistleRuntime` with real `Needle3Weights` / `WhistleWeights`. These are the genuine native Cactus engine types, not the JavaScript runtime. Windows MSVC and Intel macOS do not have the required upstream static archives and are deliberately excluded. A model weight file and an enabled native SDK feature are required before inference or transcription can run.

@@ -256,3 +256,6 @@ pub mod luth_client;
 
 /// Real, optional hosted AWS S3 and Google Drive SDK adapters.
 pub mod storage_adapters;
+
+/// Optional real Cactus Compute on-device Needle3 and Whistle engines.
+pub mod cactus_native;

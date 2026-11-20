@@ -27,3 +27,8 @@ regex = "1"
 default = []
 aws-s3 = ["dep:aws-sdk-s3"]
 google-drive = ["dep:google-drive3"]
+# Native Cactus engine is supported only on Linux x86_64 and macOS arm64.
+cactus-native = ["dep:cactus-rs"]
+
+[target.'cfg(any(all(target_os = "linux", target_arch = "x86_64"), all(target_os = "macos", target_arch = "aarch64")))'.dependencies]
+cactus-rs = { version = "=0.2.1", optional = true }

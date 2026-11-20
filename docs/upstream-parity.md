@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **193 have an explicit Rust mapping** (including partial equivalents), **2 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **195 have an explicit Rust mapping** (including partial equivalents), **0 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -199,8 +199,8 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `loadGoogleApis` | `storage_adapters::google_drive::GoogleApisModule` | `src/storage/google-drive.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | △ Native compile-time import replaces JavaScript dynamic import |
 | `createGoogleDriveClient` | `storage_adapters::google_drive::create_google_drive_client` | `src/storage/google-drive.ts` → `src/storage_adapters.rs` | feature-enabled SDK compile test | ◐ Real SDK feature-gated; cloud integration unverified |
 | `resolveServerRuntimeAppUrl` | `auth_host::resolve_server_runtime_app_url` | `src/server/auth.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
-| `nodeCactusNeedle3Runtime` | `—` | `src/server/models.ts` → `—` | — | ❌ missing |
-| `nodeCactusWhistleRuntime` | `—` | `src/server/models.ts` → `—` | — | ❌ missing |
+| `nodeCactusNeedle3Runtime` | `cactus_native::native::NodeCactusNeedle3Runtime` | `src/server/models.ts` → `src/cactus_native.rs` | feature-gated native Cactus SDK type test | △ native inference platform/weights required |
+| `nodeCactusWhistleRuntime` | `cactus_native::native::NodeCactusWhistleRuntime` | `src/server/models.ts` → `src/cactus_native.rs` | feature-gated native Cactus SDK type test | △ native inference platform/weights required |
 | `rootExports` | `src/lib.rs` | `src/worker.ts` → `src/lib.rs` | cargo public consumer + module exports | △ entrypoint composition; platform-specific |
 | `browserExports` | `src/lib.rs (native counterpart, not WASM DOM bindings)` | `src/worker.ts` → `src/lib.rs` | cargo public consumer + module exports | △ entrypoint composition; platform-specific |
 | `workerExports` | `src/lib.rs (std hosted only; no Cloudflare JS Worker runtime)` | `src/worker.ts` → `src/lib.rs` | cargo public consumer + module exports | △ entrypoint composition; platform-specific |
@@ -229,3 +229,7 @@ Enable `--features aws-s3` to expose the real `aws-sdk-s3` client and native req
 ## Packaging and platform qualification
 
 The native Rust crate is a single entry graph (`src/lib.rs`). The TypeScript `./browser` and `./worker` entrypoints intentionally **do not** imply a JavaScript Fetch/DOM runtime inside native Rust. Core algorithms are portable on hosted Linux, macOS and Windows. `no_std`, browser WebAssembly DOM integration and Cloudflare Workers target are not yet supported and must not be advertised. Native server adapters are explicitly typed. SDK features use caller-supplied credentials, and live cloud integration testing needs separately provisioned external accounts.
+
+## Native Cactus inference target boundaries
+
+Feature `cactus-native` exposes real `cactus-rs` 0.2.1 Needle3 and Whistle CPU engine types on `x86_64-unknown-linux-gnu` and `aarch64-apple-darwin`. This is **conditional native SDK equivalence**, not a claim that the JavaScript `cactus-needle` runtime can be used unmodified. The engines require valid model weights, and the host integration must handle Cactus's process-global model lifetime and thread-safety rules. Upstream native archives do not support Intel macOS or Windows MSVC; the feature compiles without native Cactus on those targets. A live on-device inference/transcription test is pending authenticated model weights and real supported hardware. The third-party binding is independent of Cactus Compute; review its licensing and static-link requirements before distribution.
