@@ -218,3 +218,6 @@ pub mod identity;
 pub mod json_utils;
 /// Explicit shallow JSON object operations.
 pub mod objects;
+
+/// Shape validation for OAuth clients, capabilities and bounded invocations.
+pub mod auth_contracts;
