@@ -21,6 +21,12 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: rustfmt, clippy
+      - name: Align Windows MSVC native CRT with ONNX Runtime
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          "CFLAGS=/MD" >> $env:GITHUB_ENV
+          "CXXFLAGS=/MD" >> $env:GITHUB_ENV
       - name: Formatting
         run: cargo fmt --all -- --check
       - name: Install native Cactus libc++ dependencies (Linux)
