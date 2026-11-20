@@ -74,11 +74,13 @@ fn source_derived_pinned_public_contracts() {
                     .collect::<Vec<_>>()
             )),
             "strings.isBlank" => json!(strings::is_blank(arg_string(input, "value"))),
-            "semantic.resolveDeterministicSemanticInput" => json!(
-                semantic_input::resolve_deterministic_semantic_input(
-                    arg_string(input, "input"), &input["schema"]
-                ).and_then(|result| result.value)
-            ),
+            "semantic.resolveDeterministicSemanticInput" => {
+                json!(semantic_input::resolve_deterministic_semantic_input(
+                    arg_string(input, "input"),
+                    &input["schema"]
+                )
+                .and_then(|result| result.value))
+            }
             "strings.isEmail" => json!(string_ext::is_email(arg_string(input, "value"))),
             "strings.capitalize" => json!(string_ext::capitalize(arg_string(input, "value"))),
             "strings.camelCase" => json!(string_ext::camel_case(arg_string(input, "value"))),
