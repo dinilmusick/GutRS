@@ -1,11 +1,7 @@
 //! Non-mocked end-to-end model inference smoke against official Cactus weights.
 //! Intentionally ignored by default because downloading weights needs internet
 //! and CPU execution. CI explicitly runs this test on supported Linux hardware.
-#![cfg(all(
-    feature = "cactus-native",
-    target_os = "linux",
-    target_arch = "x86_64"
-))]
+#![cfg(all(feature = "cactus-native", target_os = "linux", target_arch = "x86_64"))]
 use gutrs::cactus_native::native::{
     CactusNeedle3, CactusWhistle, Needle3Weights, NodeCactusNeedle3Runtime,
     NodeCactusWhistleRuntime, WhistleWeights,
