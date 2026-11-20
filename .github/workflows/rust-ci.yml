@@ -59,5 +59,9 @@ jobs:
       - name: Build unmodified upstream source
         working-directory: upstream
         run: pnpm run build
+      - name: Rust toolchain for independent metadata comparison
+        uses: dtolnay/rust-toolchain@stable
+      - name: Export public Rust metadata and FOD registry
+        run: cargo run --quiet --example export_registry > rust-registry.json
       - name: Execute same golden cases against actual upstream
         run: node scripts/check-upstream-golden.mjs

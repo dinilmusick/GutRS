@@ -88,3 +88,31 @@ for (const test of fixtures.cases) {
 }
 if(count!==fixtures.cases.length || count===0)throw new Error('Incomplete golden execution');
 console.log('Executed '+count+' upstream golden cases on pinned GutTS '+actualCommit);
+
+const [upstreamApis,upstreamModels,upstreamFod] = await Promise.all([
+  load('api/api-registry.js'),
+  load('models/model-registry.js'),
+  load('api/fod-node-provider.js')
+]);
+const pinnedApiBlueprints = JSON.parse(readFileSync(
+  resolve(root,'testdata/upstream-golden/api-blueprints.json'),'utf8'));
+const actualBlueprints = upstreamApis.guttsApiDefinitions.map(({inputSchema, ...blueprint}) => blueprint);
+if (!isDeepStrictEqual(pinnedApiBlueprints, actualBlueprints)) {
+  throw new Error('Pinned API blueprint snapshot differs from actual GutTS exports');
+}
+const rustRegistry = JSON.parse(readFileSync(resolve(root,'rust-registry.json'),'utf8'));
+const comparisons = [
+  ['API registry',rustRegistry.apis,upstreamApis.guttsApiDefinitions],
+  ['FOD node registry',rustRegistry.fod,upstreamFod.guttsFodNodeDefinitions],
+  ['model metadata',rustRegistry.models,upstreamModels.guttsModelDefinitions]
+];
+for(const [label, rust, typescript] of comparisons){
+ if(!isDeepStrictEqual(rust, typescript)){
+   const index=rust.findIndex((item,i)=>!isDeepStrictEqual(item,typescript[i]));
+   const at=index<0?0:index;
+   throw new Error('GutTS differential mismatch: '+label+' index='+at
+     +' expected='+JSON.stringify(typescript[at])
+     +' actual='+JSON.stringify(rust[at]));
+ }
+ console.log('Certified '+label+': '+rust.length+' pinned exports');
+}
