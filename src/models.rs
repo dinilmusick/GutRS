@@ -234,31 +234,32 @@ impl<M> ModelResidency<M> {
         U: Fn(Arc<M>) -> Result<(), E>,
         O: FnOnce(&M) -> Result<R, E>,
     {
-        let model = loop {
+        let model = {
             let mut state = self.lock();
             while state.loading || state.unloading {
                 state = self.wait(state);
             }
             if let Some(model) = state.model.as_ref().cloned() {
                 state.users += 1;
-                break model;
-            }
-            state.loading = true;
-            drop(state);
-            let loaded = load();
-            let mut state = self.lock();
-            state.loading = false;
-            match loaded {
-                Ok(value) => {
-                    let model = Arc::new(value);
-                    state.model = Some(Arc::clone(&model));
-                    state.users += 1;
-                    self.ready.notify_all();
-                    break model;
-                }
-                Err(error) => {
-                    self.ready.notify_all();
-                    return Err(error);
+                model
+            } else {
+                state.loading = true;
+                drop(state);
+                let loaded = load();
+                let mut state = self.lock();
+                state.loading = false;
+                match loaded {
+                    Ok(value) => {
+                        let model = Arc::new(value);
+                        state.model = Some(Arc::clone(&model));
+                        state.users += 1;
+                        self.ready.notify_all();
+                        model
+                    }
+                    Err(error) => {
+                        self.ready.notify_all();
+                        return Err(error);
+                    }
                 }
             }
         };
