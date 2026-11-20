@@ -294,6 +294,336 @@
         "key": "q",
         "value": "hello world"
       }
+    },
+    {
+      "id": "gutts.arrays.compact",
+      "input": {
+        "values": [
+          false,
+          0,
+          "",
+          null,
+          [],
+          {},
+          1
+        ]
+      }
+    },
+    {
+      "id": "gutts.arrays.unique",
+      "input": {
+        "values": [
+          1,
+          1,
+          2,
+          3,
+          3,
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "gutts.arrays.chunk",
+      "input": {
+        "values": [
+          1,
+          2
+        ],
+        "size": 10
+      }
+    },
+    {
+      "id": "gutts.arrays.flatten",
+      "input": {
+        "values": [
+          1,
+          [
+            2,
+            [
+              3
+            ]
+          ],
+          [
+            4
+          ],
+          5
+        ]
+      }
+    },
+    {
+      "id": "gutts.arrays.last",
+      "input": {
+        "values": [
+          "x"
+        ]
+      }
+    },
+    {
+      "id": "gutts.json.isJsonValue",
+      "input": {
+        "value": [
+          null,
+          true,
+          0,
+          {},
+          []
+        ]
+      }
+    },
+    {
+      "id": "gutts.json.tryParseJson",
+      "input": {
+        "text": "not json"
+      }
+    },
+    {
+      "id": "gutts.json.parseJson",
+      "input": {
+        "text": "null"
+      }
+    },
+    {
+      "id": "gutts.json.stringifyJson",
+      "input": {
+        "value": {
+          "a": 1,
+          "b": [
+            true,
+            "x"
+          ]
+        }
+      }
+    },
+    {
+      "id": "gutts.numbers.clamp",
+      "input": {
+        "value": -100,
+        "min": 0,
+        "max": 10
+      }
+    },
+    {
+      "id": "gutts.numbers.inRange",
+      "input": {
+        "value": 5,
+        "min": 0,
+        "max": 5
+      }
+    },
+    {
+      "id": "gutts.numbers.roundTo",
+      "input": {
+        "value": -1.234,
+        "decimals": 2
+      }
+    },
+    {
+      "id": "gutts.numbers.isFiniteNumber",
+      "input": {
+        "value": "12"
+      }
+    },
+    {
+      "id": "gutts.numbers.sum",
+      "input": {
+        "values": []
+      }
+    },
+    {
+      "id": "gutts.objects.hasOwn",
+      "input": {
+        "value": {
+          "a": {
+            "b": 2
+          }
+        },
+        "key": "a.c"
+      }
+    },
+    {
+      "id": "gutts.objects.pick",
+      "input": {
+        "value": {
+          "a": {
+            "b": 1,
+            "c": 2
+          }
+        },
+        "keys": [
+          "missing"
+        ]
+      }
+    },
+    {
+      "id": "gutts.objects.omit",
+      "input": {
+        "value": {
+          "a": {
+            "b": 1,
+            "c": 2
+          }
+        },
+        "keys": [
+          "a.b",
+          "missing"
+        ]
+      }
+    },
+    {
+      "id": "gutts.objects.isPlainObject",
+      "input": {
+        "value": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "id": "gutts.strings.isBlank",
+      "input": {
+        "value": " ﻿"
+      }
+    },
+    {
+      "id": "gutts.strings.isNonBlank",
+      "input": {
+        "value": " a"
+      }
+    },
+    {
+      "id": "gutts.strings.isEmail",
+      "input": {
+        "value": "x@@example.com"
+      }
+    },
+    {
+      "id": "gutts.strings.isEmail",
+      "input": {
+        "value": "jane+tag@example.co.uk"
+      }
+    },
+    {
+      "id": "gutts.strings.startsWithAny",
+      "input": {
+        "value": "abc",
+        "prefixes": []
+      }
+    },
+    {
+      "id": "gutts.strings.endsWithAny",
+      "input": {
+        "value": "abc",
+        "suffixes": [
+          ""
+        ]
+      }
+    },
+    {
+      "id": "gutts.strings.capitalize",
+      "input": {
+        "value": "HELLO WORLD"
+      }
+    },
+    {
+      "id": "gutts.strings.camelCase",
+      "input": {
+        "value": "Foo Bar_baz"
+      }
+    },
+    {
+      "id": "gutts.strings.kebabCase",
+      "input": {
+        "value": "someURLValue"
+      }
+    },
+    {
+      "id": "gutts.strings.snakeCase",
+      "input": {
+        "value": "XMLHttpRequest"
+      }
+    },
+    {
+      "id": "gutts.strings.truncate",
+      "input": {
+        "value": "abcdefghij",
+        "maxLength": 8,
+        "suffix": "..."
+      }
+    },
+    {
+      "id": "gutts.strings.truncateWords",
+      "input": {
+        "value": "  one two   three  ",
+        "maxWords": 2,
+        "suffix": "…"
+      }
+    },
+    {
+      "id": "gutts.urls.isUrl",
+      "input": {
+        "value": "mailto:team@example.org"
+      }
+    },
+    {
+      "id": "gutts.urls.isUrl",
+      "input": {
+        "value": "not a url"
+      }
+    },
+    {
+      "id": "gutts.urls.joinUrl",
+      "input": {
+        "base": "https://example.org//",
+        "parts": [
+          "/one/",
+          "/two/"
+        ]
+      }
+    },
+    {
+      "id": "gutts.urls.getQueryParam",
+      "input": {
+        "url": "https://example.org/?a=1",
+        "key": "missing"
+      }
+    },
+    {
+      "id": "gutts.urls.setQueryParam",
+      "input": {
+        "url": "https://example.org/?a=1&a=2&b=3",
+        "key": "a",
+        "value": "hi there"
+      }
+    },
+    {
+      "id": "gutts.numbers.inRange",
+      "input": {
+        "value": -1,
+        "min": -1,
+        "max": 0
+      }
+    },
+    {
+      "id": "gutts.objects.pick",
+      "input": {
+        "value": {
+          "s": {
+            "x.y": 3
+          }
+        },
+        "keys": [
+          "s['x.y']"
+        ]
+      }
+    },
+    {
+      "id": "gutts.strings.truncate",
+      "input": {
+        "value": "👨‍👩‍👧‍👦family",
+        "maxLength": 5,
+        "suffix": "…"
+      }
     }
   ]
 }
