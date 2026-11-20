@@ -10,7 +10,9 @@ pub type JsonValue = Value;
 pub type JsonObject = serde_json::Map<String, Value>;
 
 /// Typed serde_json::Value is already a valid JSON value by construction.
-pub fn is_json_value(_value: &Value) -> bool { true }
+pub fn is_json_value(_value: &Value) -> bool {
+    true
+}
 
 pub fn parse_json(text: &str) -> Result<JsonValue, serde_json::Error> {
     serde_json::from_str(text)
@@ -24,8 +26,10 @@ pub fn try_parse_json(text: &str) -> Option<JsonValue> {
 /// numeric order. The string "4294967295" is not an array index, nor are
 /// spellings such as "01" or "-1".
 fn js_property_index(key: &str) -> Option<u32> {
-    if key.is_empty() || (key.len() > 1 && key.starts_with('0'))
-        || !key.bytes().all(|b| b.is_ascii_digit()) {
+    if key.is_empty()
+        || (key.len() > 1 && key.starts_with('0'))
+        || !key.bytes().all(|b| b.is_ascii_digit())
+    {
         return None;
     }
     key.parse::<u32>().ok().filter(|n| *n < u32::MAX)
@@ -35,7 +39,10 @@ fn js_property_index(key: &str) -> Option<u32> {
 /// and IEEE-754 number-to-string rules, not serde_json's default BTreeMap
 /// sorting and Rust's different floating-point formatting.
 fn write_js_value(
-    value: &Value, depth: usize, indent: usize, output: &mut String,
+    value: &Value,
+    depth: usize,
+    indent: usize,
+    output: &mut String,
 ) -> Result<(), serde_json::Error> {
     match value {
         Value::Null => output.push_str("null"),
@@ -56,7 +63,9 @@ fn write_js_value(
         Value::Array(values) => {
             output.push('[');
             for (i, item) in values.iter().enumerate() {
-                if i > 0 { output.push(','); }
+                if i > 0 {
+                    output.push(',');
+                }
                 if indent != 0 {
                     output.push('\n');
                     output.push_str(&" ".repeat((depth + 1) * indent));
@@ -82,18 +91,25 @@ fn write_js_value(
                 }
             }
             numeric.sort_unstable_by_key(|(index, _)| *index);
-            let keys: Vec<&str> = numeric.into_iter().map(|(_, key)| key)
-                .chain(ordinary).collect();
+            let keys: Vec<&str> = numeric
+                .into_iter()
+                .map(|(_, key)| key)
+                .chain(ordinary)
+                .collect();
             output.push('{');
             for (i, key) in keys.iter().enumerate() {
-                if i > 0 { output.push(','); }
+                if i > 0 {
+                    output.push(',');
+                }
                 if indent != 0 {
                     output.push('\n');
                     output.push_str(&" ".repeat((depth + 1) * indent));
                 }
                 output.push_str(&serde_json::to_string(key)?);
                 output.push(':');
-                if indent != 0 { output.push(' '); }
+                if indent != 0 {
+                    output.push(' ');
+                }
                 write_js_value(&map[*key], depth + 1, indent, output)?;
             }
             if !keys.is_empty() && indent != 0 {
@@ -124,41 +140,57 @@ mod tests {
         assert_eq!(parse_json("null").unwrap(), Value::Null);
         assert_eq!(try_parse_json("{bad}"), None);
         assert!(parse_json("1e10000").is_err());
-        assert_eq!(stringify_json(&json!([1, true, null]), None).unwrap(), "[1,true,null]");
-        assert_eq!(stringify_json(&json!({"x":[1]}), Some(2)).unwrap(),
-            "{\n  \"x\": [\n    1\n  ]\n}");
+        assert_eq!(
+            stringify_json(&json!([1, true, null]), None).unwrap(),
+            "[1,true,null]"
+        );
+        assert_eq!(
+            stringify_json(&json!({"x":[1]}), Some(2)).unwrap(),
+            "{\n  \"x\": [\n    1\n  ]\n}"
+        );
         assert!(is_json_value(&json!(["safe", {"nested": true}])));
         assert_eq!(stringify_json(&json!([1]), Some(-10)).unwrap(), "[1]");
     }
     #[test]
     fn preserves_object_insertion_order_and_js_array_index_order() {
         let source = parse_json(r#"{"z":1,"a":2,"nested":{"zz":1,"aa":2}}"#).unwrap();
-        assert_eq!(stringify_json(&source,None).unwrap(),
-            r#"{"z":1,"a":2,"nested":{"zz":1,"aa":2}}"#);
-        let source = parse_json(
-            r#"{"11":"eleven","2":"two","z":3,"01":"leading","0":"zero"}"#
-        ).unwrap();
-        assert_eq!(stringify_json(&source,None).unwrap(),
-            r#"{"0":"zero","2":"two","11":"eleven","z":3,"01":"leading"}"#);
+        assert_eq!(
+            stringify_json(&source, None).unwrap(),
+            r#"{"z":1,"a":2,"nested":{"zz":1,"aa":2}}"#
+        );
+        let source =
+            parse_json(r#"{"11":"eleven","2":"two","z":3,"01":"leading","0":"zero"}"#).unwrap();
+        assert_eq!(
+            stringify_json(&source, None).unwrap(),
+            r#"{"0":"zero","2":"two","11":"eleven","z":3,"01":"leading"}"#
+        );
         let mut manual = Map::new();
-        manual.insert("10".into(),json!("ten"));
-        manual.insert("2".into(),json!("two"));
-        assert_eq!(stringify_json(&Value::Object(manual),None).unwrap(),
-            r#"{"2":"two","10":"ten"}"#);
-        assert_eq!(js_property_index("4294967295"),None);
-        assert_eq!(js_property_index("01"),None);
-        assert_eq!(js_property_index("4294967294"),Some(u32::MAX-1));
+        manual.insert("10".into(), json!("ten"));
+        manual.insert("2".into(), json!("two"));
+        assert_eq!(
+            stringify_json(&Value::Object(manual), None).unwrap(),
+            r#"{"2":"two","10":"ten"}"#
+        );
+        assert_eq!(js_property_index("4294967295"), None);
+        assert_eq!(js_property_index("01"), None);
+        assert_eq!(js_property_index("4294967294"), Some(u32::MAX - 1));
     }
     #[test]
     fn formats_js_numbers_and_numeric_space_without_lossy_lexemes() {
-        let source=parse_json(r#"[-0.0,1.0,1e20,1e-7,1e-6]"#).unwrap();
-        assert_eq!(stringify_json(&source,None).unwrap(),
-            "[0,1,100000000000000000000,1e-7,0.000001]");
-        assert_eq!(stringify_json(&source,Some(1)).unwrap(),
-            "[\n 0,\n 1,\n 100000000000000000000,\n 1e-7,\n 0.000001\n]");
-        assert_eq!(stringify_json(&json!({}),Some(3)).unwrap(),"{}");
-        assert_eq!(stringify_json(&json!([]),Some(3)).unwrap(),"[]");
-        assert_eq!(stringify_json(&json!({"a":1}),Some(500)).unwrap(),
-            "{\n          \"a\": 1\n}");
+        let source = parse_json(r#"[-0.0,1.0,1e20,1e-7,1e-6]"#).unwrap();
+        assert_eq!(
+            stringify_json(&source, None).unwrap(),
+            "[0,1,100000000000000000000,1e-7,0.000001]"
+        );
+        assert_eq!(
+            stringify_json(&source, Some(1)).unwrap(),
+            "[\n 0,\n 1,\n 100000000000000000000,\n 1e-7,\n 0.000001\n]"
+        );
+        assert_eq!(stringify_json(&json!({}), Some(3)).unwrap(), "{}");
+        assert_eq!(stringify_json(&json!([]), Some(3)).unwrap(), "[]");
+        assert_eq!(
+            stringify_json(&json!({"a":1}), Some(500)).unwrap(),
+            "{\n          \"a\": 1\n}"
+        );
     }
 }
