@@ -132,6 +132,27 @@ fn source_derived_pinned_public_contracts() {
             },
             unknown => panic!("fixture does not exercise public API {unknown}"),
         };
-        assert_eq!(actual, case["expected"], "golden case {}", case["symbol"]);
+        assert!(
+            js_json_equal(&actual, &case["expected"]),
+            "golden case {}: actual={actual:?}; expected={:?}",
+            case["symbol"],
+            case["expected"]
+        );
+    }
+}
+
+/// JavaScript JSON has one Number type; serde_json distinguishes integer and
+/// floating representations even for the same numeric value.
+fn js_json_equal(left: &Value, right: &Value) -> bool {
+    match (left, right) {
+        (Value::Number(a), Value::Number(b)) => a.as_f64() == b.as_f64(),
+        (Value::Array(a), Value::Array(b)) => {
+            a.len() == b.len() && a.iter().zip(b).all(|(x, y)| js_json_equal(x, y))
+        }
+        (Value::Object(a), Value::Object(b)) => {
+            a.len() == b.len()
+                && a.iter().all(|(k, v)| b.get(k).is_some_and(|u| js_json_equal(v, u)))
+        }
+        _ => left == right,
     }
 }
