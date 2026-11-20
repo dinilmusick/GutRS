@@ -60,8 +60,6 @@ pub fn resolve_trusted_api_url(origin: &str, path: &str) -> Result<Url, TrustedU
         || base.path() != "/"
         || base.query().is_some()
         || base.fragment().is_some()
-        || origin.ends_with('?')
-        || origin.ends_with('#')
     {
         return Err(TrustedUrlError::InvalidOrigin);
     }
@@ -134,6 +132,19 @@ mod tests {
             );
         }
     }
+    #[test]
+    fn accepts_empty_origin_delimiters_like_web_url() {
+        // GutTS checks URL.search and URL.hash, both empty for bare '?' or '#'.
+        for origin in ["https://api.example.com?", "https://api.example.com#"] {
+            let resolved = resolve_trusted_api_url(origin, "/v1").unwrap();
+            assert_eq!(resolved.as_str(), "https://api.example.com/v1");
+        }
+        // Nonempty query and fragment remain forbidden.
+        for origin in ["https://api.example.com?x=1", "https://api.example.com#x"] {
+            assert!(resolve_trusted_api_url(origin, "/v1").is_err());
+        }
+    }
+
     #[test]
     fn matches_gutts_pinned_path_safety_golden_cases() {
         // GutTS tests/path-safety.test.ts at 3e2cbc0990ba29830ce91c5d1a1d552675d5334c.
