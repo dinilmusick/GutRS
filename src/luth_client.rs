@@ -234,7 +234,7 @@ impl<T: LuthAuthTransport, S: LuthAuthTokenStore> LuthAuthClient<T, S> {
                     .transport
                     .request(method, &url, &headers, body, timeout);
                 match response {
-                    Ok(response) if matches!(response.status, 502 | 503 | 504) => {
+                    Ok(response) if matches!(response.status, 502..=504) => {
                         last = err(
                             "LUTH_DEPLOYMENT_UNAVAILABLE",
                             &format!("Luth deployment unavailable ({})", response.status),
