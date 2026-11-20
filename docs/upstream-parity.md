@@ -291,3 +291,7 @@ The JSON serializer uses `serde_json/preserve_order` to retain object property i
 ### Four-size Ettin live inference matrix
 
 The `native-ettin-live` CI matrix now validates every shipped size (17M, 32M, 68M, 150M) independently through the actual ONNX checkpoint. `ETTIN_MODEL_SIZE` selects the fixture under test, but production always validates size against the exact published model family. This strengthens host-specific end-to-end coverage beyond metadata parity and the pinned numerical score-head differential.
+
+### Full ONNX backbone + released scoring head
+
+The first ONNX output from the Hugging Face Ettin checkpoint is **not** the contract's relevance score; it is the model's token-level last hidden state. The native implementation now loads each checkpoint's exact `2_Dense`, `3_LayerNorm` and `4_Dense` safetensors files and applies `compute_ettin_head_scores` (Dense → GELU → LayerNorm → Dense → sigmoid) to its genuine ONNX `[batch, sequence, hidden]` tensor, matching the pinned GutTS transformer runtime. Raw `hidden[0]` values must never be passed off as candidate relevance scores. The four-size matrix verifies each complete real model path independently.
