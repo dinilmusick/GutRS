@@ -277,3 +277,5 @@ Feature `smollm2-native` integrates the genuine `HuggingFaceTB/SmolLM2-135M-Inst
 ### Ettin ONNX output contract correction
 
 The real Ettin 17M checkpoint does **not** expose a tensor named `logits`; FastEmbed's `TextRerank` wrapper assumes that name and failed with `Output tensor 'logits' not found`. The native adapter therefore uses the same ONNX Runtime package and Hugging Face tokenizers directly, feeds paired query/document tokens and attention masks to the published model, then extracts the **actual first ONNX output tensor**, restoring one finite real score in original candidate order. This is an integration compatibility fix, not a fallback scoring heuristic.
+
+The pinned ONNX Runtime 2.0.0-rc.15 requires an `Environment` parameter for `Session::builder`. `NativeEttin::load_in_environment(size, &env)` enables a host app to share a process-wide ONNX runtime environment across MiniLM/Ettin sessions; convenience `load(size)` creates a fresh environment and reports an explicit error if another host already owns it.
