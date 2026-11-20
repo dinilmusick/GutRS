@@ -1,7 +1,7 @@
 name: GutRS Rust Contract CI
 on:
   push:
-    branches: [main, feat/gutts-core-utility-parity-20261118]
+    branches: [main, feat/gutts-core-utility-parity-20261118, 'wave1/gutrs-parity-20261120-gpt6']
   pull_request:
   workflow_dispatch:
 
@@ -23,7 +23,11 @@ jobs:
           components: rustfmt, clippy
       - name: Formatting
         run: cargo fmt --all -- --check
-      - name: Contract tests
-        run: cargo test --all-targets
-      - name: Clippy
-        run: cargo clippy --all-targets -- -D warnings
+      - name: Contract unit and integration tests
+        run: cargo test --all-targets --all-features
+      - name: Documentation tests
+        run: cargo test --doc --all-features
+      - name: Clippy (warnings denied)
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Compile and execute standalone external consumer
+        run: cargo run --manifest-path examples/external-consumer/Cargo.toml

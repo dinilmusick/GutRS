@@ -1,0 +1,11 @@
+[package]
+name = "gutrs-external-consumer"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+gutrs = { path = "../.." }
+serde_json = "1"
+
+[workspace]
