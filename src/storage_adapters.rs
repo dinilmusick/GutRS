@@ -11,7 +11,6 @@
 pub mod s3 {
     //! Fully functional AWS S3 fluent request builders. Call `.send().await`
     //! on a Tokio runtime after creating a genuine authenticated SDK Client.
-    pub use aws_sdk_s3::Client as S3Client;
     pub use aws_sdk_s3::config::Builder as S3ConfigBuilder;
     pub use aws_sdk_s3::operation::copy_object::builders::CopyObjectFluentBuilder as CopyObjectCommand;
     pub use aws_sdk_s3::operation::delete_object::builders::DeleteObjectFluentBuilder as DeleteObjectCommand;
@@ -20,6 +19,7 @@ pub mod s3 {
     pub use aws_sdk_s3::operation::head_object::builders::HeadObjectFluentBuilder as HeadObjectCommand;
     pub use aws_sdk_s3::operation::list_objects_v2::builders::ListObjectsV2FluentBuilder as ListObjectsV2Command;
     pub use aws_sdk_s3::operation::put_object::builders::PutObjectFluentBuilder as PutObjectCommand;
+    pub use aws_sdk_s3::Client as S3Client;
 
     #[test]
     fn real_s3_client_exposes_all_eight_native_requests() {
@@ -34,7 +34,11 @@ pub mod s3 {
         let _: HeadObjectCommand = client.head_object().bucket("example").key("a");
         let _: ListObjectsV2Command = client.list_objects_v2().bucket("example");
         let _: PutObjectCommand = client.put_object().bucket("example").key("a");
-        let _: CopyObjectCommand = client.copy_object().bucket("example").key("b").copy_source("example/a");
+        let _: CopyObjectCommand = client
+            .copy_object()
+            .bucket("example")
+            .key("b")
+            .copy_source("example/a");
         let _: DeleteObjectCommand = client.delete_object().bucket("example").key("a");
         let _: DeleteObjectsCommand = client.delete_objects().bucket("example");
     }
@@ -45,7 +49,7 @@ pub mod google_drive {
     //! Actual Google Drive v3 SDK, not a `googleapis` JavaScript dynamic import.
     //! Consumers provide an authorized `GetToken` and Hyper HTTPS connector.
     pub use google_drive3 as GoogleApisModule;
-    pub use google_drive3::{DriveHub as GoogleDriveClient, hyper_rustls, hyper_util, yup_oauth2};
+    pub use google_drive3::{hyper_rustls, hyper_util, yup_oauth2, DriveHub as GoogleDriveClient};
 
     /// Construct the actual Drive v3 hub, using a supplied authenticated host.
     ///
