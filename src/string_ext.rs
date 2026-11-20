@@ -15,10 +15,7 @@ pub fn is_email(value: &str) -> bool {
     let Some((local, domain)) = value.rsplit_once('@') else {
         return false;
     };
-    if local.is_empty()
-        || domain.starts_with('[')
-        || !domain.contains('.')
-        || domain.ends_with('.')
+    if local.is_empty() || domain.starts_with('[') || !domain.contains('.') || domain.ends_with('.')
     {
         return false;
     }
