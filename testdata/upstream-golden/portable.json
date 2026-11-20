@@ -319,6 +319,135 @@
         "value": "Déjà Vu"
       },
       "expected": "deja_vu"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "  TRUE ",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "expected": true
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "0x10",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "expected": 16
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "-2.5",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "expected": -2.5
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "truth",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "expected": null
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "person@example.com",
+        "schema": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      "expected": "person@example.com"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "invalid@example",
+        "schema": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      "expected": null
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": " green ",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "red",
+            "green"
+          ]
+        }
+      },
+      "expected": "green"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "hello",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "expected": null
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "HTTP://example.com",
+        "schema": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "expected": "HTTP://example.com"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "abcz",
+        "schema": {
+          "type": "string",
+          "pattern": "^a.*z$"
+        }
+      },
+      "expected": "abcz"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "2026-99-99",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "expected": "2026-99-99"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": " ",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "expected": null
     }
   ]
 }

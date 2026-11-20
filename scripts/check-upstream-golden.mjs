@@ -19,7 +19,7 @@ if(actualCommit !== fixtures.source.sha){
 }
 const load = async (path) => import(pathToFileURL(resolve(upstream,'dist',path)).href);
 const [
-  arrays,numbers,strings,urls,json,objects,identities,oauth
+  arrays,numbers,strings,urls,json,objects,identities,oauth,semantic
 ] = await Promise.all([
   load('arrays/array-concepts.js'),
   load('numbers/number-concepts.js'),
@@ -28,7 +28,8 @@ const [
   load('json/json-concepts.js'),
   load('objects/object-concepts.js'),
   load('auth/identityIds.js'),
-  load('auth/oauthClientContract.js')
+  load('auth/oauthClientContract.js'),
+  load('semantic-input/index.js')
 ]);
 
 let count = 0;
@@ -48,6 +49,8 @@ for (const test of fixtures.cases) {
    case 'strings.camelCase': actual=strings.camelCase(i.value);break;
    case 'strings.kebabCase': actual=strings.kebabCase(i.value);break;
    case 'strings.snakeCase': actual=strings.snakeCase(i.value);break;
+   case 'semantic.resolveDeterministicSemanticInput':
+     actual = semantic.resolveDeterministicSemanticInput(i.input,i.schema)?.value ?? null;break;
    case 'strings.isBlank': actual=strings.isBlank(i.value);break;
    case 'strings.startsWithAny': actual=strings.startsWithAny(i.value,i.prefixes);break;
    case 'strings.endsWithAny': actual=strings.endsWithAny(i.value,i.suffixes);break;
