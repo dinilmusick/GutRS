@@ -241,3 +241,7 @@ Feature `cactus-native` exposes real `cactus-rs` 0.2.1 Needle3 and Whistle CPU e
 ### Cactus native execution adapters
 
 With `cactus-native` on a supported host, `cactus_native::native::CactusNeedle3` implements the actual `Needle3Inference` contract and `CactusWhistle` implements `WhistleInference`. Callers must load real weights using the pinned `cactus-rs` `NeedleBuilder` and `WhistleBuilder` before constructing these adapters. Cactus has process-global lifetime semantics, unlike GutTS model residency unloading; this native adapter keeps a mutex around the real engine. Whistle native audio bytes must be signed little-endian PCM16 mono at 16 kHz and no more than 30 seconds, explicitly decoded into the Cactus `f32` sample input. Dynamic tool/schema installation is rejected with a typed error rather than silently omitted. Tests validate PCM conversion and API type correctness; full real-weight inference accuracy is not yet proven.
+
+## Composing model runtimes
+
+`model_host::ModelHost::new(needle, smollm, whistle, ettin, minilm)` accepts five *actual implementations* of the model-family interfaces and itself implements `model_dispatch::GuttsModelDispatch`. The fully typed public model API dispatcher can then execute native calls through the supplied engines. The included test engines are unit-test doubles, not production inferencers. The optional Cactus native adapter implements real Needle3 and Whistle. Live SmolLM2, Ettin and MiniLM backends are still caller-provided, and model-weight inference requires separate end-to-end verification.

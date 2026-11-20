@@ -262,3 +262,6 @@ pub mod cactus_native;
 
 /// Explicit real-model host dispatch for all five pinned inference API IDs.
 pub mod model_dispatch;
+
+/// Compose concrete model engines into the checked public model API dispatcher.
+pub mod model_host;

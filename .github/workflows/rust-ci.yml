@@ -1,7 +1,7 @@
 name: GutRS Rust Contract CI
 on:
   push:
-    branches: [main, feat/gutts-core-utility-parity-20261118, 'wave1/gutrs-parity-20261120-gpt6']
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
