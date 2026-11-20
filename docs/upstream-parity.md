@@ -273,3 +273,7 @@ Optional feature `minilm-native` uses FastEmbed 7.7.1 to load the exact `sentenc
 ## Real SmolLM2 language generation
 
 Feature `smollm2-native` integrates the genuine `HuggingFaceTB/SmolLM2-135M-Instruct` tokenizer, config and safetensors checkpoint through Candle 0.11 on CPU. `NativeSmolLM2` implements the published `SmolLM2Inference` trait, performs deterministic autoregressive forward passes with a fresh KV cache for each invocation, handles end-of-sequence tokens, and imposes a finite generation limit. The separate native SmolLM2 CI job downloads official weights and checks real generated output. Use of the in-memory safe safetensors loader avoids unsafe mapping in application code. Model quality is not certified by a one-prompt integration test.
+
+### Ettin ONNX output contract correction
+
+The real Ettin 17M checkpoint does **not** expose a tensor named `logits`; FastEmbed's `TextRerank` wrapper assumes that name and failed with `Output tensor 'logits' not found`. The native adapter therefore uses the same ONNX Runtime package and Hugging Face tokenizers directly, feeds paired query/document tokens and attention masks to the published model, then extracts the **actual first ONNX output tensor**, restoring one finite real score in original candidate order. This is an integration compatibility fix, not a fallback scoring heuristic.

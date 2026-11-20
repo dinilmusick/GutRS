@@ -1,12 +1,12 @@
-//! Exact Ettin-v1 cross-encoder reranking over real ONNX model weights.
-//! There is no fallback to a generic reranker or synthetic relevance scores.
+//! Exact Ettin reranker v1 ONNX cross-encoder inference.
+//! Published checkpoints expose an unnamed ONNX output; unlike FastEmbed's
+//! hardcoded "logits" key, the native adapter reads the actual first output.
 #[cfg(feature = "ettin-native")]
 pub mod native {
     use crate::model_operations::EttinInference;
-    use fastembed::{
-        RerankInitOptionsUserDefined, TextRerank, TokenizerFiles, UserDefinedRerankingModel,
-    };
+    use ort::{session::Session, value::Tensor};
     use std::sync::Mutex;
+    use tokenizers::{Tokenizer, TruncationParams};
 
     pub fn ettin_repo(size: u16) -> Result<String, String> {
         if !matches!(size, 17 | 32 | 68 | 150) {
@@ -14,12 +14,10 @@ pub mod native {
         }
         Ok(format!("cross-encoder/ettin-reranker-{size}m-v1"))
     }
-    /// Exact model archive is fetched by the Hugging Face client and retained
-    /// in its verified local cache. Requires a host with network access on
-    /// the first load (or a prepopulated HF cache).
     pub struct NativeEttin {
         pub model_id: String,
-        reranker: Mutex<TextRerank>,
+        tokenizer: Tokenizer,
+        session: Mutex<Session>,
     }
     impl NativeEttin {
         pub fn load(size: u16) -> Result<Self, String> {
@@ -27,82 +25,72 @@ pub mod native {
             let repo = hf_hub::api::sync::Api::new()
                 .map_err(|e| e.to_string())?
                 .model(model_id.clone());
-            let onnx = repo
-                .get("onnx/model.onnx")
-                .map_err(|e| format!("could not load exact Ettin ONNX weights: {e}"))?;
-            let read = |name: &str| -> Result<Vec<u8>, String> {
-                let path = repo.get(name).map_err(|e| format!("{name}: {e}"))?;
-                std::fs::read(path).map_err(|e| e.to_string())
-            };
-            let tokenizer_files = TokenizerFiles {
-                tokenizer_file: read("tokenizer.json")?,
-                config_file: read("config.json")?,
-                // Some published Ettin checkpoints do not include a separate
-                // special-tokens map; the tokenizer JSON is authoritative.
-                special_tokens_map_file: repo
-                    .get("special_tokens_map.json")
-                    .ok()
-                    .and_then(|p| std::fs::read(p).ok())
-                    .unwrap_or_else(|| b"{}".to_vec()),
-                tokenizer_config_file: read("tokenizer_config.json")?,
-            };
-            let model = UserDefinedRerankingModel::new(onnx, tokenizer_files);
-            let reranker = TextRerank::try_new_from_user_defined(
-                model,
-                RerankInitOptionsUserDefined::new().with_max_length(512),
-            )
-            .map_err(|e| e.to_string())?;
-            Ok(Self {
-                model_id,
-                reranker: Mutex::new(reranker),
-            })
+            let model_path = repo.get("onnx/model.onnx")
+                .map_err(|e| format!("exact Ettin ONNX model unavailable: {e}"))?;
+            let tokenizer_path = repo.get("tokenizer.json")
+                .map_err(|e| format!("Ettin tokenizer unavailable: {e}"))?;
+            let mut tokenizer = Tokenizer::from_file(tokenizer_path)
+                .map_err(|e| e.to_string())?;
+            tokenizer.with_truncation(Some(TruncationParams {
+                max_length: 512,
+                ..Default::default()
+            })).map_err(|e| e.to_string())?;
+            let session = Session::builder()
+                .map_err(|e| e.to_string())?
+                .commit_from_file(model_path)
+                .map_err(|e| e.to_string())?;
+            Ok(Self { model_id, tokenizer, session: Mutex::new(session) })
         }
     }
     impl EttinInference for NativeEttin {
         type Error = String;
         fn rerank(&self, query: &str, candidates: &[String]) -> Result<Vec<f64>, Self::Error> {
-            if candidates.is_empty() {
-                return Ok(Vec::new());
-            }
-            let mut engine = self
-                .reranker
-                .lock()
-                .map_err(|_| "Ettin model lock is poisoned".to_string())?;
-            let documents: Vec<&str> = candidates.iter().map(String::as_str).collect();
-            let ranked = engine
-                .rerank(query, &documents, false, Some(16))
-                .map_err(|e| e.to_string())?;
-            if ranked.len() != candidates.len() {
-                return Err("Ettin ONNX returned unexpected score count".into());
-            }
-            let mut scores = vec![0.0; candidates.len()];
-            let mut visited = vec![false; candidates.len()];
-            for result in ranked {
-                if result.index >= candidates.len()
-                    || visited[result.index]
-                    || !result.score.is_finite()
-                {
-                    return Err("Ettin returned duplicate index or invalid score".into());
-                }
-                visited[result.index] = true;
-                scores[result.index] = f64::from(result.score);
-            }
-            if visited.iter().any(|seen| !seen) {
-                return Err("Ettin omitted candidate scores".into());
+            let mut session = self.session.lock()
+                .map_err(|_| "Ettin inference session poisoned".to_owned())?;
+            let token_types = session.inputs().iter()
+                .any(|input| input.name() == "token_type_ids");
+            let mut scores = Vec::with_capacity(candidates.len());
+            for document in candidates {
+                let encoding = self.tokenizer.encode((query, document.as_str()), true)
+                    .map_err(|e| e.to_string())?;
+                let len = encoding.len();
+                if len == 0 { return Err("Ettin generated an empty encoding".into()); }
+                let ids: Vec<i64> = encoding.get_ids().iter().map(|v| i64::from(*v)).collect();
+                let mask: Vec<i64> = encoding.get_attention_mask().iter()
+                    .map(|v| i64::from(*v)).collect();
+                let types: Vec<i64> = encoding.get_type_ids().iter()
+                    .map(|v| i64::from(*v)).collect();
+                let outputs = if token_types {
+                    session.run(ort::inputs![
+                        "input_ids" => Tensor::from_array(([1_usize,len], ids))
+                            .map_err(|e| e.to_string())?,
+                        "attention_mask" => Tensor::from_array(([1_usize,len], mask))
+                            .map_err(|e| e.to_string())?,
+                        "token_type_ids" => Tensor::from_array(([1_usize,len], types))
+                            .map_err(|e| e.to_string())?,
+                    ]).map_err(|e| e.to_string())?
+                } else {
+                    session.run(ort::inputs![
+                        "input_ids" => Tensor::from_array(([1_usize,len], ids))
+                            .map_err(|e| e.to_string())?,
+                        "attention_mask" => Tensor::from_array(([1_usize,len], mask))
+                            .map_err(|e| e.to_string())?,
+                    ]).map_err(|e| e.to_string())?
+                };
+                let (_, data) = outputs[0].try_extract_tensor::<f32>()
+                    .map_err(|e| e.to_string())?;
+                let score = data.first().ok_or("Ettin returned empty output tensor")?;
+                if !score.is_finite() { return Err("Ettin returned a nonfinite score".into()); }
+                scores.push(f64::from(*score));
             }
             Ok(scores)
         }
     }
     #[test]
-    fn model_ids_are_exact_and_unknown_sizes_rejected() {
-        assert_eq!(
-            ettin_repo(17).unwrap(),
-            "cross-encoder/ettin-reranker-17m-v1"
-        );
-        assert_eq!(
-            ettin_repo(150).unwrap(),
-            "cross-encoder/ettin-reranker-150m-v1"
-        );
-        assert!(ettin_repo(42).is_err());
+    fn exact_v1_repo_names_reject_any_other_model(){
+        for size in [17, 32, 68, 150]{
+            assert_eq!(ettin_repo(size).unwrap(),format!("cross-encoder/ettin-reranker-{size}m-v1"));
+        }
+        assert!(ettin_repo(400).is_err());
     }
 }
