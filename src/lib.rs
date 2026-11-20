@@ -247,3 +247,6 @@ pub mod auth_wires;
 
 /// Typed real-model inference adapters and model family wrappers.
 pub mod model_operations;
+
+/// Typed semantic input events, model policy, evidence and provenance.
+pub mod semantic_types;

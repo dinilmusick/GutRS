@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **165 have an explicit Rust mapping** (including partial equivalents), **30 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **174 have an explicit Rust mapping** (including partial equivalents), **21 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -168,17 +168,17 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `miniLML6Metadata` | `model_operations::minilm_l6_metadata` | `src/models/index.ts` → `src/model_operations.rs` | src/model_operations.rs (unit tests) | △ real inference requires host runtime |
 | `SemanticInputSchema` | `semantic_input::SemanticInputSchema` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `SemanticInputContext` | `semantic_input::SemanticInputContext` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
-| `SemanticInputErrorCode` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputRisk` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputProgress` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputEvent` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputModelPolicy` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
+| `SemanticInputErrorCode` | `semantic_types::SemanticInputErrorCode` | `src/semantic-input/index.ts` → `src/semantic_types.rs` | src/semantic_types.rs (unit tests) | ◐ typed provenance/events; host callbacks pending |
+| `SemanticInputRisk` | `semantic_types::SemanticInputRisk` | `src/semantic-input/index.ts` → `src/semantic_types.rs` | src/semantic_types.rs (unit tests) | ◐ typed provenance/events; host callbacks pending |
+| `SemanticInputProgress` | `semantic_types::SemanticInputProgress` | `src/semantic-input/index.ts` → `src/semantic_types.rs` | src/semantic_types.rs (unit tests) | ◐ typed provenance/events; host callbacks pending |
+| `SemanticInputEvent` | `semantic_types::SemanticInputEvent` | `src/semantic-input/index.ts` → `src/semantic_types.rs` | src/semantic_types.rs (unit tests) | ◐ typed provenance/events; host callbacks pending |
+| `SemanticInputModelPolicy` | `semantic_types::SemanticInputModelPolicy` | `src/semantic-input/index.ts` → `src/semantic_types.rs` | src/semantic_types.rs (unit tests) | ◐ typed provenance/events; host callbacks pending |
 | `SemanticInputPolicy` | `semantic_input::SemanticInputPolicy` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
-| `SemanticInputProvenanceStore` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputProvenanceRecord` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
-| `SemanticInputProvenance` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
+| `SemanticInputProvenanceStore` | `semantic_types::SemanticInputProvenanceStore` | `src/semantic-input/index.ts` → `src/semantic_types.rs` | src/semantic_types.rs (unit tests) | ◐ typed provenance/events; host callbacks pending |
+| `SemanticInputProvenanceRecord` | `semantic_types::SemanticInputProvenanceRecord` | `src/semantic-input/index.ts` → `src/semantic_types.rs` | src/semantic_types.rs (unit tests) | ◐ typed provenance/events; host callbacks pending |
+| `SemanticInputProvenance` | `semantic_types::SemanticInputProvenance` | `src/semantic-input/index.ts` → `src/semantic_types.rs` | src/semantic_types.rs (unit tests) | ◐ typed provenance/events; host callbacks pending |
 | `SemanticInputCandidate` | `semantic_input::SemanticInputCandidate` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
-| `SemanticInputEvidence` | `—` | `src/semantic-input/index.ts` → `—` | — | ❌ missing |
+| `SemanticInputEvidence` | `semantic_types::SemanticInputEvidence` | `src/semantic-input/index.ts` → `src/semantic_types.rs` | src/semantic_types.rs (unit tests) | ◐ typed provenance/events; host callbacks pending |
 | `SemanticInputClarification` | `semantic_input::SemanticInputClarification` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `SemanticInputResolution` | `semantic_input::SemanticInputResolution` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
 | `SemanticInputCacheKey` | `semantic_input::SemanticInputCacheKey` | `src/semantic-input/index.ts` → `src/semantic_input.rs` | src/semantic_input.rs (unit tests) | ◐ portable core; native model host required |
