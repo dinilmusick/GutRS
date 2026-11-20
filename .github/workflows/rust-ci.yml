@@ -31,3 +31,33 @@ jobs:
         run: cargo clippy --all-targets --all-features -- -D warnings
       - name: Compile and execute standalone external consumer
         run: cargo run --manifest-path examples/external-consumer/Cargo.toml
+
+  upstream-differential:
+    name: Pinned GutTS differential (ubuntu-latest)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout GutRS exact PR commit
+        uses: actions/checkout@v4
+      - name: Checkout immutable upstream source
+        uses: actions/checkout@v4
+        with:
+          repository: dinilmusick/GutTS
+          ref: 3e2cbc0990ba29830ce91c5d1a1d552675d5334c
+          path: upstream
+          persist-credentials: false
+      - name: Install Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install pinned pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+      - name: Install exact upstream dependencies
+        working-directory: upstream
+        run: pnpm install --frozen-lockfile
+      - name: Build unmodified upstream source
+        working-directory: upstream
+        run: pnpm run build
+      - name: Execute same golden cases against actual upstream
+        run: node scripts/check-upstream-golden.mjs
