@@ -45,7 +45,11 @@ pub struct WorkspaceRef {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum NetworkPolicy { None, Restricted, Full }
+pub enum NetworkPolicy {
+    None,
+    Restricted,
+    Full,
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
@@ -77,7 +81,12 @@ pub struct ExecutionRequest {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum ExecutionStatus { Succeeded, Failed, Cancelled, TimedOut }
+pub enum ExecutionStatus {
+    Succeeded,
+    Failed,
+    Cancelled,
+    TimedOut,
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -93,7 +102,12 @@ pub struct ExecutionResult {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum CheckStatus { Passed, Failed, Skipped, Blocked }
+pub enum CheckStatus {
+    Passed,
+    Failed,
+    Skipped,
+    Blocked,
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -111,7 +125,11 @@ pub struct VerificationCheck {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
-pub enum VerificationReportStatus { Passed, Failed, Blocked }
+pub enum VerificationReportStatus {
+    Passed,
+    Failed,
+    Blocked,
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -137,17 +155,28 @@ pub struct ArtifactRef {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum EngineeringCapability {
-    #[serde(rename = "repository.read")] RepositoryRead,
-    #[serde(rename = "repository.write")] RepositoryWrite,
-    #[serde(rename = "git.write")] GitWrite,
-    #[serde(rename = "workspace.create")] WorkspaceCreate,
-    #[serde(rename = "execution.run")] ExecutionRun,
-    #[serde(rename = "browser.run")] BrowserRun,
-    #[serde(rename = "verification.run")] VerificationRun,
-    #[serde(rename = "artifact.write")] ArtifactWrite,
-    #[serde(rename = "package.publish")] PackagePublish,
-    #[serde(rename = "deployment.write")] DeploymentWrite,
-    #[serde(rename = "promotion.write")] PromotionWrite,
+    #[serde(rename = "repository.read")]
+    RepositoryRead,
+    #[serde(rename = "repository.write")]
+    RepositoryWrite,
+    #[serde(rename = "git.write")]
+    GitWrite,
+    #[serde(rename = "workspace.create")]
+    WorkspaceCreate,
+    #[serde(rename = "execution.run")]
+    ExecutionRun,
+    #[serde(rename = "browser.run")]
+    BrowserRun,
+    #[serde(rename = "verification.run")]
+    VerificationRun,
+    #[serde(rename = "artifact.write")]
+    ArtifactWrite,
+    #[serde(rename = "package.publish")]
+    PackagePublish,
+    #[serde(rename = "deployment.write")]
+    DeploymentWrite,
+    #[serde(rename = "promotion.write")]
+    PromotionWrite,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -205,8 +234,11 @@ mod tests {
             {"capability":"verification.run"}]});
         let typed: EngineeringOperationContext = serde_json::from_value(context.clone()).unwrap();
         assert_eq!(serde_json::to_value(typed).unwrap(), context);
-        assert!(serde_json::from_value::<EngineeringOperationContext>(json!({
-            "taskId":"task","traceId":"trace","grants":[{"capability":"admin.superuser"}]
-        })).is_err());
+        assert!(
+            serde_json::from_value::<EngineeringOperationContext>(json!({
+                "taskId":"task","traceId":"trace","grants":[{"capability":"admin.superuser"}]
+            }))
+            .is_err()
+        );
     }
 }

@@ -4,7 +4,12 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
-pub enum DeploymentEnvironment { Production, Staging, Preview, Development }
+pub enum DeploymentEnvironment {
+    Production,
+    Staging,
+    Preview,
+    Development,
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -116,7 +121,8 @@ mod tests {
         assert_eq!(serde_json::to_value(typed).unwrap(), wire);
         let unauthenticated: LuthSessionResult = serde_json::from_value(json!({
             "authenticated":false,"error":"SESSION_INVALID"
-        })).unwrap();
+        }))
+        .unwrap();
         assert!(!unauthenticated.authenticated);
         assert!(unauthenticated.session.is_none());
         let bad = json!({"authenticated":"yes"});

@@ -222,7 +222,7 @@ pub mod objects;
 /// Shape validation for OAuth clients, capabilities and bounded invocations.
 pub mod auth_contracts;
 
-/// Serializable host-agnostic engineering request, artifact and grant wire types.
-pub mod engineering;
 /// Luth session and user wire data, separate from authentication authority.
 pub mod auth_types;
+/// Serializable host-agnostic engineering request, artifact and grant wire types.
+pub mod engineering;
