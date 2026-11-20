@@ -63,12 +63,12 @@ pub mod native {
             if prompt.trim().is_empty() {
                 return Err("SmolLM2 prompt must not be empty".into());
             }
-            let limit = max_new_tokens.unwrap_or(64);
+            let limit = max_new_tokens.unwrap_or(32);
             if limit > 1024 {
                 return Err("SmolLM2 generation token limit exceeds 1024".into());
             }
             if limit == 0 {
-                return Ok(String::new());
+                return Ok(prompt.to_owned());
             }
             let state = self
                 .session
@@ -118,10 +118,13 @@ pub mod native {
                 generated.push(next);
                 tokens.push(next);
             }
-            state
+            let continuation = state
                 .tokenizer
                 .decode(&generated, true)
-                .map_err(|e| e.to_string())
+                .map_err(|e| e.to_string())?;
+            // Pinned GutTS uses Transformers.js text-generation pipeline with
+            // return_full_text=true (the default), not generated tokens alone.
+            Ok(format!("{prompt}{continuation}"))
         }
     }
     #[test]

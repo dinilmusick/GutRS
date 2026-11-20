@@ -295,3 +295,7 @@ The `native-ettin-live` CI matrix now validates every shipped size (17M, 32M, 68
 ### Full ONNX backbone + released scoring head
 
 The first ONNX output from the Hugging Face Ettin checkpoint is **not** the contract's relevance score; it is the model's token-level last hidden state. The native implementation now loads each checkpoint's exact `2_Dense`, `3_LayerNorm` and `4_Dense` safetensors files and applies `compute_ettin_head_scores` (Dense → GELU → LayerNorm → Dense → sigmoid) to its genuine ONNX `[batch, sequence, hidden]` tensor, matching the pinned GutTS transformer runtime. Raw `hidden[0]` values must never be passed off as candidate relevance scores. The four-size matrix verifies each complete real model path independently.
+
+### SmolLM2 generated_text wire parity
+
+Pinned GutTS's Transformers.js `text-generation` pipeline leaves `return_full_text=true` (the published default) and uses `max_new_tokens=32` when omitted. The native Candle adapter now uses the same default token count and returns `prompt + generated continuation`, rather than only the generated suffix. The live integration test asserts both prefix preservation and nonempty generation. Model output is not byte-identical across native float32 and upstream q4 runtime quantization; this is a genuine host-backend limitation, not evidence of text-generation API failure.
