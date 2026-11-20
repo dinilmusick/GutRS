@@ -70,6 +70,10 @@ jobs:
         run: cargo run --quiet --example export_registry > rust-registry.json
       - name: Execute same golden cases against actual upstream
         run: node scripts/check-upstream-golden.mjs
+      - name: Compare all 33 portable API operations with pinned TypeScript execution
+        run: |
+          cargo run --quiet --example export_utility_cases > rust-utility-results.json
+          node scripts/check-utility-api-differential.mjs
 
   native-cactus-live:
     name: Actual on-device Needle3 and Whistle inference (Linux)
