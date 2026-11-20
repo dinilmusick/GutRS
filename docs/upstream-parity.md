@@ -237,3 +237,7 @@ Feature `cactus-native` exposes real `cactus-rs` 0.2.1 Needle3 and Whistle CPU e
 ## Model execution by exact API ID
 
 `model_dispatch::execute_gutts_api_with_models` implements dispatch for all five model API metadata IDs through `GuttsModelDispatch`. Caller-supplied inference engines must do the actual work; missing engines never produce success. Whistle audio uses an explicit RFC4648 base64 native wire encoding. Model quality and actual weights still require independent live-engine verification.
+
+### Cactus native execution adapters
+
+With `cactus-native` on a supported host, `cactus_native::native::CactusNeedle3` implements the actual `Needle3Inference` contract and `CactusWhistle` implements `WhistleInference`. Callers must load real weights using the pinned `cactus-rs` `NeedleBuilder` and `WhistleBuilder` before constructing these adapters. Cactus has process-global lifetime semantics, unlike GutTS model residency unloading; this native adapter keeps a mutex around the real engine. Whistle native audio bytes must be signed little-endian PCM16 mono at 16 kHz and no more than 30 seconds, explicitly decoded into the Cactus `f32` sample input. Dynamic tool/schema installation is rejected with a typed error rather than silently omitted. Tests validate PCM conversion and API type correctness; full real-weight inference accuracy is not yet proven.
