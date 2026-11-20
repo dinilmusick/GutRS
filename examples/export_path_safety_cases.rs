@@ -14,8 +14,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "normalize" => path_safety::normalize_storage_path(path).map_err(|_| ()),
             "encode" => path_safety::encode_safe_path_segments(path).map_err(|_| ()),
             "resolve" => trusted_api::resolve_trusted_api_url(
-                case["origin"].as_str().ok_or("missing origin")?, path
-            ).map(|url| url.to_string()).map_err(|_| ()),
+                case["origin"].as_str().ok_or("missing origin")?,
+                path,
+            )
+            .map(|url| url.to_string())
+            .map_err(|_| ()),
             kind => return Err(format!("unrecognized operation {kind}").into()),
         };
         match result {

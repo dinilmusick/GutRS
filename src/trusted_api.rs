@@ -90,7 +90,9 @@ pub fn resolve_trusted_api_url(origin: &str, path: &str) -> Result<Url, TrustedU
     if target.origin() != base.origin()
         || !target.username().is_empty()
         || target.password().is_some()
-        || target.fragment().is_some_and(|fragment| !fragment.is_empty())
+        || target
+            .fragment()
+            .is_some_and(|fragment| !fragment.is_empty())
     {
         return Err(TrustedUrlError::InvalidPath);
     }
@@ -196,5 +198,4 @@ mod tests {
             assert!(resolve_trusted_api_url("https://api.example.com", path).is_err());
         }
     }
-
 }
