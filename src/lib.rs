@@ -268,3 +268,6 @@ pub mod model_host;
 
 /// Exact MiniLM L6-v2 ONNX CPU inference adapter and cosine similarity.
 pub mod minilm_native;
+
+/// Exact pinned Ettin reranker safetensors scoring head with native f32 semantics.
+pub mod ettin_head;

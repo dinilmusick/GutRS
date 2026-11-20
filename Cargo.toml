@@ -23,6 +23,7 @@ unicode-normalization = "0.1"
 regex = "1"
 fastembed = { version = "=7.7.1", default-features = false, features = ["onnx", "hf-hub-rustls-tls", "ort-download-binaries-rustls-tls"], optional = true }
 base64 = "0.22"
+safetensors = "0.8"
 
 # Hosted SDK adapters are optional; default builds remain portable and credential-free.
 [features]

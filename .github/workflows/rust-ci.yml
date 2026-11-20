@@ -74,6 +74,8 @@ jobs:
         run: |
           cargo run --quiet --example export_utility_cases > rust-utility-results.json
           node scripts/check-utility-api-differential.mjs
+          cargo run --quiet --example export_ettin_heads > rust-ettin-head.json
+          node scripts/check-ettin-head-differential.mjs
 
   native-cactus-live:
     name: Actual on-device Needle3 and Whistle inference (Linux)

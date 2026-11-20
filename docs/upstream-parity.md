@@ -261,3 +261,7 @@ Pinned GutTS `tryParseJson` returns JavaScript `undefined` for malformed JSON, w
 ## Real MiniLM ONNX backend
 
 Optional feature `minilm-native` uses FastEmbed 7.7.1 to load the exact `sentence-transformers/all-MiniLM-L6-v2` model and its ONNX weights. `minilm_native::native::NativeMiniLM` implements `MiniLMInference` with an authenticated caller's own runtime environment, a synchronized session and bounded cosine-similarity output. The separate `native-minilm-live` CI job downloads weights and executes actual self-similarity inference. Success is contingent on exact-head GitHub CI; unit vector tests alone do not prove model inference.
+
+## Ettin reranker scoring head
+
+`ettin_head::EttinHeadWeights::from_directory` loads the exact 2_Dense / 3_LayerNorm / 4_Dense model safetensors files from an authorized local model download. `compute_ettin_head_scores` implements the pinned TypeScript GELU → LayerNorm → sigmoid scoring transform with explicit f32 intermediate rounding. CI compares output numerically with the actual pinned JavaScript `computeEttinHeadScores`. The transformer backbone supplying real `last_hidden_state` remains a separate native inference integration requirement; passing this numerical differential alone does not establish end-to-end Ettin inference.
