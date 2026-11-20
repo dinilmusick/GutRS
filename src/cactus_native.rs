@@ -99,7 +99,7 @@ pub mod native {
     /// For the native model inference interface the input is explicitly
     /// 16-bit little-endian signed PCM at 16 kHz.
     pub fn decode_pcm16_mono(bytes: &[u8]) -> Result<Vec<f32>, CactusNativeError> {
-        if bytes.len() % 2 != 0 {
+        if !bytes.len().is_multiple_of(2) {
             return Err(CactusNativeError(
                 "PCM16 audio has an odd byte length".into(),
             ));
@@ -110,7 +110,7 @@ pub mod native {
             ));
         }
         Ok(bytes
-            .chunks_exact(2)
+            .as_chunks::<2>().0.iter()
             .map(|b| f32::from(i16::from_le_bytes([b[0], b[1]])) / 32768.0)
             .collect())
     }
