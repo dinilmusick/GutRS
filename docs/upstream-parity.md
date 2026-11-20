@@ -269,3 +269,7 @@ Optional feature `minilm-native` uses FastEmbed 7.7.1 to load the exact `sentenc
 ## Exact Ettin reranker native inference
 
 `ettin-native` uses the published `cross-encoder/ettin-reranker-{17,32,68,150}m-v1` ONNX archives with FastEmbed's real cross-encoder runtime. `NativeEttin::load(size)` resolves the exact Hugging Face repository and caches its model, tokenizer and configuration; it never falls back to a different size. `EttinInference::rerank` preserves the caller's original candidate ordering and checks result count, score finiteness and indices. A separate Linux CI job evaluates the actual 17M model. Other sizes use the same code path but need their own live-weights certification. ONNX scores are genuine native inference, not synthetic keyword matching.
+
+## Real SmolLM2 language generation
+
+Feature `smollm2-native` integrates the genuine `HuggingFaceTB/SmolLM2-135M-Instruct` tokenizer, config and safetensors checkpoint through Candle 0.11 on CPU. `NativeSmolLM2` implements the published `SmolLM2Inference` trait, performs deterministic autoregressive forward passes with a fresh KV cache for each invocation, handles end-of-sequence tokens, and imposes a finite generation limit. The separate native SmolLM2 CI job downloads official weights and checks real generated output. Use of the in-memory safe safetensors loader avoids unsafe mapping in application code. Model quality is not certified by a one-prompt integration test.

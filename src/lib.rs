@@ -274,3 +274,6 @@ pub mod ettin_head;
 
 /// Genuine Ettin 17M/32M/68M/150M ONNX cross-encoder inference.
 pub mod ettin_native;
+
+/// Exact SmolLM2-135M-Instruct Candle CPU decoder and native generation engine.
+pub mod smollm2_native;

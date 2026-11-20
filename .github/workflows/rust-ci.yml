@@ -110,3 +110,13 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Execute exact Ettin 17M ONNX CPU reranking
         run: cargo test --features ettin-native --test native_ettin_live -- --ignored --nocapture
+
+  native-smollm2-live:
+    name: Actual SmolLM2-135M-Instruct generation (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Load genuine SmolLM2 safetensors and run CPU generation
+        run: cargo test --features smollm2-native --test native_smollm2_live -- --ignored --nocapture
