@@ -253,3 +253,7 @@ The Linux CI job `native-cactus-live` downloads and checksum-verifies public Cac
 ## Executable complete utility registry differential
 
 `testdata/upstream-golden/api-utility-cases.json` covers all 33 portable API registry IDs at the pinned upstream SHA. GitHub CI compiles and executes the native Rust public package exporter, separately loads and executes the unmodified pinned TypeScript functions, then compares JSON results for each ID and input. The 52 hand-curated portable cases remain as a separate negative/boundary suite. Model endpoints are verified through injected real host dispatch and the separately gated Cactus live inference job. One case per utility ID is not proof of all edge-case parity.
+
+## Cross-language undefined representation
+
+Pinned GutTS `tryParseJson` returns JavaScript `undefined` for malformed JSON, whereas the native Rust `Option<Value>` serializes absence to JSON `null`. The portable differential normalizes only JavaScript `undefined` to `null` to make JSON-wire comparison possible; this is a documented platform-specific exception, not full JavaScript value-domain parity.

@@ -47,7 +47,9 @@ for(let n=0;n<fixture.cases.length;n++){
  if(namespace!=='gutts'||!bundles[category]||typeof bundles[category][symbol]!=='function'){
   throw new Error('Unrecognized pinned GutTS API '+id);
  }
- const expected=bundles[category][symbol](...args[symbol](input));
+ const jsValue=bundles[category][symbol](...args[symbol](input));
+ // Rust serde_json::Value has null but not JavaScript undefined.
+ const expected=jsValue===undefined?null:jsValue;
  const actual=results[n];
  if(actual.id!==id||!isDeepStrictEqual(actual.actual,expected)){
   throw new Error('Cross-language mismatch '+id+
