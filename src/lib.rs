@@ -241,3 +241,6 @@ pub mod semantic_input;
 
 /// Hosted application OAuth session adapter, trusted redirects and Luth origins.
 pub mod auth_host;
+
+/// Checked, strongly typed OAuth, capability and invocation wire contracts.
+pub mod auth_wires;

@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **122 have an explicit Rust mapping** (including partial equivalents), **73 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **139 have an explicit Rust mapping** (including partial equivalents), **56 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -74,14 +74,14 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `EngineeringOperationContext` | `engineering::EngineeringOperationContext` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `ProvenanceRecord` | `engineering::ProvenanceRecord` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `IDENTITY_KINDS` | `identity::IDENTITY_KINDS` | `src/auth/identityIds.ts` → `src/identity.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
-| `IdentityKind` | `—` | `src/auth/identityIds.ts` → `—` | — | ❌ missing |
-| `IdentityId` | `—` | `src/auth/identityIds.ts` → `—` | — | ❌ missing |
-| `ApplicationId` | `—` | `src/auth/identityIds.ts` → `—` | — | ❌ missing |
-| `DeploymentId` | `—` | `src/auth/identityIds.ts` → `—` | — | ❌ missing |
-| `OAuthClientId` | `—` | `src/auth/identityIds.ts` → `—` | — | ❌ missing |
-| `UserId` | `—` | `src/auth/identityIds.ts` → `—` | — | ❌ missing |
-| `WorkspaceId` | `—` | `src/auth/identityIds.ts` → `—` | — | ❌ missing |
-| `UiSessionId` | `—` | `src/auth/identityIds.ts` → `—` | — | ❌ missing |
+| `IdentityKind` | `auth_wires::IdentityKind` | `src/auth/identityIds.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `IdentityId` | `auth_wires::IdentityId` | `src/auth/identityIds.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `ApplicationId` | `auth_wires::ApplicationId` | `src/auth/identityIds.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `DeploymentId` | `auth_wires::DeploymentId` | `src/auth/identityIds.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `OAuthClientId` | `auth_wires::OAuthClientId` | `src/auth/identityIds.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `UserId` | `auth_wires::UserId` | `src/auth/identityIds.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `WorkspaceId` | `auth_wires::WorkspaceId` | `src/auth/identityIds.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `UiSessionId` | `auth_wires::UiSessionId` | `src/auth/identityIds.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
 | `IdentityRef` | `identity::IdentityRef` | `src/auth/identityIds.ts` → `src/identity.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `isIdentityKind` | `identity::is_identity_kind` | `src/auth/identityIds.ts` → `src/identity.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `parseIdentityId` | `identity::parse_identity_id` | `src/auth/identityIds.ts` → `src/identity.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
@@ -90,8 +90,8 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `parseIdentityRef` | `identity::parse_identity_ref` | `src/auth/identityIds.ts` → `src/identity.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `parseLegacyApplicationId` | `identity::parse_legacy_application_id` | `src/auth/identityIds.ts` → `src/identity.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `ULTRST_APP_CONTRACT_VERSION` | `auth_contracts::ULTRST_APP_CONTRACT_VERSION` | `src/auth/oauthClientContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
-| `OAuthPlatform` | `—` | `src/auth/oauthClientContract.ts` → `—` | — | ❌ missing |
-| `OAuthClientRegistrationV1` | `—` | `src/auth/oauthClientContract.ts` → `—` | — | ❌ missing |
+| `OAuthPlatform` | `auth_wires::OAuthPlatform` | `src/auth/oauthClientContract.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `OAuthClientRegistrationV1` | `auth_wires::OAuthClientRegistrationV1` | `src/auth/oauthClientContract.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
 | `ContractCheck` | `auth_contracts::ContractCheck` | `src/auth/oauthClientContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | △ partial / differential pending |
 | `contractRecord` | `auth_contracts::contract_record` | `src/auth/oauthClientContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `contractId` | `auth_contracts::contract_id` | `src/auth/oauthClientContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | △ partial / differential pending |
@@ -99,14 +99,14 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `contractExactKeys` | `auth_contracts::contract_exact_keys` | `src/auth/oauthClientContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `validateOAuthRedirectUri` | `auth_contracts::validate_oauth_redirect_uri` | `src/auth/oauthClientContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | △ partial / differential pending |
 | `validateOAuthClientRegistration` | `auth_contracts::validate_oauth_client_registration` | `src/auth/oauthClientContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
-| `CapabilityParameterKind` | `—` | `src/auth/capabilityContract.ts` → `—` | — | ❌ missing |
-| `CapabilityParameterV1` | `—` | `src/auth/capabilityContract.ts` → `—` | — | ❌ missing |
-| `CapabilityBaseV1` | `—` | `src/auth/capabilityContract.ts` → `—` | — | ❌ missing |
-| `StaticCapabilityV1` | `—` | `src/auth/capabilityContract.ts` → `—` | — | ❌ missing |
-| `WorkflowPublicationV1` | `—` | `src/auth/capabilityContract.ts` → `—` | — | ❌ missing |
-| `CapabilityDescriptorV1` | `—` | `src/auth/capabilityContract.ts` → `—` | — | ❌ missing |
+| `CapabilityParameterKind` | `auth_wires::CapabilityParameterKind` | `src/auth/capabilityContract.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `CapabilityParameterV1` | `auth_wires::CapabilityParameterV1` | `src/auth/capabilityContract.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `CapabilityBaseV1` | `auth_wires::CapabilityBaseV1` | `src/auth/capabilityContract.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `StaticCapabilityV1` | `auth_wires::StaticCapabilityV1` | `src/auth/capabilityContract.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `WorkflowPublicationV1` | `auth_wires::WorkflowPublicationV1` | `src/auth/capabilityContract.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
+| `CapabilityDescriptorV1` | `auth_wires::CapabilityDescriptorV1` | `src/auth/capabilityContract.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
 | `validateCapabilityDescriptor` | `auth_contracts::validate_capability_descriptor` | `src/auth/capabilityContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
-| `ScopedInvocationV1` | `—` | `src/auth/invocationContract.ts` → `—` | — | ❌ missing |
+| `ScopedInvocationV1` | `auth_wires::ScopedInvocationV1` | `src/auth/invocationContract.ts` → `src/auth_wires.rs` | src/auth_wires.rs (unit tests) | ◐ checked typed wire implementation |
 | `validateScopedInvocation` | `auth_contracts::validate_scoped_invocation` | `src/auth/invocationContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `checkInvocationBudget` | `auth_contracts::check_invocation_budget` | `src/auth/invocationContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `advanceInvocationBudget` | `auth_contracts::advance_invocation_budget` | `src/auth/invocationContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
