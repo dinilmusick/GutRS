@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **174 have an explicit Rust mapping** (including partial equivalents), **21 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **178 have an explicit Rust mapping** (including partial equivalents), **17 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -114,8 +114,8 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `validateInvocationAgainstDescriptor` | `auth_contracts::validate_invocation_against_descriptor` | `src/auth/invocationContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `DeploymentEnvironment` | `auth_types::DeploymentEnvironment` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `LuthDeploymentRecord` | `auth_types::LuthDeploymentRecord` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
-| `LuthAuthClientConfig` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
-| `LuthAuthTokenStore` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
+| `LuthAuthClientConfig` | `luth_client::LuthAuthClientConfig` | `src/auth/luthAuthTypes.ts` → `src/luth_client.rs` | src/luth_client.rs (unit tests) | ◐ host HTTP transport required |
+| `LuthAuthTokenStore` | `luth_client::LuthAuthTokenStore` | `src/auth/luthAuthTypes.ts` → `src/luth_client.rs` | src/luth_client.rs (unit tests) | ◐ host HTTP transport required |
 | `RegisterApplicationResult` | `auth_types::RegisterApplicationResult` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `LuthUser` | `auth_types::LuthUser` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `LuthSession` | `auth_types::LuthSession` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
@@ -129,8 +129,8 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `resolveClientEnvironment` | `auth_host::resolve_client_environment` | `src/auth/luthAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `DEFAULT_LUTH_URL` | `auth_host::DEFAULT_LUTH_URL` | `src/auth/luthAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `hydrateLuthTokenFromUrl` | `auth_host::extract_luth_token_and_clean_url` | `src/auth/luthAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
-| `LuthAuthClient` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
-| `createLuthAuthClient` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
+| `LuthAuthClient` | `luth_client::LuthAuthClient` | `src/auth/luthAuthClient.ts` → `src/luth_client.rs` | src/luth_client.rs (unit tests) | ◐ host HTTP transport required |
+| `createLuthAuthClient` | `luth_client::create_luth_auth_client` | `src/auth/luthAuthClient.ts` → `src/luth_client.rs` | src/luth_client.rs (unit tests) | ◐ host HTTP transport required |
 | `ApplicationAuthClientConfig` | `auth_host::ApplicationAuthClientConfig` | `src/auth/applicationAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `ApplicationAuthClient` | `auth_host::ApplicationAuthClient` | `src/auth/applicationAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `createApplicationAuthClient` | `auth_host::create_application_auth_client` | `src/auth/applicationAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |

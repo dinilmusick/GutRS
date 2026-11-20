@@ -250,3 +250,6 @@ pub mod model_operations;
 
 /// Typed semantic input events, model policy, evidence and provenance.
 pub mod semantic_types;
+
+/// Authenticated Luth operations with host HTTP transport and token store.
+pub mod luth_client;
