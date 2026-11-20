@@ -229,3 +229,6 @@ pub mod engineering;
 
 /// Pinned model metadata, native load/unload adapter and shared residency.
 pub mod models;
+
+/// API definition registry, FOD node conversion and executable utility dispatch.
+pub mod api;

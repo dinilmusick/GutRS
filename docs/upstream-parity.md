@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **85 have an explicit Rust mapping** (including partial equivalents), **110 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **96 have an explicit Rust mapping** (including partial equivalents), **99 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -49,17 +49,17 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `normalizeStoragePath` | `path_safety::normalize_storage_path` | `src/urls/path-safety.ts` → `src/path_safety.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `encodeSafePathSegments` | `path_safety::encode_safe_path_segments` | `src/urls/path-safety.ts` → `src/path_safety.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `resolveTrustedApiUrl` | `trusted_api::resolve_trusted_api_url` | `src/urls/path-safety.ts` → `src/trusted_api.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
-| `ApiDefinition` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `ApiExample` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `ApiParameter` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `ApiSemantics` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `JsonSchema` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `defineApi` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `guttsApiDefinitions` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `guttsApiById` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `guttsFodNodeDefinitions` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `guttsApiToFodNode` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `executeGuttsApi` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
+| `ApiDefinition` | `api::ApiDefinition` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
+| `ApiExample` | `api::ApiExample` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
+| `ApiParameter` | `api::ApiParameter` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
+| `ApiSemantics` | `api::ApiSemantics` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
+| `JsonSchema` | `api::JsonSchema` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
+| `defineApi` | `api::define_api` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
+| `guttsApiDefinitions` | `api::gutts_api_definitions` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
+| `guttsApiById` | `api::gutts_api_by_id` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
+| `guttsFodNodeDefinitions` | `api::gutts_fod_node_definitions` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
+| `guttsApiToFodNode` | `api::gutts_api_to_fod_node` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
+| `executeGuttsApi` | `api::execute_gutts_api` | `src/api/index.ts` → `src/api.rs` | src/api.rs (unit tests); pinned manifest | ◐ native metadata / partial runtime dispatch |
 | `Identifier` | `engineering::Identifier` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `ProviderKind` | `engineering::ProviderKind` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `RepositoryRef` | `engineering::RepositoryRef` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
@@ -214,7 +214,7 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 - **Floating point:** `round_to` rejects precision above 308 as an explicit unsupported case. JavaScript NaN, signed zero, positive/negative infinity and decimal exponent boundaries require direct upstream differential fixtures.
 - **URLs and safety:** Rust `url` implements URL parsing and query pairs, but WHATWG edge cases, canonical IPv6 host serialization, percent escapes and `URLSearchParams` quirks require direct upstream differential execution. Unsafe traversal, malformed escapes, origin credentials and multi-level encodings must fail closed.
 - **OAuth/invocation:** wire validators do not authenticate a Luth session, prove OAuth client ownership, confirm grant/workspace membership, reauthorize a target, or prove live frontend consent. They check syntax/shape and execution budgets only; they must not be used as access-control decisions.
-- **Models and semantic input:** runtime model inference, residency, API registry/execution and semantic input resolution are missing Rust implementations, **not platform exceptions**. They require explicit native runtime adapters and complete behavioral tests.
+- **Models and semantic input:** actual inference runtimes and semantic input resolution are still missing. Model metadata and thread-safe residency now exist; the API registry reproduces pinned definitions, with explicit errors for unported runtime operations. They require explicit native runtime adapters and complete behavioral tests.
 - **S3, Google Drive, browser, server:** dependency adapters are not portable utility logic. They need native feature-gated implementations to be marked equivalent. No SDK is mocked or silently replaced.
 - **Error behavior:** Rust returns explicit `Result`/`Option` where TypeScript throws `RangeError`, `TypeError`, `SyntaxError` or returns `undefined`. Mapping must be tested per exported contract; do not conflate `null` and `undefined`.
 
