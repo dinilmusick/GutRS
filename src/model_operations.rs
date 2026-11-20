@@ -362,7 +362,7 @@ mod tests {
         context.cancel();
         assert!(context.is_cancelled());
         let lease = ModelLease::new(12, |value| {
-            Ok::<(), &'static str>(if value == 12 { () } else { return Err("bad") })
+            if value == 12 { Ok::<(), &'static str>(()) } else { Err("bad") }
         });
         assert!(lease.release().is_ok());
     }
