@@ -624,6 +624,55 @@
         "maxLength": 5,
         "suffix": "…"
       }
+    },
+    {
+      "id": "gutts.json.stringifyJson",
+      "input": {
+        "value": {
+          "z": 1,
+          "a": 2,
+          "nested": {
+            "zz": 1,
+            "aa": 2
+          }
+        }
+      }
+    },
+    {
+      "id": "gutts.json.stringifyJson",
+      "input": {
+        "value": {
+          "0": "zero",
+          "2": "two",
+          "11": "eleven",
+          "z": 3,
+          "01": "leading"
+        }
+      }
+    },
+    {
+      "id": "gutts.json.stringifyJson",
+      "input": {
+        "value": [
+          0,
+          1,
+          100000000000000000000,
+          1e-7,
+          0.000001
+        ]
+      }
+    },
+    {
+      "id": "gutts.json.parseJson",
+      "input": {
+        "text": "{\"z\":1,\"a\":2,\"11\":3,\"2\":4}"
+      }
+    },
+    {
+      "id": "gutts.json.tryParseJson",
+      "input": {
+        "text": "{\"z\":1,\"a\":2}"
+      }
     }
   ]
 }

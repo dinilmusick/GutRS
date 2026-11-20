@@ -2,7 +2,7 @@
 
 Native Rust counterparts of GutTS public contracts, pinned at `3e2cbc0990ba29830ce91c5d1a1d552675d5334c`.
 
-**Work in progress:** see [complete per-export traceability](docs/upstream-parity.md). Some validated portable core utilities and auth wire contracts are implemented; live model inference engines and authenticated storage integration remain unverified. Do not treat this crate as feature-complete GutTS parity.
+**Status:** Wave 1 implementation merged to canonical main with all eight exact-head checks passing. The pinned inventory maps 195/195 public symbol contracts, including platform-specific adapters. This establishes API traceability and tested portable behavior, not universal behavioral parity: JavaScript-only runtime values and live credentialed storage operations remain limited or unverified. See [per-export traceability and exceptions](docs/upstream-parity.md).
 
 ## Consumer
 

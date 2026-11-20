@@ -283,3 +283,7 @@ The pinned ONNX Runtime 2.0.0-rc.15 requires an `Environment` parameter for `Ses
 ### Windows native CRT alignment
 
 The Windows MSVC all-feature matrix sets `CFLAGS=/MD` and `CXXFLAGS=/MD` for the compilation of transitive `esaxx-rs` (tokenizers). This overrides its hardcoded static `/MT` flag so its C++ runtime matches prebuilt ONNX Runtime's dynamic `/MD` library. The flag is scoped to Windows GitHub CI; native downstream Windows hosts must also ensure compatible C++ runtime linkage when enabling ONNX and tokenizer features. The issue is a real `LNK2038 RuntimeLibrary MT_StaticRelease/MD_DynamicRelease` incompatibility, not a utility test failure.
+
+## ECMAScript JSON stringification fidelity
+
+The JSON serializer uses `serde_json/preserve_order` to retain object property insertion order, reorders canonical integer-index keys as JavaScript enumerates them, and uses `ryu-js` (ECMAScript number formatting). Recursive indentation follows `JSON.stringify(value, null, space)`, including clamping numeric space to ten. Additional pinned upstream differential fixtures exercise non-alphabetical keys, integer-like properties and floating-point boundaries. Genuine platform exceptions remain for JS values outside the JSON domain (undefined, functions, symbols, cycles and lone UTF-16 surrogate code units).
