@@ -1,0 +1,120 @@
+{
+  "upstream": "3e2cbc0990ba29830ce91c5d1a1d552675d5334c",
+  "cases": [
+    {
+      "request": {
+        "input": "42",
+        "schema": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "request": {
+        "input": "0x10",
+        "schema": {
+          "type": "integer"
+        }
+      }
+    },
+    {
+      "request": {
+        "input": " TRUE ",
+        "schema": {
+          "type": "boolean"
+        }
+      }
+    },
+    {
+      "request": {
+        "input": "green",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "red",
+            "green"
+          ]
+        },
+        "policy": {
+          "risk": "high",
+          "requireConfirmation": true
+        }
+      }
+    },
+    {
+      "request": {
+        "input": "jane@example.com",
+        "schema": {
+          "type": "string",
+          "format": "email"
+        },
+        "context": {
+          "application": "ULTRST",
+          "workspace": "music",
+          "field": "contact"
+        }
+      }
+    },
+    {
+      "request": {
+        "input": "é🍌",
+        "schema": {
+          "type": "string",
+          "pattern": "^é🍌$"
+        },
+        "policy": {
+          "modelPolicy": "fast"
+        }
+      }
+    },
+    {
+      "request": {
+        "input": "https://example.org/p",
+        "schema": {
+          "type": "string",
+          "format": "uri"
+        },
+        "policy": {
+          "modelPolicy": "accurate"
+        }
+      }
+    },
+    {
+      "request": {
+        "input": "2026-99-99",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    {
+      "request": {
+        "input": "-12.5",
+        "schema": {
+          "type": "number"
+        },
+        "preserveRawInput": true
+      }
+    },
+    {
+      "request": {
+        "input": "   ",
+        "schema": {
+          "type": "integer"
+        },
+        "preserveRawInput": true
+      }
+    },
+    {
+      "request": {
+        "input": "abort",
+        "schema": {
+          "type": "string"
+        },
+        "preserveRawInput": true
+      },
+      "aborted": true
+    }
+  ]
+}
