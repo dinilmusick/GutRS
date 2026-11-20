@@ -1,7 +1,7 @@
 //! Cross-language SOURCE-DERIVED golden cases against actual public Rust API.
 //! Every fixture lists the exact pinned TypeScript commit and expected behavior.
 use gutrs::{
-    arrays, auth_contracts, identity, json_utils, numbers, objects, string_ext, strings,
+    arrays, auth_contracts, identity, json_utils, numbers, objects, semantic_input, string_ext, strings,
     url_operations, urls,
 };
 use serde_json::{json, Value};

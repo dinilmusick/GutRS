@@ -4,7 +4,7 @@
 //! OAuth codes, verifiers, refresh credentials and Luth cookies MUST remain
 //! on the application backend; this API does not expose or store bearer tokens.
 use crate::auth_types::{DeploymentEnvironment, LuthAuthError, LuthSessionResult};
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::collections::BTreeMap;
 use url::Url;
 
@@ -279,6 +279,7 @@ fn encode_uri_component(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde_json::json;
     use std::collections::VecDeque;
     use std::sync::Mutex;
     struct TestTransport {
