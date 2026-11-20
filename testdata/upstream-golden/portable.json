@@ -2,7 +2,7 @@
   "source": {
     "repository": "dinilmusick/GutTS",
     "sha": "3e2cbc0990ba29830ce91c5d1a1d552675d5334c",
-    "provenance": "source-derived values; not yet independently executed against Node/GutTS"
+    "provenance": "source-derived examples; independently compared against pinned GutTS via CI differential execution"
   },
   "cases": [
     {
@@ -448,6 +448,152 @@
         }
       },
       "expected": null
+    },
+    {
+      "symbol": "objects.hasOwn",
+      "input": {
+        "value": {
+          "a": {
+            "b": 7
+          },
+          "other": 0
+        },
+        "key": "a.b"
+      },
+      "expected": true
+    },
+    {
+      "symbol": "objects.hasOwn",
+      "input": {
+        "value": {
+          "a": [
+            {
+              "name": "x"
+            }
+          ]
+        },
+        "key": "a[0].name"
+      },
+      "expected": true
+    },
+    {
+      "symbol": "objects.hasOwn",
+      "input": {
+        "value": {
+          "a": [
+            {
+              "name": "x"
+            }
+          ]
+        },
+        "key": "a[5].name"
+      },
+      "expected": false
+    },
+    {
+      "symbol": "objects.pick",
+      "input": {
+        "value": {
+          "a": {
+            "b": 1,
+            "c": 2
+          },
+          "other": 0
+        },
+        "keys": [
+          "a.b"
+        ]
+      },
+      "expected": {
+        "a": {
+          "b": 1
+        }
+      }
+    },
+    {
+      "symbol": "objects.omit",
+      "input": {
+        "value": {
+          "a": {
+            "b": 1,
+            "c": 2
+          },
+          "other": 0
+        },
+        "keys": [
+          "a.b"
+        ]
+      },
+      "expected": {
+        "a": {
+          "c": 2
+        },
+        "other": 0
+      }
+    },
+    {
+      "symbol": "objects.pick",
+      "input": {
+        "value": {
+          "a.b": "direct",
+          "a": {
+            "b": "nested"
+          }
+        },
+        "keys": [
+          "a.b"
+        ]
+      },
+      "expected": {
+        "a.b": "direct"
+      }
+    },
+    {
+      "symbol": "objects.pick",
+      "input": {
+        "value": {
+          "s": {
+            "a.b": "quoted"
+          }
+        },
+        "keys": [
+          "s['a.b']"
+        ]
+      },
+      "expected": {
+        "s": {
+          "a.b": "quoted"
+        }
+      }
+    },
+    {
+      "symbol": "objects.omit",
+      "input": {
+        "value": {
+          "a": [
+            {
+              "name": "x",
+              "score": 2
+            },
+            {
+              "name": "y"
+            }
+          ]
+        },
+        "keys": [
+          "a[0].name"
+        ]
+      },
+      "expected": {
+        "a": [
+          {
+            "score": 2
+          },
+          {
+            "name": "y"
+          }
+        ]
+      }
     }
   ]
 }

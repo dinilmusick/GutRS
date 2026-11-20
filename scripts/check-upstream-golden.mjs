@@ -63,6 +63,7 @@ for (const test of fixtures.cases) {
    case 'json.stringifyJson': actual=json.stringifyJson(i.value);break;
    case 'objects.hasOwn': actual=objects.hasOwn(i.value,i.key);break;
    case 'objects.pick': actual=objects.pick(i.value,i.keys);break;
+   case 'objects.omit': actual=objects.omit(i.value,i.keys);break;
    case 'auth.parseIdentityId': actual=identities.parseIdentityId(i.kind,i.id);break;
    case 'auth.parseIdentityRef': actual=identities.parseIdentityRef(i.ref);break;
    case 'auth.validateOAuthRedirectUri':{

@@ -122,11 +122,15 @@ fn source_derived_pinned_public_contracts() {
             "json.stringifyJson" => {
                 json!(json_utils::stringify_json(&input["value"], None).expect("serialization"))
             }
-            "objects.hasOwn" => json!(objects::has_own_field(
+            "objects.hasOwn" => json!(objects::has_property_path(
                 &input["value"],
                 arg_string(input, "key")
             )),
-            "objects.pick" => json!(objects::pick_fields(
+            "objects.pick" => json!(objects::pick_property_paths(
+                &input["value"],
+                &str_values(&input["keys"])
+            )),
+            "objects.omit" => json!(objects::omit_property_paths(
                 &input["value"],
                 &str_values(&input["keys"])
             )),

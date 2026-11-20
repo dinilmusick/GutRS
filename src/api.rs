@@ -339,15 +339,15 @@ fn execute_utility(name: &str, input: &Value) -> Result<Option<Value>, ApiError>
             .and_then(Value::as_f64)
             .is_some_and(f64::is_finite)),
         "sum" => json!(native_numbers::sum(&numbers(input, "values")?)),
-        "hasOwn" => json!(objects::has_own_field(
+        "hasOwn" => json!(objects::has_property_path(
             require(input, "value")?,
             string(input, "key")?
         )),
-        "pick" => json!(objects::pick_fields(
+        "pick" => json!(objects::pick_property_paths(
             require(input, "value")?,
             &strings(input, "keys")?
         )),
-        "omit" => json!(objects::omit_fields(
+        "omit" => json!(objects::omit_property_paths(
             require(input, "value")?,
             &strings(input, "keys")?
         )),
