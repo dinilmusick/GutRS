@@ -1,12 +1,15 @@
-//! Real ONNX cross-encoder inference using the exact Ettin 17M weights.
+//! Real ONNX cross-encoder inference using exact Ettin 17M/32M/68M/150M weights.
 #![cfg(feature = "ettin-native")]
 use gutrs::ettin_native::native::NativeEttin;
 use gutrs::model_operations::EttinInference;
 
 #[test]
-#[ignore = "downloads genuine Ettin 17M ONNX weights and runs CPU reranking"]
-fn exact_ettin_17m_scoring() -> Result<(), Box<dyn std::error::Error>> {
-    let model = NativeEttin::load(17)?;
+#[ignore = "downloads the exact selected Ettin ONNX weights and runs CPU reranking"]
+fn exact_ettin_v1_scoring() -> Result<(), Box<dyn std::error::Error>> {
+    let size = std::env::var("ETTIN_MODEL_SIZE")
+        .unwrap_or_else(|_| "17".to_owned())
+        .parse::<u16>()?;
+    let model = NativeEttin::load(size)?;
     let sentences = vec![
         "Venus is Earth's closest planetary neighbor".to_owned(),
         "Mars is known as the Red Planet".to_owned(),

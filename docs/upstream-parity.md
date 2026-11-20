@@ -268,7 +268,7 @@ Optional feature `minilm-native` uses FastEmbed 7.7.1 to load the exact `sentenc
 
 ## Exact Ettin reranker native inference
 
-`ettin-native` uses the published `cross-encoder/ettin-reranker-{17,32,68,150}m-v1` ONNX archives with FastEmbed's real cross-encoder runtime. `NativeEttin::load(size)` resolves the exact Hugging Face repository and caches its model, tokenizer and configuration; it never falls back to a different size. `EttinInference::rerank` preserves the caller's original candidate ordering and checks result count, score finiteness and indices. A separate Linux CI job evaluates the actual 17M model. Other sizes use the same code path but need their own live-weights certification. ONNX scores are genuine native inference, not synthetic keyword matching.
+`ettin-native` uses the published `cross-encoder/ettin-reranker-{17,32,68,150}m-v1` ONNX archives with FastEmbed's real cross-encoder runtime. `NativeEttin::load(size)` resolves the exact Hugging Face repository and caches its model, tokenizer and configuration; it never falls back to a different size. `EttinInference::rerank` preserves the caller's original candidate ordering and checks result count, score finiteness and indices. A four-size Linux CI matrix separately downloads and executes the exact 17M, 32M, 68M and 150M models. Each size must pass its own true-weight inference check; passing one size is not accepted as evidence for the others. ONNX scores are genuine native inference, not synthetic keyword matching.
 
 ## Real SmolLM2 language generation
 
@@ -283,3 +283,19 @@ The pinned ONNX Runtime 2.0.0-rc.15 requires an `Environment` parameter for `Ses
 ### Windows native CRT alignment
 
 The Windows MSVC all-feature matrix sets `CFLAGS=/MD` and `CXXFLAGS=/MD` for the compilation of transitive `esaxx-rs` (tokenizers). This overrides its hardcoded static `/MT` flag so its C++ runtime matches prebuilt ONNX Runtime's dynamic `/MD` library. The flag is scoped to Windows GitHub CI; native downstream Windows hosts must also ensure compatible C++ runtime linkage when enabling ONNX and tokenizer features. The issue is a real `LNK2038 RuntimeLibrary MT_StaticRelease/MD_DynamicRelease` incompatibility, not a utility test failure.
+
+## ECMAScript JSON stringification fidelity
+
+The JSON serializer uses `serde_json/preserve_order` to retain object property insertion order, reorders canonical integer-index keys as JavaScript enumerates them, and uses `ryu-js` (ECMAScript number formatting). Recursive indentation follows `JSON.stringify(value, null, space)`, including clamping numeric space to ten. Additional pinned upstream differential fixtures exercise non-alphabetical keys, integer-like properties and floating-point boundaries. Genuine platform exceptions remain for JS values outside the JSON domain (undefined, functions, symbols, cycles and lone UTF-16 surrogate code units).
+
+### Four-size Ettin live inference matrix
+
+The `native-ettin-live` CI matrix now validates every shipped size (17M, 32M, 68M, 150M) independently through the actual ONNX checkpoint. `ETTIN_MODEL_SIZE` selects the fixture under test, but production always validates size against the exact published model family. This strengthens host-specific end-to-end coverage beyond metadata parity and the pinned numerical score-head differential.
+
+### Full ONNX backbone + released scoring head
+
+The first ONNX output from the Hugging Face Ettin checkpoint is **not** the contract's relevance score; it is the model's token-level last hidden state. The native implementation now loads each checkpoint's exact `2_Dense`, `3_LayerNorm` and `4_Dense` safetensors files and applies `compute_ettin_head_scores` (Dense → GELU → LayerNorm → Dense → sigmoid) to its genuine ONNX `[batch, sequence, hidden]` tensor, matching the pinned GutTS transformer runtime. Raw `hidden[0]` values must never be passed off as candidate relevance scores. The four-size matrix verifies each complete real model path independently.
+
+### SmolLM2 generated_text wire parity
+
+Pinned GutTS's Transformers.js `text-generation` pipeline leaves `return_full_text=true` (the published default) and uses `max_new_tokens=32` when omitted. The native Candle adapter now uses the same default token count and returns `prompt + generated continuation`, rather than only the generated suffix. The live integration test asserts both prefix preservation and nonempty generation. Model output is not byte-identical across native float32 and upstream q4 runtime quantization; this is a genuine host-backend limitation, not evidence of text-generation API failure.

@@ -1,8 +1,10 @@
 //! Exact Ettin reranker v1 ONNX cross-encoder inference.
-//! Published checkpoints expose an unnamed ONNX output; unlike FastEmbed's
-//! hardcoded "logits" key, the native adapter reads the actual first output.
+//! Published ONNX checkpoints expose the transformer hidden states rather than
+//! a ready-made score. The separate released 2_Dense, 3_LayerNorm and 4_Dense
+//! safetensors head is required to reproduce the pinned GutTS scoring path.
 #[cfg(feature = "ettin-native")]
 pub mod native {
+    use crate::ettin_head::{compute_ettin_head_scores, EttinHeadWeights};
     use crate::model_operations::EttinInference;
     use ort::{session::Session, value::Tensor};
     use std::sync::Mutex;
@@ -18,6 +20,7 @@ pub mod native {
         pub model_id: String,
         tokenizer: Tokenizer,
         session: Mutex<Session>,
+        head: EttinHeadWeights,
     }
     impl NativeEttin {
         pub fn load(size: u16) -> Result<Self, String> {
@@ -47,6 +50,17 @@ pub mod native {
                     ..Default::default()
                 }))
                 .map_err(|e| e.to_string())?;
+            let read_head = |subpath: &str| -> Result<Vec<u8>, String> {
+                let file = repo
+                    .get(subpath)
+                    .map_err(|e| format!("Ettin scoring head {subpath}: {e}"))?;
+                std::fs::read(file).map_err(|e| e.to_string())
+            };
+            let dense = read_head("2_Dense/model.safetensors")?;
+            let layer_norm = read_head("3_LayerNorm/model.safetensors")?;
+            let output = read_head("4_Dense/model.safetensors")?;
+            let head = EttinHeadWeights::from_safetensors(&dense, &layer_norm, &output)
+                .map_err(|e| e.to_string())?;
             let session = Session::builder(environment)
                 .map_err(|e| e.to_string())?
                 .commit_from_file(model_path)
@@ -55,6 +69,7 @@ pub mod native {
                 model_id,
                 tokenizer,
                 session: Mutex::new(session),
+                head,
             })
         }
     }
@@ -111,14 +126,25 @@ pub mod native {
                         ])
                         .map_err(|e| e.to_string())?
                 };
-                let (_, data) = outputs[0]
+                let (shape, hidden) = outputs[0]
                     .try_extract_tensor::<f32>()
                     .map_err(|e| e.to_string())?;
-                let score = data.first().ok_or("Ettin returned empty output tensor")?;
-                if !score.is_finite() {
-                    return Err("Ettin returned a nonfinite score".into());
+                let dims: Vec<usize> = shape
+                    .iter()
+                    .map(|&dim| usize::try_from(dim).map_err(|e| e.to_string()))
+                    .collect::<Result<_, _>>()?;
+                if dims.len() != 3 || dims[0] != 1 || dims[2] != self.head.ln_weight.len() {
+                    return Err(format!(
+                        "Ettin backbone returned invalid hidden-state dimensions: {dims:?}"
+                    ));
                 }
-                scores.push(f64::from(*score));
+                let scores_for_batch =
+                    compute_ettin_head_scores([dims[0], dims[1], dims[2]], hidden, &self.head)
+                        .map_err(|e| e.to_string())?;
+                let score = scores_for_batch
+                    .first()
+                    .ok_or("Ettin head returned no score")?;
+                scores.push(*score);
             }
             Ok(scores)
         }

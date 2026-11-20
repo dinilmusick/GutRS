@@ -108,13 +108,19 @@ jobs:
         run: cargo test --features minilm-native --test native_minilm_live -- --ignored --nocapture
 
   native-ettin-live:
-    name: Actual Ettin 17M reranker inference (Linux)
+    name: Actual Ettin ${{ matrix.size }}M reranker inference (Linux)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        size: [17, 32, 68, 150]
+    env:
+      ETTIN_MODEL_SIZE: ${{ matrix.size }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - name: Execute exact Ettin 17M ONNX CPU reranking
+      - name: Execute exact Ettin ONNX CPU reranking
         run: cargo test --features ettin-native --test native_ettin_live -- --ignored --nocapture
 
   native-smollm2-live:
