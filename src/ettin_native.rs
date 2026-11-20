@@ -4,8 +4,7 @@
 pub mod native {
     use crate::model_operations::EttinInference;
     use fastembed::{
-        RerankInitOptionsUserDefined, TextRerank, TokenizerFiles,
-        UserDefinedRerankingModel,
+        RerankInitOptionsUserDefined, TextRerank, TokenizerFiles, UserDefinedRerankingModel,
     };
     use std::sync::Mutex;
 
@@ -26,8 +25,10 @@ pub mod native {
         pub fn load(size: u16) -> Result<Self, String> {
             let model_id = ettin_repo(size)?;
             let repo = hf_hub::api::sync::Api::new()
-                .map_err(|e| e.to_string())?.model(model_id.clone());
-            let onnx = repo.get("onnx/model.onnx")
+                .map_err(|e| e.to_string())?
+                .model(model_id.clone());
+            let onnx = repo
+                .get("onnx/model.onnx")
                 .map_err(|e| format!("could not load exact Ettin ONNX weights: {e}"))?;
             let read = |name: &str| -> Result<Vec<u8>, String> {
                 let path = repo.get(name).map_err(|e| format!("{name}: {e}"))?;
@@ -38,35 +39,48 @@ pub mod native {
                 config_file: read("config.json")?,
                 // Some published Ettin checkpoints do not include a separate
                 // special-tokens map; the tokenizer JSON is authoritative.
-                special_tokens_map_file: repo.get("special_tokens_map.json")
-                    .ok().and_then(|p| std::fs::read(p).ok())
+                special_tokens_map_file: repo
+                    .get("special_tokens_map.json")
+                    .ok()
+                    .and_then(|p| std::fs::read(p).ok())
                     .unwrap_or_else(|| b"{}".to_vec()),
                 tokenizer_config_file: read("tokenizer_config.json")?,
             };
             let model = UserDefinedRerankingModel::new(onnx, tokenizer_files);
             let reranker = TextRerank::try_new_from_user_defined(
                 model,
-                RerankInitOptionsUserDefined::new().with_max_length(512)
-            ).map_err(|e| e.to_string())?;
-            Ok(Self { model_id, reranker: Mutex::new(reranker) })
+                RerankInitOptionsUserDefined::new().with_max_length(512),
+            )
+            .map_err(|e| e.to_string())?;
+            Ok(Self {
+                model_id,
+                reranker: Mutex::new(reranker),
+            })
         }
     }
     impl EttinInference for NativeEttin {
         type Error = String;
         fn rerank(&self, query: &str, candidates: &[String]) -> Result<Vec<f64>, Self::Error> {
-            if candidates.is_empty() { return Ok(Vec::new()); }
-            let mut engine = self.reranker.lock()
-                .map_err(|_|"Ettin model lock is poisoned".to_string())?;
-            let ranked = engine.rerank(query,candidates,false,Some(16))
-                .map_err(|e|e.to_string())?;
+            if candidates.is_empty() {
+                return Ok(Vec::new());
+            }
+            let mut engine = self
+                .reranker
+                .lock()
+                .map_err(|_| "Ettin model lock is poisoned".to_string())?;
+            let ranked = engine
+                .rerank(query, candidates, false, Some(16))
+                .map_err(|e| e.to_string())?;
             if ranked.len() != candidates.len() {
                 return Err("Ettin ONNX returned unexpected score count".into());
             }
             let mut scores = vec![0.0; candidates.len()];
             let mut visited = vec![false; candidates.len()];
             for result in ranked {
-                if result.index >= candidates.len() || visited[result.index] ||
-                    !result.score.is_finite() {
+                if result.index >= candidates.len()
+                    || visited[result.index]
+                    || !result.score.is_finite()
+                {
                     return Err("Ettin returned duplicate index or invalid score".into());
                 }
                 visited[result.index] = true;
@@ -80,8 +94,14 @@ pub mod native {
     }
     #[test]
     fn model_ids_are_exact_and_unknown_sizes_rejected() {
-        assert_eq!(ettin_repo(17).unwrap(),"cross-encoder/ettin-reranker-17m-v1");
-        assert_eq!(ettin_repo(150).unwrap(),"cross-encoder/ettin-reranker-150m-v1");
+        assert_eq!(
+            ettin_repo(17).unwrap(),
+            "cross-encoder/ettin-reranker-17m-v1"
+        );
+        assert_eq!(
+            ettin_repo(150).unwrap(),
+            "cross-encoder/ettin-reranker-150m-v1"
+        );
         assert!(ettin_repo(42).is_err());
     }
 }
