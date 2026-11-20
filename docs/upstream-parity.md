@@ -307,3 +307,7 @@ The independent `check-utility-api-differential.mjs` runner checks actual thrown
 ### validator.js default email acceptance
 
 The Rust address parser alone can accept syntactically RFC-compliant inputs that `validator.isEmail` (GutTS default) rejects, such as unquoted consecutive dots in the local part, missing top-level domain or bracketed IP domains. `string_ext::is_email` applies the upstream default-policy gates before the native address validator. The pinned JS/Rust differential suite is authoritative for observable acceptance; untested IDN/display-name variants remain an explicit gap.
+
+### Unicode word boundary and JSON sparse-array parity
+
+The expanded independent 112-case GutTS differential found two portable word-behavior differences: lodash `capitalize` lowercases the entire input before uppercasing its initial symbol (notably Turkish dotted `İ`), and lodash case-conversion separates adjacent letters and digits (`HTML5Parser_V2` → `html_5_parser_v_2`). The native case adapter now applies both rules. Nested lodash `pick` may return a sparse array whose absent indices become `null` when serialized. Because Rust's `serde_json::Value` has no sparse-array holes, the differential first projects JS outputs to their JSON-visible form via `JSON.parse(JSON.stringify(value))`, instead of incorrectly comparing JS heap sparsity with JSON arrays. This does not claim JavaScript identity/undefined equivalence outside the JSON wire contract.

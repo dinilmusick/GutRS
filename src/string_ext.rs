@@ -62,24 +62,45 @@ fn deburr_latin(value: &str) -> String {
     output
 }
 
-/// Lowercase all but the first Unicode grapheme, similar to lodash capitalize.
+/// Lodash capitalize first lowercases the *entire* string and then
+/// uppercases its initial Unicode symbol, unlike simply uppercasing the
+/// original first grapheme. E.g. Turkish İ lowercases into i + combining dot.
 pub fn capitalize(value: &str) -> String {
-    let mut graphemes = value.graphemes(true);
-    let Some(first) = graphemes.next() else {
+    let lowered = value.to_lowercase();
+    let mut chars = lowered.chars();
+    let Some(first) = chars.next() else {
         return String::new();
     };
-    let rest: String = graphemes.collect();
-    format!("{}{}", first.to_uppercase(), rest.to_lowercase())
+    format!("{}{}", first.to_uppercase(), chars.as_str())
+}
+
+/// Lodash's word tokenizer treats digit/letter transitions as word boundaries.
+/// Heck's default case conversion does not, so introduce only these lexical
+/// boundaries before the Unicode-aware case conversion.
+fn split_digit_boundaries(value: &str) -> String {
+    let mut output = String::new();
+    let mut previous: Option<char> = None;
+    for ch in value.chars() {
+        if previous.is_some_and(|last|
+            (last.is_alphabetic() && ch.is_numeric())
+                || (last.is_numeric() && ch.is_alphabetic())
+        ) {
+            output.push(' ');
+        }
+        output.push(ch);
+        previous = Some(ch);
+    }
+    output
 }
 
 pub fn camel_case(value: &str) -> String {
-    deburr_latin(value).to_lower_camel_case()
+    split_digit_boundaries(&deburr_latin(value)).to_lower_camel_case()
 }
 pub fn kebab_case(value: &str) -> String {
-    deburr_latin(value).to_kebab_case()
+    split_digit_boundaries(&deburr_latin(value)).to_kebab_case()
 }
 pub fn snake_case(value: &str) -> String {
-    deburr_latin(value).to_snake_case()
+    split_digit_boundaries(&deburr_latin(value)).to_snake_case()
 }
 
 #[cfg(test)]
@@ -91,6 +112,10 @@ mod tests {
         assert_eq!(camel_case("Foo Bar_baz"), "fooBarBaz");
         assert_eq!(kebab_case("XMLHttpRequest"), "xml-http-request");
         assert_eq!(snake_case("Déjà Vu"), "deja_vu");
+        assert_eq!(snake_case("HTML5Parser_V2"), "html_5_parser_v_2");
+        assert_eq!(capitalize("İSTANBUL ABC"), "I\u{307}stanbul abc");
+        assert_eq!(camel_case("HTML5Parser_V2"), "html5ParserV2");
+        assert_eq!(kebab_case("HTML5Parser_V2"), "html-5-parser-v-2");
         assert!(is_email("jane+tag@example.co.uk"));
         assert!(!is_email("x@@domain.com"));
         assert!(!is_email("a..b@example.com"));

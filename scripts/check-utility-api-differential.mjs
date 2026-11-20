@@ -68,8 +68,10 @@ for(let n=0;n<fixture.cases.length;n++){
     +' Rust='+actual.error+' JS='+JSON.stringify(jsValue));
   continue;
  }
- // JSON-only Rust has no standalone JavaScript undefined value.
- const expected=jsValue===undefined?null:jsValue;
+ // Compare the JSON-serializable value domain, not JavaScript heap
+ // representation. Sparse array holes are serialized to null, while Rust
+ // serde_json arrays cannot store holes. Undefined is likewise mapped to null.
+ const expected=jsValue===undefined?null:JSON.parse(JSON.stringify(jsValue));
  if(!isDeepStrictEqual(actual.actual,expected)){
   mismatches.push('Cross-language mismatch '+id+' '+JSON.stringify(input)
     +' JS='+JSON.stringify(expected)+' Rust='+JSON.stringify(actual.actual));
