@@ -4,7 +4,12 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 
 pub const IDENTITY_KINDS: &[&str] = &[
-    "application", "deployment", "oauth_client", "user", "workspace", "ui_session",
+    "application",
+    "deployment",
+    "oauth_client",
+    "user",
+    "workspace",
+    "ui_session",
 ];
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -34,9 +39,9 @@ pub fn valid_identity_id(value: &str) -> bool {
     let bytes = value.as_bytes();
     (1..=256).contains(&bytes.len())
         && bytes.first().is_some_and(u8::is_ascii_alphanumeric)
-        && bytes[1..].iter().all(|byte| {
-            byte.is_ascii_alphanumeric() || matches!(*byte, b'.' | b'_' | b':' | b'-')
-        })
+        && bytes[1..]
+            .iter()
+            .all(|byte| byte.is_ascii_alphanumeric() || matches!(*byte, b'.' | b'_' | b':' | b'-'))
 }
 
 pub fn parse_identity_id<'a>(kind: &str, value: &'a Value) -> Option<&'a str> {
@@ -52,14 +57,20 @@ pub fn require_identity_id<'a>(kind: &str, value: &'a Value) -> Result<&'a str, 
 
 pub fn identity_ref(kind: &str, id: &str) -> Result<IdentityRef, IdentityError> {
     let parsed = require_identity_id(kind, &json!(id))?.to_owned();
-    Ok(IdentityRef { kind: kind.to_owned(), id: parsed })
+    Ok(IdentityRef {
+        kind: kind.to_owned(),
+        id: parsed,
+    })
 }
 
 pub fn parse_identity_ref(value: &Value) -> Option<IdentityRef> {
     let record = value.as_object()?;
     let kind = record.get("kind")?.as_str()?;
     let id = parse_identity_id(kind, record.get("id")?)?;
-    Some(IdentityRef { kind: kind.to_owned(), id: id.to_owned() })
+    Some(IdentityRef {
+        kind: kind.to_owned(),
+        id: id.to_owned(),
+    })
 }
 
 /// Reject conflicting aliases instead of treating deployment URLs as application IDs.
@@ -86,7 +97,10 @@ mod tests {
     use super::*;
     #[test]
     fn pinned_identity_cases() {
-        assert_eq!(parse_identity_id("application", &json!("aiko")), Some("aiko"));
+        assert_eq!(
+            parse_identity_id("application", &json!("aiko")),
+            Some("aiko")
+        );
         assert!(parse_identity_id("application", &json!("https://aiko.example")).is_none());
         assert!(parse_identity_id("application", &json!(" aiko")).is_none());
         assert!(parse_identity_id("application", &json!("aiko\n")).is_none());
@@ -98,9 +112,17 @@ mod tests {
         }
         assert!(parse_identity_ref(&json!({"id":"aiko"})).is_none());
         assert!(parse_identity_ref(&json!({"kind":"origin","id":"aiko"})).is_none());
-        assert_eq!(parse_legacy_application_id(&json!({"applicationId":"srkl"})), Some("srkl".into()));
-        assert_eq!(parse_legacy_application_id(&json!({"app_id":"aiko","appId":"aiko"})), Some("aiko".into()));
-        assert!(parse_legacy_application_id(&json!({"app_id":"aiko","applicationId":"kone"})).is_none());
+        assert_eq!(
+            parse_legacy_application_id(&json!({"applicationId":"srkl"})),
+            Some("srkl".into())
+        );
+        assert_eq!(
+            parse_legacy_application_id(&json!({"app_id":"aiko","appId":"aiko"})),
+            Some("aiko".into())
+        );
+        assert!(
+            parse_legacy_application_id(&json!({"app_id":"aiko","applicationId":"kone"})).is_none()
+        );
         assert!(parse_legacy_application_id(&json!({"appId":null})).is_none());
         assert!(parse_legacy_application_id(&json!({"origin":"https://aiko.example"})).is_none());
     }

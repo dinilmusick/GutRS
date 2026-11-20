@@ -30,19 +30,24 @@ pub fn contract_id(value: &Value) -> bool {
     value.as_str().is_some_and(|s| {
         !s.is_empty()
             && s.len() <= 256
-            && s.chars().all(|c| {
-                c != '\\' && c != '\u{feff}' && !c.is_whitespace()
-            })
+            && s.chars()
+                .all(|c| c != '\\' && c != '\u{feff}' && !c.is_whitespace())
     })
 }
 
 /// Application ID is a stable slug, not a URI scheme or deployment URL.
 pub fn contract_app_id(value: &Value) -> bool {
-    let Some(s) = value.as_str() else { return false; };
-    if !valid_identity_id(s) { return false; }
+    let Some(s) = value.as_str() else {
+        return false;
+    };
+    if !valid_identity_id(s) {
+        return false;
+    }
     if let Some((prefix, _)) = s.split_once(':') {
         if prefix.starts_with(|c: char| c.is_ascii_alphabetic())
-            && prefix.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '.' | '-'))
+            && prefix
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '.' | '-'))
         {
             return false;
         }
@@ -55,7 +60,9 @@ pub fn contract_exact_keys(value: &Map<String, Value>, allowed: &[&str]) -> bool
 }
 
 fn exact_fields(value: &Value, allowed: &[&str]) -> bool {
-    value.as_object().is_some_and(|o| contract_exact_keys(o, allowed))
+    value
+        .as_object()
+        .is_some_and(|o| contract_exact_keys(o, allowed))
 }
 
 fn js_trimmed(value: &str) -> bool {
@@ -114,15 +121,25 @@ pub fn validate_oauth_redirect_uri(
 
 pub fn validate_oauth_client_registration(input: &Value) -> ContractCheck<Value> {
     let allowed = [
-        "schemaVersion", "appId", "clientId", "platform", "publicClient", "pkceMethod",
-        "redirectUris", "verifiedHosts",
+        "schemaVersion",
+        "appId",
+        "clientId",
+        "platform",
+        "publicClient",
+        "pkceMethod",
+        "redirectUris",
+        "verifiedHosts",
     ];
-    let o = input.as_object().filter(|o| contract_exact_keys(o, &allowed))
+    let o = input
+        .as_object()
+        .filter(|o| contract_exact_keys(o, &allowed))
         .ok_or(ContractError("INVALID_CLIENT_FIELDS"))?;
     let platform = o.get("platform").and_then(Value::as_str).unwrap_or("");
     if o.get("schemaVersion").and_then(Value::as_u64) != Some(1)
         || !o.get("appId").is_some_and(contract_app_id)
-        || !o.get("clientId").is_some_and(|v| v.as_str().is_some_and(valid_identity_id))
+        || !o
+            .get("clientId")
+            .is_some_and(|v| v.as_str().is_some_and(valid_identity_id))
         || !matches!(platform, "web" | "ios" | "android" | "desktop")
         || o.get("publicClient") != Some(&Value::Bool(true))
         || o.get("pkceMethod").and_then(Value::as_str) != Some("S256")
@@ -139,7 +156,11 @@ pub fn validate_oauth_client_registration(input: &Value) -> ContractCheck<Value>
                 };
                 if host.is_empty()
                     || host != host.to_ascii_lowercase()
-                    || !host.bytes().all(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit() || matches!(byte, b'.' | b'-'))
+                    || !host.bytes().all(|byte| {
+                        byte.is_ascii_lowercase()
+                            || byte.is_ascii_digit()
+                            || matches!(byte, b'.' | b'-')
+                    })
                     || host.contains("..")
                     || host.starts_with('.')
                 {
@@ -151,7 +172,9 @@ pub fn validate_oauth_client_registration(input: &Value) -> ContractCheck<Value>
         }
         _ => return Err(ContractError("INVALID_VERIFIED_HOSTS")),
     };
-    let uris = o.get("redirectUris").and_then(Value::as_array)
+    let uris = o
+        .get("redirectUris")
+        .and_then(Value::as_array)
         .filter(|a| (1..=32).contains(&a.len()))
         .ok_or(ContractError("INVALID_REDIRECT_SET"))?;
     let mut seen = HashSet::new();
@@ -167,38 +190,64 @@ pub fn validate_oauth_client_registration(input: &Value) -> ContractCheck<Value>
 }
 
 const CAP_BASE: &[&str] = &[
-    "schemaVersion", "appId", "operationId", "revision", "displayName",
-    "requiredScopes", "inputParameters", "outputParameters", "kind",
+    "schemaVersion",
+    "appId",
+    "operationId",
+    "revision",
+    "displayName",
+    "requiredScopes",
+    "inputParameters",
+    "outputParameters",
+    "kind",
 ];
 
 fn valid_scopes(value: Option<&Value>) -> bool {
-    let Some(values) = value.and_then(Value::as_array) else { return false; };
-    if values.len() > 64 { return false; }
+    let Some(values) = value.and_then(Value::as_array) else {
+        return false;
+    };
+    if values.len() > 64 {
+        return false;
+    }
     let mut seen = HashSet::new();
-    values.iter().all(|v| contract_id(v) && seen.insert(v.as_str().unwrap_or("")))
+    values
+        .iter()
+        .all(|v| contract_id(v) && seen.insert(v.as_str().unwrap_or("")))
 }
 fn valid_parameters(value: Option<&Value>) -> bool {
-    let Some(values) = value.and_then(Value::as_array) else { return false; };
-    if values.len() > 128 { return false; }
+    let Some(values) = value.and_then(Value::as_array) else {
+        return false;
+    };
+    if values.len() > 128 {
+        return false;
+    }
     let mut seen = HashSet::new();
     values.iter().all(|v| {
-        let Some(p) = v.as_object() else { return false; };
+        let Some(p) = v.as_object() else {
+            return false;
+        };
         contract_exact_keys(p, &["name", "kind", "required"])
             && p.get("name").is_some_and(contract_id)
-            && matches!(p.get("kind").and_then(Value::as_str),
-                Some("string" | "number" | "integer" | "boolean" | "object" | "array"))
+            && matches!(
+                p.get("kind").and_then(Value::as_str),
+                Some("string" | "number" | "integer" | "boolean" | "object" | "array")
+            )
             && p.get("required").is_some_and(Value::is_boolean)
             && seen.insert(p.get("name").and_then(Value::as_str).unwrap_or(""))
     })
 }
 
 pub fn validate_capability_descriptor(input: &Value) -> ContractCheck<Value> {
-    let o = input.as_object().ok_or(ContractError("INVALID_CAPABILITY_BASE"))?;
+    let o = input
+        .as_object()
+        .ok_or(ContractError("INVALID_CAPABILITY_BASE"))?;
     if o.get("schemaVersion").and_then(Value::as_u64) != Some(1)
         || !o.get("appId").is_some_and(contract_app_id)
         || !o.get("operationId").is_some_and(contract_id)
         || !o.get("revision").is_some_and(contract_id)
-        || !o.get("displayName").and_then(Value::as_str).is_some_and(|s| !s.trim().is_empty() && s.len() <= 160)
+        || !o
+            .get("displayName")
+            .and_then(Value::as_str)
+            .is_some_and(|s| !s.trim().is_empty() && s.len() <= 160)
         || !valid_scopes(o.get("requiredScopes"))
         || !valid_parameters(o.get("inputParameters"))
         || !valid_parameters(o.get("outputParameters"))
@@ -208,7 +257,12 @@ pub fn validate_capability_descriptor(input: &Value) -> ContractCheck<Value> {
     match o.get("kind").and_then(Value::as_str) {
         Some("workflow") => {
             let mut allowed = CAP_BASE.to_vec();
-            allowed.extend(["workflowId", "ownerUserId", "sourceWorkspaceId", "published"]);
+            allowed.extend([
+                "workflowId",
+                "ownerUserId",
+                "sourceWorkspaceId",
+                "published",
+            ]);
             if !exact_fields(input, &allowed)
                 || !o.get("workflowId").is_some_and(contract_id)
                 || !o.get("ownerUserId").is_some_and(contract_id)
@@ -224,7 +278,11 @@ pub fn validate_capability_descriptor(input: &Value) -> ContractCheck<Value> {
             let is_frontend = o.get("kind").and_then(Value::as_str) == Some("frontend");
             if !exact_fields(input, &allowed)
                 || !o.get("deploymentId").is_some_and(contract_id)
-                || (is_frontend && !matches!(o.get("sessionPermission").and_then(Value::as_str), Some("inspect" | "act")))
+                || (is_frontend
+                    && !matches!(
+                        o.get("sessionPermission").and_then(Value::as_str),
+                        Some("inspect" | "act")
+                    ))
                 || (!is_frontend && o.contains_key("sessionPermission"))
             {
                 return Err(ContractError("INVALID_STATIC_CAPABILITY"));
@@ -236,11 +294,26 @@ pub fn validate_capability_descriptor(input: &Value) -> ContractCheck<Value> {
 }
 
 const INVOCATION_KEYS: &[&str] = &[
-    "schemaVersion", "callerAppId", "targetAppId", "audienceAppId", "principalUserId",
-    "callerWorkspaceId", "targetWorkspaceId", "operationId", "expectedRevision",
-    "operationKind", "frontendSessionId", "frontendPermission", "frontendConsentId",
-    "grantId", "traceId", "activeAppChain", "deadlineAtMs", "maxDepth",
-    "remainingCalls", "remainingRetries",
+    "schemaVersion",
+    "callerAppId",
+    "targetAppId",
+    "audienceAppId",
+    "principalUserId",
+    "callerWorkspaceId",
+    "targetWorkspaceId",
+    "operationId",
+    "expectedRevision",
+    "operationKind",
+    "frontendSessionId",
+    "frontendPermission",
+    "frontendConsentId",
+    "grantId",
+    "traceId",
+    "activeAppChain",
+    "deadlineAtMs",
+    "maxDepth",
+    "remainingCalls",
+    "remainingRetries",
 ];
 
 fn safe_integer(v: Option<&Value>) -> Option<f64> {
@@ -248,14 +321,27 @@ fn safe_integer(v: Option<&Value>) -> Option<f64> {
     (n.is_finite() && n.fract() == 0.0 && n.abs() <= MAX_SAFE_INTEGER).then_some(n)
 }
 pub fn validate_scoped_invocation(input: &Value) -> ContractCheck<Value> {
-    let o = input.as_object().filter(|o| contract_exact_keys(o, INVOCATION_KEYS))
+    let o = input
+        .as_object()
+        .filter(|o| contract_exact_keys(o, INVOCATION_KEYS))
         .ok_or(ContractError("INVALID_INVOCATION_IDENTITY_OR_AUDIENCE"))?;
     let string = |key: &str| o.get(key).and_then(Value::as_str);
     let kind = string("operationKind").unwrap_or("");
     if o.get("schemaVersion").and_then(Value::as_u64) != Some(1)
-        || !["callerAppId", "targetAppId", "audienceAppId"].iter().all(|key| o.get(*key).is_some_and(contract_app_id))
-        || !["principalUserId", "callerWorkspaceId", "targetWorkspaceId", "operationId",
-            "expectedRevision", "grantId", "traceId"].iter().all(|key| o.get(*key).is_some_and(contract_id))
+        || !["callerAppId", "targetAppId", "audienceAppId"]
+            .iter()
+            .all(|key| o.get(*key).is_some_and(contract_app_id))
+        || ![
+            "principalUserId",
+            "callerWorkspaceId",
+            "targetWorkspaceId",
+            "operationId",
+            "expectedRevision",
+            "grantId",
+            "traceId",
+        ]
+        .iter()
+        .all(|key| o.get(*key).is_some_and(contract_id))
         || !matches!(kind, "backend" | "frontend" | "workflow")
         || string("audienceAppId") != string("targetAppId")
     {
@@ -268,10 +354,19 @@ pub fn validate_scoped_invocation(input: &Value) -> ContractCheck<Value> {
         {
             return Err(ContractError("FRONTEND_REQUIRES_LIVE_SESSION_AND_CONSENT"));
         }
-    } else if ["frontendSessionId", "frontendConsentId", "frontendPermission"].iter().any(|key| o.contains_key(*key)) {
+    } else if [
+        "frontendSessionId",
+        "frontendConsentId",
+        "frontendPermission",
+    ]
+    .iter()
+    .any(|key| o.contains_key(*key))
+    {
         return Err(ContractError("NON_FRONTEND_SESSION_NOT_ALLOWED"));
     }
-    let chain = o.get("activeAppChain").and_then(Value::as_array)
+    let chain = o
+        .get("activeAppChain")
+        .and_then(Value::as_array)
         .ok_or(ContractError("INVALID_CALL_ANCESTRY"))?;
     if !(1..=16).contains(&chain.len())
         || !chain.iter().all(contract_app_id)
@@ -294,12 +389,17 @@ pub fn validate_scoped_invocation(input: &Value) -> ContractCheck<Value> {
 
 pub fn check_invocation_budget(input: &Value, now_ms: f64) -> ContractCheck<Value> {
     let call = validate_scoped_invocation(input)?;
-    let o = call.as_object().ok_or(ContractError("INVALID_INVOCATION_IDENTITY_OR_AUDIENCE"))?;
+    let o = call
+        .as_object()
+        .ok_or(ContractError("INVALID_INVOCATION_IDENTITY_OR_AUDIENCE"))?;
     let deadline = o.get("deadlineAtMs").and_then(Value::as_f64).unwrap_or(0.0);
     if !now_ms.is_finite() || now_ms >= deadline {
         return Err(ContractError("INVOCATION_DEADLINE_EXCEEDED"));
     }
-    let chain = o.get("activeAppChain").and_then(Value::as_array).ok_or(ContractError("INVALID_CALL_ANCESTRY"))?;
+    let chain = o
+        .get("activeAppChain")
+        .and_then(Value::as_array)
+        .ok_or(ContractError("INVALID_CALL_ANCESTRY"))?;
     let max_depth = o.get("maxDepth").and_then(Value::as_u64).unwrap_or(0) as usize;
     if chain.len() >= max_depth {
         return Err(ContractError("INVOCATION_MAX_DEPTH"));
@@ -315,15 +415,22 @@ pub fn check_invocation_budget(input: &Value, now_ms: f64) -> ContractCheck<Valu
 
 fn budget_result(input: &Value, now_ms: f64, retry: bool) -> ContractCheck<Value> {
     let call = check_invocation_budget(input, now_ms)?;
-    let o = call.as_object().ok_or(ContractError("INVALID_INVOCATION_IDENTITY_OR_AUDIENCE"))?;
+    let o = call
+        .as_object()
+        .ok_or(ContractError("INVALID_INVOCATION_IDENTITY_OR_AUDIENCE"))?;
     let calls = safe_integer(o.get("remainingCalls")).unwrap_or(0.0) as i64;
     let retries = safe_integer(o.get("remainingRetries")).unwrap_or(0.0) as i64;
     if retry && retries == 0 {
         return Err(ContractError("INVOCATION_RETRY_BUDGET_EXHAUSTED"));
     }
-    let mut chain = o.get("activeAppChain").and_then(Value::as_array).cloned()
+    let mut chain = o
+        .get("activeAppChain")
+        .and_then(Value::as_array)
+        .cloned()
         .ok_or(ContractError("INVALID_CALL_ANCESTRY"))?;
-    if !retry { chain.push(o["targetAppId"].clone()); }
+    if !retry {
+        chain.push(o["targetAppId"].clone());
+    }
     Ok(json!({
         "activeAppChain":chain,
         "remainingCalls":if retry { calls } else { calls - 1 },
@@ -339,12 +446,18 @@ pub fn consume_invocation_retry(input: &Value, now_ms: f64) -> ContractCheck<Val
 }
 
 pub fn validate_invocation_against_descriptor(
-    invocation: &Value, descriptor: &Value, now_ms: f64,
+    invocation: &Value,
+    descriptor: &Value,
+    now_ms: f64,
 ) -> ContractCheck<Value> {
     let call = check_invocation_budget(invocation, now_ms)?;
     let capability = validate_capability_descriptor(descriptor)?;
-    let ci = call.as_object().ok_or(ContractError("INVALID_INVOCATION_IDENTITY_OR_AUDIENCE"))?;
-    let cd = capability.as_object().ok_or(ContractError("INVALID_CAPABILITY_BASE"))?;
+    let ci = call
+        .as_object()
+        .ok_or(ContractError("INVALID_INVOCATION_IDENTITY_OR_AUDIENCE"))?;
+    let cd = capability
+        .as_object()
+        .ok_or(ContractError("INVALID_CAPABILITY_BASE"))?;
     if cd["appId"] != ci["targetAppId"]
         || cd["operationId"] != ci["operationId"]
         || cd["revision"] != ci["expectedRevision"]
@@ -385,13 +498,35 @@ mod tests {
     }
     #[test]
     fn canonical_web_and_loopback_redirects() {
-        assert!(validate_oauth_redirect_uri(&json!("https://example.com/callback"),"web",&[]).is_ok());
-        assert!(validate_oauth_redirect_uri(&json!("https://example.com"),"web",&[]).is_err());
-        assert!(validate_oauth_redirect_uri(&json!("https://example.com/cb?token=x"),"web",&[]).is_err());
-        assert!(validate_oauth_redirect_uri(&json!("http://127.0.0.1:3100/callback"),"desktop",&[]).is_ok());
-        assert!(validate_oauth_redirect_uri(&json!("http://localhost:3100/callback"),"desktop",&[]).is_err());
-        assert!(validate_oauth_redirect_uri(&json!("https://mobile.example/cb"),"ios",&["mobile.example".into()]).is_ok());
-        assert!(validate_oauth_redirect_uri(&json!("https://mobile.example/cb"),"ios",&[]).is_err());
+        assert!(
+            validate_oauth_redirect_uri(&json!("https://example.com/callback"), "web", &[]).is_ok()
+        );
+        assert!(validate_oauth_redirect_uri(&json!("https://example.com"), "web", &[]).is_err());
+        assert!(
+            validate_oauth_redirect_uri(&json!("https://example.com/cb?token=x"), "web", &[])
+                .is_err()
+        );
+        assert!(validate_oauth_redirect_uri(
+            &json!("http://127.0.0.1:3100/callback"),
+            "desktop",
+            &[]
+        )
+        .is_ok());
+        assert!(validate_oauth_redirect_uri(
+            &json!("http://localhost:3100/callback"),
+            "desktop",
+            &[]
+        )
+        .is_err());
+        assert!(validate_oauth_redirect_uri(
+            &json!("https://mobile.example/cb"),
+            "ios",
+            &["mobile.example".into()]
+        )
+        .is_ok());
+        assert!(
+            validate_oauth_redirect_uri(&json!("https://mobile.example/cb"), "ios", &[]).is_err()
+        );
     }
     #[test]
     fn registered_client_requires_only_canonical_fields() {
@@ -400,27 +535,46 @@ mod tests {
         assert!(validate_oauth_client_registration(&good).is_ok());
         let mut wrong = good.clone();
         wrong["clientSecret"] = json!("should-never-publish");
-        assert_eq!(validate_oauth_client_registration(&wrong),Err(ContractError("INVALID_CLIENT_FIELDS")));
+        assert_eq!(
+            validate_oauth_client_registration(&wrong),
+            Err(ContractError("INVALID_CLIENT_FIELDS"))
+        );
     }
     #[test]
     fn validates_public_capabilities_and_execution_budgets() {
         let request = invocation();
         assert!(validate_scoped_invocation(&request).is_ok());
         assert!(validate_capability_descriptor(&capability()).is_ok());
-        assert!(validate_invocation_against_descriptor(&request,&capability(),1000.0).is_ok());
-        assert_eq!(advance_invocation_budget(&request,1000.0).unwrap()["remainingCalls"],1);
-        assert_eq!(consume_invocation_retry(&request,1000.0).unwrap()["remainingRetries"],0);
-        assert_eq!(check_invocation_budget(&request,2000000000000.0),
-            Err(ContractError("INVOCATION_DEADLINE_EXCEEDED")));
+        assert!(validate_invocation_against_descriptor(&request, &capability(), 1000.0).is_ok());
+        assert_eq!(
+            advance_invocation_budget(&request, 1000.0).unwrap()["remainingCalls"],
+            1
+        );
+        assert_eq!(
+            consume_invocation_retry(&request, 1000.0).unwrap()["remainingRetries"],
+            0
+        );
+        assert_eq!(
+            check_invocation_budget(&request, 2000000000000.0),
+            Err(ContractError("INVOCATION_DEADLINE_EXCEEDED"))
+        );
         let mut unsafe_request = request.clone();
         unsafe_request["audienceAppId"] = json!("attacker");
-        assert_eq!(validate_scoped_invocation(&unsafe_request),
-            Err(ContractError("INVALID_INVOCATION_IDENTITY_OR_AUDIENCE")));
+        assert_eq!(
+            validate_scoped_invocation(&unsafe_request),
+            Err(ContractError("INVALID_INVOCATION_IDENTITY_OR_AUDIENCE"))
+        );
         let mut cyclic = request;
-        cyclic["activeAppChain"] = json!(["kone","aiko"]);
-        assert_eq!(check_invocation_budget(&cyclic,1000.0),Err(ContractError("INVOCATION_CYCLE")));
+        cyclic["activeAppChain"] = json!(["kone", "aiko"]);
+        assert_eq!(
+            check_invocation_budget(&cyclic, 1000.0),
+            Err(ContractError("INVOCATION_CYCLE"))
+        );
         let mut secret = capability();
         secret["token"] = json!("no");
-        assert_eq!(validate_capability_descriptor(&secret),Err(ContractError("INVALID_STATIC_CAPABILITY")));
+        assert_eq!(
+            validate_capability_descriptor(&secret),
+            Err(ContractError("INVALID_STATIC_CAPABILITY"))
+        );
     }
 }
