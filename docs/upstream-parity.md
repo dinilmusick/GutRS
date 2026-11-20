@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **56 have an explicit Rust mapping** (including partial equivalents), **139 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **79 have an explicit Rust mapping** (including partial equivalents), **116 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -60,19 +60,19 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `guttsFodNodeDefinitions` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
 | `guttsApiToFodNode` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
 | `executeGuttsApi` | `—` | `src/api/index.ts` → `—` | — | ❌ missing |
-| `Identifier` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `ProviderKind` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `RepositoryRef` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `WorkspaceRef` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `ExecutionRequest` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `ExecutionResult` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `VerificationCheck` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `VerificationReport` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `ArtifactRef` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `EngineeringCapability` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `CapabilityGrant` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `EngineeringOperationContext` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
-| `ProvenanceRecord` | `—` | `src/engineering/engineering-types.ts` → `—` | — | ❌ missing |
+| `Identifier` | `engineering::Identifier` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `ProviderKind` | `engineering::ProviderKind` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `RepositoryRef` | `engineering::RepositoryRef` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `WorkspaceRef` | `engineering::WorkspaceRef` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `ExecutionRequest` | `engineering::ExecutionRequest` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `ExecutionResult` | `engineering::ExecutionResult` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `VerificationCheck` | `engineering::VerificationCheck` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `VerificationReport` | `engineering::VerificationReport` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `ArtifactRef` | `engineering::ArtifactRef` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `EngineeringCapability` | `engineering::EngineeringCapability` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `CapabilityGrant` | `engineering::CapabilityGrant` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `EngineeringOperationContext` | `engineering::EngineeringOperationContext` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `ProvenanceRecord` | `engineering::ProvenanceRecord` | `src/engineering/engineering-types.ts` → `src/engineering.rs` | src/engineering.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `IDENTITY_KINDS` | `identity::IDENTITY_KINDS` | `src/auth/identityIds.ts` → `src/identity.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `IdentityKind` | `—` | `src/auth/identityIds.ts` → `—` | — | ❌ missing |
 | `IdentityId` | `—` | `src/auth/identityIds.ts` → `—` | — | ❌ missing |
@@ -112,18 +112,18 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `advanceInvocationBudget` | `auth_contracts::advance_invocation_budget` | `src/auth/invocationContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `consumeInvocationRetry` | `auth_contracts::consume_invocation_retry` | `src/auth/invocationContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
 | `validateInvocationAgainstDescriptor` | `auth_contracts::validate_invocation_against_descriptor` | `src/auth/invocationContract.ts` → `src/auth_contracts.rs` | tests/upstream_golden.rs; module unit tests | ◐ implemented / golden certification pending |
-| `DeploymentEnvironment` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
-| `LuthDeploymentRecord` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
+| `DeploymentEnvironment` | `auth_types::DeploymentEnvironment` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `LuthDeploymentRecord` | `auth_types::LuthDeploymentRecord` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `LuthAuthClientConfig` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
 | `LuthAuthTokenStore` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
-| `RegisterApplicationResult` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
-| `LuthUser` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
-| `LuthSession` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
-| `LuthSessionResult` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
-| `EmailSignInCredentials` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
-| `EmailSignUpData` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
-| `GoogleSignInOptions` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
-| `LuthAuthError` | `—` | `src/auth/luthAuthTypes.ts` → `—` | — | ❌ missing |
+| `RegisterApplicationResult` | `auth_types::RegisterApplicationResult` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `LuthUser` | `auth_types::LuthUser` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `LuthSession` | `auth_types::LuthSession` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `LuthSessionResult` | `auth_types::LuthSessionResult` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `EmailSignInCredentials` | `auth_types::EmailSignInCredentials` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `EmailSignUpData` | `auth_types::EmailSignUpData` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `GoogleSignInOptions` | `auth_types::GoogleSignInOptions` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
+| `LuthAuthError` | `auth_types::LuthAuthError` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `resolveRuntimeAppUrl` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
 | `resolveClientOrigin` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
 | `resolveClientEnvironment` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
