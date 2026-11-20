@@ -41,20 +41,46 @@ const args={
 const results=JSON.parse(readFileSync(resolve(root,'rust-utility-results.json'),'utf8'));
 if(results.length!==fixture.cases.length)throw new Error('Rust utility test count mismatch');
 let passed=0;
+const mismatches=[];
 for(let n=0;n<fixture.cases.length;n++){
  const {id,input}=fixture.cases[n];
  const [namespace,category,symbol]=id.split('.');
  if(namespace!=='gutts'||!bundles[category]||typeof bundles[category][symbol]!=='function'){
-  throw new Error('Unrecognized pinned GutTS API '+id);
+  mismatches.push('Unrecognized pinned GutTS API '+id);continue;
  }
- const jsValue=bundles[category][symbol](...args[symbol](input));
- // Rust serde_json::Value has null but not JavaScript undefined.
- const expected=jsValue===undefined?null:jsValue;
+ let jsValue;
+ let jsError=null;
+ try {jsValue=bundles[category][symbol](...args[symbol](input));}
+ catch(error) {jsError=error;}
  const actual=results[n];
- if(actual.id!==id||!isDeepStrictEqual(actual.actual,expected)){
-  throw new Error('Cross-language mismatch '+id+
-    '\nJS='+JSON.stringify(expected)+'\nRust='+JSON.stringify(actual));
+ if(actual.id!==id){
+  mismatches.push('Cross-language case order mismatch '+id);continue;
+ }
+ if(jsError){
+  if(typeof actual.error!=='string'||!actual.error.length){
+   mismatches.push('Rust accepted rejected input '+id+' '+JSON.stringify(input)
+     +' JS='+String(jsError)+' Rust='+JSON.stringify(actual));
+  }else{passed++;}
+  continue;
+ }
+ if(Object.hasOwn(actual,'error')){
+  mismatches.push('Rust rejected upstream-valid input '+id+' '+JSON.stringify(input)
+    +' Rust='+actual.error+' JS='+JSON.stringify(jsValue));
+  continue;
+ }
+ // Compare the JSON-serializable value domain, not JavaScript heap
+ // representation. Sparse array holes are serialized to null, while Rust
+ // serde_json arrays cannot store holes. Undefined is likewise mapped to null.
+ const expected=jsValue===undefined?null:JSON.parse(JSON.stringify(jsValue));
+ if(!isDeepStrictEqual(actual.actual,expected)){
+  mismatches.push('Cross-language mismatch '+id+' '+JSON.stringify(input)
+    +' JS='+JSON.stringify(expected)+' Rust='+JSON.stringify(actual.actual));
+  continue;
  }
  passed++;
 }
-console.log('Verified all '+passed+' portable GutTS API IDs via real Rust and TypeScript');
+console.log('Verified '+passed+'/'+fixture.cases.length+' portable GutTS API cases via real Rust and TypeScript');
+if(mismatches.length){
+ throw new Error(mismatches.slice(0,40).join('\n')+(mismatches.length>40
+   ?'\n... '+(mismatches.length-40)+' more mismatches':''));
+}
