@@ -299,3 +299,7 @@ The first ONNX output from the Hugging Face Ettin checkpoint is **not** the cont
 ### SmolLM2 generated_text wire parity
 
 Pinned GutTS's Transformers.js `text-generation` pipeline leaves `return_full_text=true` (the published default) and uses `max_new_tokens=32` when omitted. The native Candle adapter now uses the same default token count and returns `prompt + generated continuation`, rather than only the generated suffix. The live integration test asserts both prefix preservation and nonempty generation. Model output is not byte-identical across native float32 and upstream q4 runtime quantization; this is a genuine host-backend limitation, not evidence of text-generation API failure.
+
+## Executable negative-path cross-language certification
+
+The independent `check-utility-api-differential.mjs` runner checks actual thrown errors from pinned GutTS against actual `Err` results from the public Rust API dispatcher. It does **not** falsely equate Rust error enum variants with JavaScript exception classes: a portable invalid input is certified only when both runtimes reject it. Separate unit tests specify native Rust error variants and precise conditions. Valid input must have equal JSON-visible results. JSON-only `undefined` normalization remains explicit. The suite now includes malformed JSON, invalid URL, negative length/precision, reversed numeric bounds and invalid array chunk size, alongside Unicode and valid-value cases.

@@ -47,13 +47,34 @@ for(let n=0;n<fixture.cases.length;n++){
  if(namespace!=='gutts'||!bundles[category]||typeof bundles[category][symbol]!=='function'){
   throw new Error('Unrecognized pinned GutTS API '+id);
  }
- const jsValue=bundles[category][symbol](...args[symbol](input));
- // Rust serde_json::Value has null but not JavaScript undefined.
- const expected=jsValue===undefined?null:jsValue;
+ let jsValue;
+ let jsError=null;
+ try {
+  jsValue=bundles[category][symbol](...args[symbol](input));
+ } catch(error) {
+  jsError=error;
+ }
  const actual=results[n];
- if(actual.id!==id||!isDeepStrictEqual(actual.actual,expected)){
+ if(actual.id!==id){
+  throw new Error('Cross-language case order mismatch '+id);
+ }
+ if(jsError){
+  if(typeof actual.error!=='string'||!actual.error.length){
+   throw new Error('Rust did not reject invalid input for '+id+
+     '\nJS error='+String(jsError)+'\nRust='+JSON.stringify(actual));
+  }
+  passed++;
+  continue;
+ }
+ if(Object.hasOwn(actual,'error')){
+  throw new Error('Rust rejected upstream-valid input for '+id+
+    '\nRust error='+actual.error+'\nJS='+JSON.stringify(jsValue));
+ }
+ // The Rust JSON boundary has null rather than the JS-only undefined value.
+ const expected=jsValue===undefined?null:jsValue;
+ if(!isDeepStrictEqual(actual.actual,expected)){
   throw new Error('Cross-language mismatch '+id+
-    '\nJS='+JSON.stringify(expected)+'\nRust='+JSON.stringify(actual));
+    '\nJS='+JSON.stringify(expected)+'\nRust='+JSON.stringify(actual.actual));
  }
  passed++;
 }

@@ -897,6 +897,78 @@
           "a['p.q']"
         ]
       }
+    },
+    {
+      "id": "gutts.arrays.chunk",
+      "input": {
+        "values": [
+          1,
+          2
+        ],
+        "size": 0
+      }
+    },
+    {
+      "id": "gutts.arrays.chunk",
+      "input": {
+        "values": [
+          1,
+          2
+        ],
+        "size": 1.5
+      }
+    },
+    {
+      "id": "gutts.numbers.clamp",
+      "input": {
+        "value": 5,
+        "min": 10,
+        "max": 0
+      }
+    },
+    {
+      "id": "gutts.numbers.roundTo",
+      "input": {
+        "value": 123.45,
+        "decimals": -1
+      }
+    },
+    {
+      "id": "gutts.strings.truncate",
+      "input": {
+        "value": "abc",
+        "maxLength": -1,
+        "suffix": "…"
+      }
+    },
+    {
+      "id": "gutts.strings.truncateWords",
+      "input": {
+        "value": "alpha beta",
+        "maxWords": -1,
+        "suffix": "…"
+      }
+    },
+    {
+      "id": "gutts.json.parseJson",
+      "input": {
+        "text": "{not JSON}"
+      }
+    },
+    {
+      "id": "gutts.urls.getQueryParam",
+      "input": {
+        "url": "relative/path",
+        "key": "x"
+      }
+    },
+    {
+      "id": "gutts.urls.setQueryParam",
+      "input": {
+        "url": "relative/path",
+        "key": "a",
+        "value": "z"
+      }
     }
   ]
 }

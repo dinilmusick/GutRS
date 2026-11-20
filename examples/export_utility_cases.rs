@@ -10,8 +10,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut results = Vec::new();
     for case in cases {
         let id = case["id"].as_str().ok_or("id missing")?;
-        let actual = execute_gutts_api(id, &case["input"])?;
-        results.push(json!({"id":id,"actual":actual}));
+        let result = match execute_gutts_api(id, &case["input"]) {
+            Ok(actual) => json!({"id":id,"actual":actual}),
+            Err(error) => json!({"id":id,"error":error.to_string()}),
+        };
+        results.push(result);
     }
     println!("{}", serde_json::to_string(&results)?);
     Ok(())
