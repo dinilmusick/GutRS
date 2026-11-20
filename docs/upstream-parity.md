@@ -4,7 +4,7 @@
 
 **Entry points:** `.`, `./browser`, `./worker`, `./server`, `./server/auth`, `./server/models`, `./server/storage`, `./json`, `./strings`, `./arrays`, `./objects`, `./numbers`, `./urls`, `./urls/safety`, `./api`, `./engineering`, `./auth`, `./models`, `./semantic-input`, `./storage`, `./storage/s3`, `./storage/google-drive`, `./gutts.manifest.json`.
 
-The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **113 have an explicit Rust mapping** (including partial equivalents), **82 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
+The `rootExports/browserExports/workerExports/serverExports` row records **entrypoint composition**, not runtime functions. Nested SDK re-exports are portable Rust **adapter obligations**, not permission to claim false behavior. The inventory has **195 listed symbols/re-export contracts**; **122 have an explicit Rust mapping** (including partial equivalents), **73 remain unmapped**. Neither a mapped symbol nor passing compilation means upstream-equivalent behavior.
 
 ## Per-export traceability
 
@@ -124,16 +124,16 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `EmailSignUpData` | `auth_types::EmailSignUpData` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `GoogleSignInOptions` | `auth_types::GoogleSignInOptions` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
 | `LuthAuthError` | `auth_types::LuthAuthError` | `src/auth/luthAuthTypes.ts` → `src/auth_types.rs` | src/auth_types.rs (unit tests) | ◐ typed wire mapping / runtime pending |
-| `resolveRuntimeAppUrl` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
-| `resolveClientOrigin` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
-| `resolveClientEnvironment` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
-| `DEFAULT_LUTH_URL` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
-| `hydrateLuthTokenFromUrl` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
+| `resolveRuntimeAppUrl` | `auth_host::resolve_runtime_app_url` | `src/auth/luthAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
+| `resolveClientOrigin` | `auth_host::resolve_client_origin` | `src/auth/luthAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
+| `resolveClientEnvironment` | `auth_host::resolve_client_environment` | `src/auth/luthAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
+| `DEFAULT_LUTH_URL` | `auth_host::DEFAULT_LUTH_URL` | `src/auth/luthAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
+| `hydrateLuthTokenFromUrl` | `auth_host::extract_luth_token_and_clean_url` | `src/auth/luthAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `LuthAuthClient` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
 | `createLuthAuthClient` | `—` | `src/auth/luthAuthClient.ts` → `—` | — | ❌ missing |
-| `ApplicationAuthClientConfig` | `—` | `src/auth/applicationAuthClient.ts` → `—` | — | ❌ missing |
-| `ApplicationAuthClient` | `—` | `src/auth/applicationAuthClient.ts` → `—` | — | ❌ missing |
-| `createApplicationAuthClient` | `—` | `src/auth/applicationAuthClient.ts` → `—` | — | ❌ missing |
+| `ApplicationAuthClientConfig` | `auth_host::ApplicationAuthClientConfig` | `src/auth/applicationAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
+| `ApplicationAuthClient` | `auth_host::ApplicationAuthClient` | `src/auth/applicationAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
+| `createApplicationAuthClient` | `auth_host::create_application_auth_client` | `src/auth/applicationAuthClient.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `ModelMetadata` | `models::ModelMetadata` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
 | `ModelLoadContext` | `—` | `src/models/index.ts` → `—` | — | ❌ missing |
 | `ModelRuntime` | `models::ModelRuntime` | `src/models/index.ts` → `src/models.rs` | src/models.rs (unit tests) | ◐ native contract / model inference host pending |
@@ -198,7 +198,7 @@ The `rootExports/browserExports/workerExports/serverExports` row records **entry
 | `GoogleApisModule` | `—` | `src/storage/google-drive.ts` → `—` | — | ❌ missing |
 | `loadGoogleApis` | `—` | `src/storage/google-drive.ts` → `—` | — | ❌ missing |
 | `createGoogleDriveClient` | `—` | `src/storage/google-drive.ts` → `—` | — | ❌ missing |
-| `resolveServerRuntimeAppUrl` | `—` | `src/server/auth.ts` → `—` | — | ❌ missing |
+| `resolveServerRuntimeAppUrl` | `auth_host::resolve_server_runtime_app_url` | `src/server/auth.ts` → `src/auth_host.rs` | src/auth_host.rs (unit tests) | ◐ host-injected implementation |
 | `nodeCactusNeedle3Runtime` | `—` | `src/server/models.ts` → `—` | — | ❌ missing |
 | `nodeCactusWhistleRuntime` | `—` | `src/server/models.ts` → `—` | — | ❌ missing |
 | `rootExports` | `—` | `src/worker.ts` → `—` | — | ❌ missing |

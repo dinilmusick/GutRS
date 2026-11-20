@@ -238,3 +238,6 @@ pub mod string_ext;
 
 /// Deterministic semantic parsing and model-backed resolution via explicit host.
 pub mod semantic_input;
+
+/// Hosted application OAuth session adapter, trusted redirects and Luth origins.
+pub mod auth_host;
