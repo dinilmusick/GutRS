@@ -280,6 +280,65 @@ fn reranker_model(policy: &str) -> &'static str {
         _ => "EttinReranker32M",
     }
 }
+/// Reproduce the exact prompt passed to the pinned GutTS Needle3 model host.
+/// JSON is stringified with ECMAScript property-order and number rules.
+pub fn build_semantic_prompt(request: &SemanticInputRequest) -> Result<String, SemanticRuntimeError> {
+    let mut lines = vec![
+        "Convert the natural-language input into the supplied target schema.".to_owned(),
+        "Return only data conforming to the target schema. Never invent information.".to_owned(),
+    ];
+    if let Some(context) = request.context.as_ref() {
+        for (field, label) in [
+            ("application", "Application"),
+            ("workspace", "Workspace"),
+            ("page", "Page"),
+            ("section", "Section"),
+            ("form", "Form"),
+            ("field", "Field"),
+            ("label", "Label"),
+            ("description", "Description"),
+            ("semanticType", "Semantic type"),
+        ] {
+            if let Some(value) = context
+                .get(field)
+                .and_then(Value::as_str)
+                .filter(|value| !value.is_empty())
+            {
+                lines.push(format!("{label}: {value}"));
+            }
+        }
+        for (field, label, separator) in [
+            ("vocabulary", "Vocabulary", ", "),
+            ("examples", "Examples", " | "),
+            ("aliases", "Aliases", ", "),
+            ("constraints", "Constraints", "; "),
+            ("relatedFields", "Related fields", ", "),
+        ] {
+            if let Some(values) = context.get(field).and_then(Value::as_array) {
+                if !values.is_empty() {
+                    let strings: Vec<&str> = values.iter().filter_map(Value::as_str).collect();
+                    lines.push(format!("{label}: {}", strings.join(separator)));
+                }
+            }
+        }
+        if let Some(locale) = context
+            .get("locale")
+            .and_then(Value::as_str)
+            .filter(|value| !value.is_empty())
+        {
+            lines.push(format!("Locale: {locale}"));
+        }
+    }
+    if let Some(candidates) = request.candidates.as_deref().filter(|values| !values.is_empty()) {
+        lines.push(format!("Candidate values: {}", candidates.join(" | ")));
+    }
+    let schema = crate::json_utils::stringify_json(&request.schema, None)
+        .map_err(|error| SemanticRuntimeError(format!("Invalid target schema: {error}")))?;
+    lines.push(format!("Target schema: {schema}"));
+    lines.push(format!("Input: {}", request.input));
+    Ok(lines.join("\n"))
+}
+
 /// Requires actual MiniLM and Ettin runtimes provided by the caller.
 pub fn rank_semantic_input_candidates<R: SemanticInputRuntime>(
     input: &str,
@@ -441,10 +500,21 @@ pub fn resolve_semantic_input<R: SemanticInputRuntime>(
             return result;
         }
     };
-    let prompt=format!(
-        "Convert the natural-language input into the supplied target schema.\nReturn only data conforming to the target schema. Never invent information.\nInput: {}\nSchema: {}",
-        request.input,request.schema
-    );
+    let prompt = match build_semantic_prompt(request) {
+        Ok(prompt) => prompt,
+        Err(error) => {
+            let mut result = SemanticInputResolution::failed(
+                "invalid",
+                "SCHEMA_MISMATCH",
+                &error.to_string(),
+                raw,
+            );
+            result.provenance = Some(json!(crate::semantic_types::semantic_input_provenance(
+                request, false
+            )));
+            return result;
+        }
+    };
     let output = match runtime.complete(&prompt, &request.schema) {
         Ok(value) => value,
         Err(error) => {
@@ -640,4 +710,82 @@ mod tests {
         cache.clear();
         assert_eq!(cache.size(), 0);
     }
+    #[test]
+    fn pinned_contextual_prompt_includes_all_fields_in_source_order() {
+        let mut request = req("play the keys", json!({"type":"string","enum":["piano","guitar"]}));
+        request.context = Some(json!({
+            "application": "Kone",
+            "workspace": "Performance",
+            "page": "Live",
+            "section": "Song",
+            "form": "Sound selector",
+            "field": "instrument",
+            "label": "Instrument",
+            "description": "Choose a sound",
+            "semanticType": "musical-instrument",
+            "vocabulary": ["piano", "guitar"],
+            "examples": ["play piano", "try guitar"],
+            "aliases": ["keys", "axe"],
+            "constraints": ["choose one", "no drums"],
+            "relatedFields": ["volume", "patch"],
+            "locale": "en-IN"
+        }));
+        request.candidates = Some(vec!["piano".to_owned(), "guitar".to_owned()]);
+        let expected = concat!(
+            "Convert the natural-language input into the supplied target schema.\n",
+            "Return only data conforming to the target schema. Never invent information.\n",
+            "Application: Kone\n",
+            "Workspace: Performance\n",
+            "Page: Live\n",
+            "Section: Song\n",
+            "Form: Sound selector\n",
+            "Field: instrument\n",
+            "Label: Instrument\n",
+            "Description: Choose a sound\n",
+            "Semantic type: musical-instrument\n",
+            "Vocabulary: piano, guitar\n",
+            "Examples: play piano | try guitar\n",
+            "Aliases: keys, axe\n",
+            "Constraints: choose one; no drums\n",
+            "Related fields: volume, patch\n",
+            "Locale: en-IN\n",
+            "Candidate values: piano | guitar\n",
+            "Target schema: {\"type\":\"string\",\"enum\":[\"piano\",\"guitar\"]}\n",
+            "Input: play the keys"
+        );
+        assert_eq!(build_semantic_prompt(&request).unwrap(), expected);
+        struct Capture(std::sync::Mutex<Vec<String>>);
+        impl SemanticInputRuntime for Capture {
+            type Error = SemanticRuntimeError;
+            fn similarity(&self, _: &str, _: &str) -> Result<f64, Self::Error> {
+                Ok(0.9)
+            }
+            fn rerank(&self, _: &str, _: &str, candidates: &[String]) -> Result<Vec<f64>, Self::Error> {
+                Ok(vec![0.9; candidates.len()])
+            }
+            fn complete(&self, prompt: &str, _: &Value) -> Result<Value, Self::Error> {
+                self.0.lock().unwrap().push(prompt.to_owned());
+                Ok(json!("guitar"))
+            }
+        }
+        let runtime = Capture(std::sync::Mutex::new(Vec::new()));
+        let result = resolve_semantic_input(&request, &runtime, None, false);
+        assert_eq!(result.status, "resolved");
+        assert_eq!(result.value, Some(json!("guitar")));
+        assert_eq!(runtime.0.lock().unwrap().as_slice(), &[expected.to_owned()]);
+    }
+    #[test]
+    fn prompt_without_context_preserves_minimal_pinned_order() {
+        let request = req("hello", json!({"type":"string"}));
+        assert_eq!(
+            build_semantic_prompt(&request).unwrap(),
+            concat!(
+                "Convert the natural-language input into the supplied target schema.\n",
+                "Return only data conforming to the target schema. Never invent information.\n",
+                "Target schema: {\"type\":\"string\"}\n",
+                "Input: hello"
+            )
+        );
+    }
+
 }
