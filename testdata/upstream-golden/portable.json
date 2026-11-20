@@ -1,0 +1,599 @@
+{
+  "source": {
+    "repository": "dinilmusick/GutTS",
+    "sha": "3e2cbc0990ba29830ce91c5d1a1d552675d5334c",
+    "provenance": "source-derived examples; independently compared against pinned GutTS via CI differential execution"
+  },
+  "cases": [
+    {
+      "symbol": "arrays.chunk",
+      "input": {
+        "values": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "size": 2
+      },
+      "expected": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          5
+        ]
+      ]
+    },
+    {
+      "symbol": "arrays.chunk",
+      "input": {
+        "values": [
+          1,
+          2
+        ],
+        "size": 0
+      },
+      "expected": {
+        "error": "InvalidSize"
+      }
+    },
+    {
+      "symbol": "arrays.last",
+      "input": {
+        "values": [
+          1,
+          2,
+          9
+        ]
+      },
+      "expected": 9
+    },
+    {
+      "symbol": "numbers.clamp",
+      "input": {
+        "value": 17,
+        "min": -5,
+        "max": 10
+      },
+      "expected": 10
+    },
+    {
+      "symbol": "numbers.inRange",
+      "input": {
+        "value": 3,
+        "min": 0,
+        "max": 3
+      },
+      "expected": false
+    },
+    {
+      "symbol": "numbers.roundTo",
+      "input": {
+        "value": 1.005,
+        "decimals": 2
+      },
+      "expected": 1.01
+    },
+    {
+      "symbol": "numbers.roundTo",
+      "input": {
+        "value": 2,
+        "decimals": -1
+      },
+      "expected": {
+        "error": "NegativePrecision"
+      }
+    },
+    {
+      "symbol": "numbers.sum",
+      "input": {
+        "values": [
+          1,
+          2,
+          3
+        ]
+      },
+      "expected": 6
+    },
+    {
+      "symbol": "strings.isBlank",
+      "input": {
+        "value": "﻿  "
+      },
+      "expected": true
+    },
+    {
+      "symbol": "strings.isBlank",
+      "input": {
+        "value": ""
+      },
+      "expected": false
+    },
+    {
+      "symbol": "strings.startsWithAny",
+      "input": {
+        "value": "abc",
+        "prefixes": [
+          "x",
+          "ab"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "symbol": "strings.endsWithAny",
+      "input": {
+        "value": "abc",
+        "suffixes": [
+          "d",
+          "bc"
+        ]
+      },
+      "expected": true
+    },
+    {
+      "symbol": "strings.truncateWords",
+      "input": {
+        "value": "  a   b  c  ",
+        "maxWords": 2,
+        "suffix": "…"
+      },
+      "expected": "a b…"
+    },
+    {
+      "symbol": "urls.joinUrl",
+      "input": {
+        "base": "https://x.test//",
+        "parts": [
+          "/one/",
+          "/two"
+        ]
+      },
+      "expected": "https://x.test/one/two"
+    },
+    {
+      "symbol": "urls.getQueryParam",
+      "input": {
+        "url": "https://a.test/?q=hello+world&q=x",
+        "key": "q"
+      },
+      "expected": "hello world"
+    },
+    {
+      "symbol": "urls.setQueryParam",
+      "input": {
+        "url": "https://a.test/?a=1&b=2&a=3",
+        "key": "a",
+        "value": "x y"
+      },
+      "expected": "https://a.test/?a=x+y&b=2"
+    },
+    {
+      "symbol": "json.parseJson",
+      "input": {
+        "text": "{\"safe\":[1,true,null]}"
+      },
+      "expected": {
+        "safe": [
+          1,
+          true,
+          null
+        ]
+      }
+    },
+    {
+      "symbol": "json.tryParseJson",
+      "input": {
+        "text": "{broken"
+      },
+      "expected": null
+    },
+    {
+      "symbol": "json.stringifyJson",
+      "input": {
+        "value": [
+          1,
+          true,
+          null
+        ]
+      },
+      "expected": "[1,true,null]"
+    },
+    {
+      "symbol": "objects.hasOwn",
+      "input": {
+        "value": {
+          "a": 1
+        },
+        "key": "a"
+      },
+      "expected": true
+    },
+    {
+      "symbol": "objects.pick",
+      "input": {
+        "value": {
+          "a": 1,
+          "b": 2
+        },
+        "keys": [
+          "b"
+        ]
+      },
+      "expected": {
+        "b": 2
+      }
+    },
+    {
+      "symbol": "auth.parseIdentityId",
+      "input": {
+        "kind": "application",
+        "id": "aiko"
+      },
+      "expected": "aiko"
+    },
+    {
+      "symbol": "auth.parseIdentityId",
+      "input": {
+        "kind": "application",
+        "id": "https://bad.example"
+      },
+      "expected": null
+    },
+    {
+      "symbol": "auth.parseIdentityRef",
+      "input": {
+        "ref": {
+          "kind": "user",
+          "id": "person-1"
+        }
+      },
+      "expected": {
+        "kind": "user",
+        "id": "person-1"
+      }
+    },
+    {
+      "symbol": "auth.validateOAuthRedirectUri",
+      "input": {
+        "url": "https://example.com/callback",
+        "platform": "web"
+      },
+      "expected": "https://example.com/callback"
+    },
+    {
+      "symbol": "auth.validateOAuthRedirectUri",
+      "input": {
+        "url": "https://example.com/callback?token=abc",
+        "platform": "web"
+      },
+      "expected": {
+        "error": "NON_CANONICAL_REDIRECT_URI"
+      }
+    },
+    {
+      "symbol": "strings.isEmail",
+      "input": {
+        "value": "jane+tag@example.co.uk"
+      },
+      "expected": true
+    },
+    {
+      "symbol": "strings.isEmail",
+      "input": {
+        "value": "x@@domain.com"
+      },
+      "expected": false
+    },
+    {
+      "symbol": "strings.capitalize",
+      "input": {
+        "value": "fRED FROG"
+      },
+      "expected": "Fred frog"
+    },
+    {
+      "symbol": "strings.camelCase",
+      "input": {
+        "value": "Foo Bar_baz"
+      },
+      "expected": "fooBarBaz"
+    },
+    {
+      "symbol": "strings.kebabCase",
+      "input": {
+        "value": "XMLHttpRequest"
+      },
+      "expected": "xml-http-request"
+    },
+    {
+      "symbol": "strings.snakeCase",
+      "input": {
+        "value": "Déjà Vu"
+      },
+      "expected": "deja_vu"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "  TRUE ",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "expected": true
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "0x10",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "expected": 16
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "-2.5",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "expected": -2.5
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "truth",
+        "schema": {
+          "type": "boolean"
+        }
+      },
+      "expected": null
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "person@example.com",
+        "schema": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      "expected": "person@example.com"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "invalid@example",
+        "schema": {
+          "type": "string",
+          "format": "email"
+        }
+      },
+      "expected": null
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": " green ",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "red",
+            "green"
+          ]
+        }
+      },
+      "expected": "green"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "hello",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "expected": null
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "HTTP://example.com",
+        "schema": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "expected": "HTTP://example.com"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "abcz",
+        "schema": {
+          "type": "string",
+          "pattern": "^a.*z$"
+        }
+      },
+      "expected": "abcz"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": "2026-99-99",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "expected": "2026-99-99"
+    },
+    {
+      "symbol": "semantic.resolveDeterministicSemanticInput",
+      "input": {
+        "input": " ",
+        "schema": {
+          "type": "number"
+        }
+      },
+      "expected": null
+    },
+    {
+      "symbol": "objects.hasOwn",
+      "input": {
+        "value": {
+          "a": {
+            "b": 7
+          },
+          "other": 0
+        },
+        "key": "a.b"
+      },
+      "expected": true
+    },
+    {
+      "symbol": "objects.hasOwn",
+      "input": {
+        "value": {
+          "a": [
+            {
+              "name": "x"
+            }
+          ]
+        },
+        "key": "a[0].name"
+      },
+      "expected": true
+    },
+    {
+      "symbol": "objects.hasOwn",
+      "input": {
+        "value": {
+          "a": [
+            {
+              "name": "x"
+            }
+          ]
+        },
+        "key": "a[5].name"
+      },
+      "expected": false
+    },
+    {
+      "symbol": "objects.pick",
+      "input": {
+        "value": {
+          "a": {
+            "b": 1,
+            "c": 2
+          },
+          "other": 0
+        },
+        "keys": [
+          "a.b"
+        ]
+      },
+      "expected": {
+        "a": {
+          "b": 1
+        }
+      }
+    },
+    {
+      "symbol": "objects.omit",
+      "input": {
+        "value": {
+          "a": {
+            "b": 1,
+            "c": 2
+          },
+          "other": 0
+        },
+        "keys": [
+          "a.b"
+        ]
+      },
+      "expected": {
+        "a": {
+          "c": 2
+        },
+        "other": 0
+      }
+    },
+    {
+      "symbol": "objects.pick",
+      "input": {
+        "value": {
+          "a.b": "direct",
+          "a": {
+            "b": "nested"
+          }
+        },
+        "keys": [
+          "a.b"
+        ]
+      },
+      "expected": {
+        "a.b": "direct"
+      }
+    },
+    {
+      "symbol": "objects.pick",
+      "input": {
+        "value": {
+          "s": {
+            "a.b": "quoted"
+          }
+        },
+        "keys": [
+          "s['a.b']"
+        ]
+      },
+      "expected": {
+        "s": {
+          "a.b": "quoted"
+        }
+      }
+    },
+    {
+      "symbol": "objects.omit",
+      "input": {
+        "value": {
+          "a": [
+            {
+              "name": "x",
+              "score": 2
+            },
+            {
+              "name": "y"
+            }
+          ]
+        },
+        "keys": [
+          "a[0].name"
+        ]
+      },
+      "expected": {
+        "a": [
+          {
+            "score": 2
+          },
+          {
+            "name": "y"
+          }
+        ]
+      }
+    }
+  ]
+}

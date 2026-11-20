@@ -1,0 +1,17 @@
+{
+  "repository": "dinilmusick/GutTS",
+  "sha": "3e2cbc0990ba29830ce91c5d1a1d552675d5334c",
+  "definition_sources": [
+    "src/api/array-apis.ts",
+    "src/api/json-apis.ts",
+    "src/api/number-apis.ts",
+    "src/api/object-apis.ts",
+    "src/api/string-apis.ts",
+    "src/api/url-apis.ts",
+    "src/models/smollm2/definition.ts",
+    "src/models/needle3/definition.ts",
+    "src/models/whistle/definition.ts",
+    "src/models/ettin/definition.ts",
+    "src/models/minilm/definition.ts"
+  ]
+}
