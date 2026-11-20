@@ -265,3 +265,6 @@ pub mod model_dispatch;
 
 /// Compose concrete model engines into the checked public model API dispatcher.
 pub mod model_host;
+
+/// Exact MiniLM L6-v2 ONNX CPU inference adapter and cosine similarity.
+pub mod minilm_native;

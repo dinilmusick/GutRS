@@ -257,3 +257,7 @@ The Linux CI job `native-cactus-live` downloads and checksum-verifies public Cac
 ## Cross-language undefined representation
 
 Pinned GutTS `tryParseJson` returns JavaScript `undefined` for malformed JSON, whereas the native Rust `Option<Value>` serializes absence to JSON `null`. The portable differential normalizes only JavaScript `undefined` to `null` to make JSON-wire comparison possible; this is a documented platform-specific exception, not full JavaScript value-domain parity.
+
+## Real MiniLM ONNX backend
+
+Optional feature `minilm-native` uses FastEmbed 7.7.1 to load the exact `sentence-transformers/all-MiniLM-L6-v2` model and its ONNX weights. `minilm_native::native::NativeMiniLM` implements `MiniLMInference` with an authenticated caller's own runtime environment, a synchronized session and bounded cosine-similarity output. The separate `native-minilm-live` CI job downloads weights and executes actual self-similarity inference. Success is contingent on exact-head GitHub CI; unit vector tests alone do not prove model inference.

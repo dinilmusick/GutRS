@@ -21,6 +21,7 @@ heck = "0.5"
 email_address = "0.2"
 unicode-normalization = "0.1"
 regex = "1"
+fastembed = { version = "=7.7.1", default-features = false, features = ["onnx"], optional = true }
 base64 = "0.22"
 
 # Hosted SDK adapters are optional; default builds remain portable and credential-free.
@@ -30,6 +31,7 @@ aws-s3 = ["dep:aws-sdk-s3"]
 google-drive = ["dep:google-drive3"]
 # Native Cactus engine is supported only on Linux x86_64 and macOS arm64.
 cactus-native = ["dep:cactus-rs"]
+minilm-native = ["dep:fastembed"]
 
 [target.'cfg(any(all(target_os = "linux", target_arch = "x86_64"), all(target_os = "macos", target_arch = "aarch64")))'.dependencies]
 cactus-rs = { version = "=0.2.1", optional = true }
